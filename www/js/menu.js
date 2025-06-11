@@ -103,6 +103,12 @@ function menuSelection(event) {
                 break;
             };
             break;
+        case "joinroomrooms":
+            console.log("joinroomrooms");
+            if (menuSelect.type === "joinpublic" || menuSelect.type === "joinprivate") {
+                console.log("menuSelect.type:", menuSelect.type);
+                socket.emit('all-rooms', menuSelect.type);
+            };
         case "joinroom":
             if (menuSelect.element.classList.contains("menu_selection_game_multi_join_room")) {
                 console.log("joinroom");
@@ -394,21 +400,24 @@ function showProfiles() {
 
 function appendRoom(roomData) {
     console.log("appendRoom roomData:", roomData);
+
+    if (document.getElementById(roomId)) return;
     
-    const roomsList = document.querySelector(".menu_selection_game_multi_join_room_rooms_list");
+    const roomsList = document.querySelector(".menu_selection_game_multi_join_room_rooms_list tbody");
     
-    const roomContainer = document.createElement("div");
+    const roomContainer = document.createElement("tr");
     roomContainer.classList.add("room-container");
-    const roomId = document.createElement("div");
+    roomContainer.setAttribute("id", roomId);
+    const roomId = document.createElement("td");
     roomId.classList.add("room_id");
     roomId.textContent = roomData.roomId;
-    const roomBackgroundContainer = document.createElement("div");
+    const roomBackgroundContainer = document.createElement("td");
     roomBackgroundContainer.classList.add("room_background-container");
     const roomBackground = document.createElement("img");
     roomBackground.classList.add("room_background");
     roomBackground.src = "./assets/img/backgrounds/bg" + roomData.backgroundNumber + ".jpg";
     roomBackgroundContainer.appendChild(roomBackground);
-    const roomNbOfPlayersContainer = document.createElement("div");
+    const roomNbOfPlayersContainer = document.createElement("td");
     roomNbOfPlayersContainer.classList.add("room_nb_of_players-container");
     const roomNbJoiningPlayers = document.createElement("span");
     roomNbJoiningPlayers.classList.add("room_nb_joining_players");
@@ -418,22 +427,12 @@ function appendRoom(roomData) {
     roomPlayersSeparator.textContent = "/";
     const roomNbMaxPlayers = document.createElement("span");
     roomNbMaxPlayers.classList.add("room_nb_max_players");
-    roomNbMaxPlayers.textContent = roomData.nbOfPlayers;
+    roomNbMaxPlayers.textContent = roomData.numberOfPlayers;
     roomNbOfPlayersContainer.append(roomNbJoiningPlayers, roomPlayersSeparator, roomNbMaxPlayers);
-    const roomBuyIn = document.createElement("div");
+    const roomBuyIn = document.createElement("td");
     roomBuyIn.classList.add("room_buyin");
     roomBuyIn.textContent = roomData.buyIn;
-    // const roomAvatarContainer = document.createElement("div");
-    // roomAvatarContainer.querySelector(".room_avatar-container");
-    // const roomAvatar = document.createElement("img");
-    // roomAvatar.querySelector(".room_avatar");
-    // roomAvatar.src = "./assets/img/avatars/avatar" + roomData.avatarNumber + ".png";
-    // roomAvatarContainer.appendChild(roomAvatar);
-    // const roomHostPlayerName = document.createElement("div");
-    // roomHostPlayerName.querySelector(".room_host_player_name");
-    // roomHostPlayerName.textContent = roomData.hostPlayerName;
-
-    // roomContainer.append(roomId, roomBackgroundContainer, roomNbOfPlayersContainer, roomBuyIn, roomAvatarContainer, roomHostPlayerName);
+    
     roomContainer.append(roomId, roomBackgroundContainer, roomNbOfPlayersContainer, roomBuyIn);
 
     roomsList.appendChild(roomContainer);
@@ -462,6 +461,17 @@ socket.on('room-creation', id => {
     roomActionDisplay.textContent = id;
 });
 
+socket.on('display-rooms', rooms => {
+    console.log("display-rooms:", rooms);
+    for (const room in rooms) {
+        appendRoom(rooms[room]["data"]);
+    }
+});
+
+socket.on('room-joining', room => {
+    console.log("room-joining:", room);
+});
+
 // socket.on('room-join', id => {
 //     console.log("room-join:", id);
 //     roomActionDisplay.textContent = id;
@@ -481,33 +491,6 @@ socket.on('user-disconnected', name => {
     console.log("user-disconnected:", name);
     showNotifications(`${name} déconnecté`);
 });
-
-// socket.on('new-user', name => {
-//     console.log("new-user:", name);
-//     console.log("users:", users);
-//     users[socket.id] = name;
-//     socket.emit('user-connected', name);
-// });
-
-// let connection = true;
-// connectionButton.addEventListener('click', () => {
-//   console.log("socket:", socket);
-//   console.log("connection:", connection);
-//   // console.log("socket broadcast:", socket.broadcast);
-//   if (connection === true) {
-//     console.log("disconnect");
-//     socket.disconnect();
-//     connectionButton.innerText = "Connect";
-//     connection = false;
-//     return;
-//   }
-//   if (connection === false) {
-//     console.log("connect");
-//     socket.connect();
-//     connectionButton.innerText = "Disconnect";
-//     connection = true;
-//   }
-// });
 
 function showNotifications(notification) {
     profileActionDisplay.innerText = notification;

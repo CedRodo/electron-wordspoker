@@ -215,6 +215,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     }
 
     .menu_selection_game_multi_join_room_rooms_list {
+        width: 85%;
         height: 65%;
     }
 
@@ -300,7 +301,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 
     & .menu_selection_game_start,
     .menu_selection_game_multi_create,
-    .menu_selection_game_multi_join_room_rooms_create,
+    .menu_selection_game_multi_join_room_rooms_join,
     .menu_selection_game_edit_profile_save,
     .menu_selection_game_edit_profile_edit {
         color: gold;
@@ -310,7 +311,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 
     & .menu_selection_game_start:hover,
     .menu_selection_game_create:hover,
-    .menu_selection_game_multi_join_room_rooms_create:hover,
+    .menu_selection_game_multi_join_room_rooms_join:hover,
     .menu_selection_game_edit_profile_save:hover,
     .menu_selection_game_edit_profile_edit:hover {
         filter: brightness(150%);
@@ -373,7 +374,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     display: none;
 }
 
-.room-container {
+/* .room-container {
     width: 100%;
     height: 8vh;
     display: flex;
@@ -438,6 +439,58 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     width: 100%;
     height: 100%;
     object-fit: contain;
+} */
+
+.menu_selection_game_multi_join_room_rooms_list table tr {
+    width: 100%;
+    height: 6vh;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    color: white;
+    font-size: 3vmin;
+    text-transform: none;
+    user-select: none;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+}
+
+.menu_selection_game_multi_join_room_rooms_list table td {
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    text-transform: none;
+}
+
+.menu_selection_game_multi_join_room_rooms_list table thead tr {
+    color: gold;
+}
+
+.room_id-title {
+    width: 18%;
+}
+
+.room_nb_of_players-title {
+    width: 10%;
+}
+
+.room_buyin-title {
+    width: 15%;
+}
+
+.room_background-title {
+    width: 20%;
+}
+
+.room_background-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.room_background {
+    width: auto;
+    height: 8vh;
+    aspect-ratio: 1.75;
+    object-fit: cover;
 }
 
 .selection-container {
