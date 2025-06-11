@@ -1,0 +1,83 @@
+.loading_screen {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+    background-color: black;
+    opacity: 1;
+}
+
+.loading_screen.hide {
+    filter: brightness(0%);
+    opacity: 0;
+    transition: filter 0.25s, opacity 0.25s;
+}
+
+.chip_animation-container {
+    width: 8%;
+    height: auto;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.chip_animation {
+    height: 50%;
+}
+
+.chip_test {
+    --chipurlnumber: url('../assets/img/items/loading/1.png');
+    width: auto;
+    height: 15vh;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-image: var(--chipurlnumber);
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2000;
+    translate: -50% -50%;
+    animation: chiptestanimation 1s linear infinite;
+}
+
+@keyframes chiptestanimation {
+    0% { --chipurlnumber: url('../assets/img/items/loading/1.png'); }
+    4% { --chipurlnumber: url('../assets/img/items/loading/2.png'); }
+    8% { --chipurlnumber: url('../assets/img/items/loading/3.png'); }
+    12% { --chipurlnumber: url('../assets/img/items/loading/4.png'); }
+    16% { --chipurlnumber: url('../assets/img/items/loading/5.png'); }
+    20% { --chipurlnumber: url('../assets/img/items/loading/6.png'); }
+    24% { --chipurlnumber: url('../assets/img/items/loading/7.png'); }
+    28% { --chipurlnumber: url('../assets/img/items/loading/8.png'); }
+    32% { --chipurlnumber: url('../assets/img/items/loading/9.png'); }
+    36% { --chipurlnumber: url('../assets/img/items/loading/10.png'); }
+    40% { --chipurlnumber: url('../assets/img/items/loading/11.png'); }
+    44% { --chipurlnumber: url('../assets/img/items/loading/12.png'); }
+    48% { --chipurlnumber: url('../assets/img/items/loading/13.png'); }
+    52% { --chipurlnumber: url('../assets/img/items/loading/14.png'); }
+    56% { --chipurlnumber: url('../assets/img/items/loading/15.png'); }
+    60% { --chipurlnumber: url('../assets/img/items/loading/16.png'); }
+    64% { --chipurlnumber: url('../assets/img/items/loading/17.png'); }
+    68% { --chipurlnumber: url('../assets/img/items/loading/18.png'); }
+    72% { --chipurlnumber: url('../assets/img/items/loading/19.png'); }
+    76% { --chipurlnumber: url('../assets/img/items/loading/20.png'); }
+    80% { --chipurlnumber: url('../assets/img/items/loading/21.png'); }
+    84% { --chipurlnumber: url('../assets/img/items/loading/22.png'); }
+    88% { --chipurlnumber: url('../assets/img/items/loading/23.png'); }
+    92% { --chipurlnumber: url('../assets/img/items/loading/24.png'); }
+    96% { --chipurlnumber: url('../assets/img/items/loading/1.png'); }
+}
+

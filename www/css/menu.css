@@ -1,0 +1,591 @@
+.background-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+.menu-container {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 5%;
+    user-select: none;
+}
+
+.menu_selection-container,
+.menu_selection_game-container,
+.menu_selection_game_multi-container,
+.menu_selection_game_multi_create_room-container,
+.menu_selection_game_multi_join_room-container,
+.menu_selection_game_multi_join_room_rooms-container,
+.menu_selection_game_multi_room-container,
+.menu_selection_game_profile-container,
+.menu_selection_game_profiles-container,
+.menu_selection_game_show_profile-container,
+.menu_selection_game_edit_profile-container,
+.menu_selection_game_delete_profile-container,
+.menu_selection_game_load_profile-container,
+.menu_selection_game_options-container {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 3vh;
+    position: absolute;
+    top: 6%;
+    left: 0;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    color: gold;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.menu_quit_game {
+    width: 22%;
+    height: 17%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 7vh;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 0.26vh 0.26vh 0.15vh gold, 0.75vh 0.75vh 1vh black;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    /* background-color: #faebd759; */
+    user-select: none;
+}
+
+.menu_quit_game:hover {
+    color: gold;
+    text-shadow: 0.2vh 0.2vh 0.5vh white, 1vh 1vh 1.1vh black;
+    cursor: pointer;
+    transition: filter 0.15s, color 0.15s, text-shadow 0.15s;
+}
+
+.profile_action_display,
+.room_action_display {
+    width: 10%;
+    height: 5%;
+    display: none;
+    justify-content: start;
+    align-items: center;
+    position: absolute;
+    top: 2%;
+    right: 5%;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    color: gold;
+    font-size: 2.5vmin;
+    user-select: none;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+}
+
+.profile_action_display {
+    width: 10%;
+    right: 5%;
+    color: gold;
+}
+
+.room_action_display {
+    width: 20%;
+    left: 50%;
+    translate: -50%;
+    color: white;
+}
+
+
+main:has(.menu-container[data-display=""]) .menu_quit_game,
+main:has(.menu-container[data-display="createroom"]) .room_action_display,
+main:has(.menu-container[data-display="createroom"]) .profile_action_display,
+main:has(.menu-container[data-display="joinroom"]) .room_action_display,
+main:has(.menu-container[data-display="joinroom"]) .profile_action_display,
+main:has(.menu-container[data-display="profile"] ~ .selection-container .selection_item[data-item="saveprofile"]) .profile_action_display,
+main:has(.menu-container[data-display="profile"] ~ .selection-container .selection_item[data-item="editprofile"]) .profile_action_display,
+main:has(.menu-container[data-display="profile"] ~ .selection-container .selection_item[data-item="deleteprofile"]) .profile_action_display,
+main:has(.menu-container[data-display="profile"] ~ .selection-container .selection_item[data-item="loadprofile"]) .profile_action_display {
+    display: flex;
+}
+
+main:has(.menu-container[data-display="showprofile"] ~ .selection-container .selection_item[data-item=""]) {
+
+    & .menu_selection_game_show_profile_name,
+    .menu_selection_game_show_profile_avatar-container,
+    .menu_selection_game_show_profile_edit,
+    .menu_selection_game_show_profile_delete {
+        display: none;
+    }
+}
+
+.menu-container[data-display=""] .menu_selection-container,
+.menu-container[data-display="gamesettings"] .menu_selection_game-container,
+.menu-container[data-display="multi"] .menu_selection_game_multi-container,
+.menu-container[data-display="createroom"] .menu_selection_game_multi_create_room-container,
+.menu-container[data-display="joinroom"] .menu_selection_game_multi_join_room-container,
+.menu-container[data-display="joinroomrooms"] .menu_selection_game_multi_join_room_rooms-container,
+.menu-container[data-display="gamemultiroom"] .menu_selection_game_multi_room-container,
+.menu-container[data-display="profile"] .menu_selection_game_profile-container,
+.menu-container[data-display="options"] .menu_selection_game_options-container,
+.menu-container[data-display="profiles"] .menu_selection_game_profiles-container,
+.menu-container[data-display="showprofile"] .menu_selection_game_show_profile-container,
+.menu-container[data-display="editprofile"] .menu_selection_game_edit_profile-container,
+.menu-container[data-display="deleteprofile"] .menu_selection_game_delete_profile-container,
+.menu-container[data-display="loadprofile"] .menu_selection_game_load_profile-container {
+    display: flex;
+}
+
+.menu_selection {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    font-size: 17vh;
+    text-shadow: 0.25vh 0.25vh 0.2vh white, 0.75vh 0.75vh 0.75vh black;
+    user-select: none;
+    transition: filter 0.15s, color 0.15s, text-shadow 0.15s;
+    user-select: none;
+}
+
+.menu_selection span {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12vh;
+    user-select: none;
+}
+
+.menu_selection:hover {
+    text-shadow: 0.3vh 0.3vh 0.5vh gold, 0.75vh 0.75vh 2vh black;
+    color: white;
+    filter: brightness(125%);
+    cursor: pointer;
+}
+
+.menu_selection_game-container,
+.menu_selection_game_multi-container,
+.menu_selection_game_multi_create_room-container,
+.menu_selection_game_multi_join_room-container,
+.menu_selection_game_multi_join_room_rooms-container,
+.menu_selection_game_multi_room-container,
+.menu_selection_game_profile-container,
+.menu_selection_game_profiles-container,
+.menu_selection_game_show_profile-container,
+.menu_selection_game_edit_profile-container,
+.menu_selection_game_delete_profile-container,
+.menu_selection_game_load_profile-container,
+.menu_selection_game_options-container {
+    gap: 2vh;
+    top: 5%;
+
+    & .menu_selection {
+        font-size: 10vh;
+        text-shadow: 0.15vh 0.15vh 0.1vh white, 0.375vh 0.375vh 0.375vh black;
+    }
+
+    & .menu_selection_game_profiles_list,
+    .menu_selection_game_multi_join_room_rooms_list,
+    .menu_selection_game_multi_room_players_list,
+    .menu_selection_game_show_profile {
+        width: 100%;
+        height: 75%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu_selection_game_multi_join_room_rooms_list {
+        height: 65%;
+    }
+
+    .menu_selection_game_show_profile {
+        height: 50%;
+    }
+
+    .menu_selection_game_multi_room_players_list {
+        height: 65%;
+    }
+
+    & .menu_selection_game_profiles_profile {
+        height: 15vh;
+        flex-direction: row;
+        gap: 3vh;
+    }
+
+    & .menu_selection_game_show_profile_number {
+        height: 15vh;
+        align-items: center;
+        justify-content: center;
+        white-space: pre;
+        text-transform: initial;
+        color: white;
+        filter: initial;
+        cursor: default;
+    }
+
+    & .menu_selection_game_show_profile_name {
+        text-transform: initial;
+        color: white;
+        filter: initial;
+        cursor: default;
+    }
+
+    & .menu_selection_game_show_profile_avatar-container {
+        width: 22.5vh;
+        height: 22.5vh;
+        aspect-ratio: 1;
+        /* align-items: center; */
+        justify-content: center;
+        border-radius: 50%;
+        box-shadow: 0.25vh 0.25vh 1.5vh 0.25vh black;
+        overflow: hidden;
+    }
+
+    & .menu_selection_game_profiles_profile:has(.menu_selection_game_profile_empty):hover {
+        color: inherit;
+        filter: initial;
+        cursor: default;
+    }
+
+    & .menu_selection_game_profile_avatar-container {
+        width: auto;
+        height: 80%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        box-shadow: 0.25vh 0.25vh 1.5vh 0.25vh black;
+        overflow: hidden;
+    }
+
+    & .menu_selection_game_profile_avatar,
+    .menu_selection_game_show_profile_avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    & .menu_selection_game_profile_name {
+        text-transform: capitalize;
+        color: white;
+        text-shadow: 0.15vh 0.15vh 0.1vh gold, 0.375vh 0.375vh 0.375vh black;
+    }
+
+    & .menu_selection_game_profile_empty {
+        text-transform: initial;
+    }
+
+    & .menu_selection_game_edit_profile_save,
+    .menu_selection_game_edit_profile_edit {
+        display: none;
+    }
+
+    & .menu_selection_game_start,
+    .menu_selection_game_multi_create,
+    .menu_selection_game_multi_join_room_rooms_create,
+    .menu_selection_game_edit_profile_save,
+    .menu_selection_game_edit_profile_edit {
+        color: gold;
+        filter: brightness(125%);
+        text-shadow: 0.15vh 0.15vh 0.1vh gold, 0.375vh 0.375vh 0.375vh black;
+    }
+
+    & .menu_selection_game_start:hover,
+    .menu_selection_game_create:hover,
+    .menu_selection_game_multi_join_room_rooms_create:hover,
+    .menu_selection_game_edit_profile_save:hover,
+    .menu_selection_game_edit_profile_edit:hover {
+        filter: brightness(150%);
+    }
+
+    & .menu_selection_game_back,
+    .menu_selection_game_multi_back,
+    .menu_selection_game_multi_create_room_back,
+    .menu_selection_game_multi_join_room_back,
+    .menu_selection_game_multi_join_room_rooms_back,
+    .menu_selection_game_multi_room_back,
+    .menu_selection_game_profile_back,
+    .menu_selection_game_options_back,
+    .menu_selection_game_profiles_back,
+    .menu_selection_game_show_profile_back,
+    .menu_selection_game_edit_profile_back,
+    .menu_selection_game_delete_profile_back,
+    .menu_selection_game_load_profile_back {
+        color: white;
+        text-shadow: 0.15vh 0.15vh 0.1vh gold, 0.375vh 0.375vh 0.375vh black;
+    }
+
+    & .menu_selection_game_start:hover,
+    .menu_selection_game_multi_create_room_create:hover,
+    .menu_selection_game_back:hover,
+    .menu_selection_game_multi_back:hover,
+    .menu_selection_game_multi_create_room_back:hover,
+    .menu_selection_game_multi_join_room_back:hover,
+    .menu_selection_game_multi_join_room_rooms_back:hover,
+    .menu_selection_game_multi_room_back:hover,
+    .menu_selection_game_profile_back:hover,
+    .menu_selection_game_options_back:hover,
+    .menu_selection_game_profiles_back:hover,
+    .menu_selection_game_show_profile_back:hover,
+    .menu_selection_game_edit_profile_back:hover,
+    .menu_selection_game_delete_profile_back:hover,
+    .menu_selection_game_load_profile_back:hover {
+        color: gold;
+    }
+
+    & .menu_selection span {
+        font-size: 7vh;
+    }
+
+    & .menu_selection.selected {
+        color: white;
+        text-shadow: 0.15vh 0.15vh 0.15vh gold, 0.75vh 0.75vh 0.75vh black;
+    }
+}
+
+.menu_selection_game_edit_profile-container[data-type="new"] .menu_selection_game_edit_profile_save,
+.menu_selection_game_edit_profile-container[data-type="edit"] .menu_selection_game_edit_profile_edit {
+    display: flex;
+}
+
+.menu_selection_game-container[data-type="singlemode"] .menu_selection_game_create,
+.menu_selection_game-container[data-type="singlemode"] .menu_selection_game_id,
+.menu_selection_game-container[data-type="singlemode"] .menu_selection_game_type,
+.menu_selection_game-container[data-type="createroom"] .menu_selection_game_start {
+    display: none;
+}
+
+.room-container {
+    width: 100%;
+    height: 8vh;
+    display: flex;
+    flex-direction: row;
+    gap: 2%;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    color: white;
+    font-size: 3vmin;
+    user-select: none;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+}
+
+.room_id,
+.room_nb_of_players-container,
+.room_buyin {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.room_id,
+.room_nb_of_players-container,
+.room_buyin {
+    width: 20%;
+}
+
+.room_nb_of_players-container {
+    width: 10%;
+    & .room_nb_joining_players {
+        display: flex;
+        justify-content: center;
+        width: 35%;
+    }
+    & .room_players_separator {
+        display: flex;
+        justify-content: center;
+        width: 30%;
+    }
+    & .room_nb_max_players {
+        display: flex;
+        justify-content: center;
+        width: 35%;
+    }
+}
+
+.room_buyin {
+    width: 15%;
+}
+
+.room_background-container {
+    width: 20%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.room_background {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.selection-container {
+    width: 42.7%;
+    height: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.selection_item {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selection_item_direction_arrow-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selection_item_direction_arrow {
+    width: 20%;
+    height: 25%;
+    display: block;
+    position: relative;
+    z-index: 1;
+    background-color: white;
+    box-shadow: 0.15vh 0.15vh 0.1vh gold, 0.375vh 0.375vh 0.375vh black;
+    transition: background-color 0.15s;
+}
+
+
+.selection_item_previous {
+    clip-path: polygon(100% 0, 0% 50%, 100% 100%);
+}
+
+.selection_item_next {
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.selection_item_direction_arrow:hover {
+    background-color: gold;
+    cursor: pointer;
+}
+
+.selection_item_display {
+    --url: url('../assets/img/backgrounds/bg1.jpg');
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12vh;
+    font-weight: 600;
+    color: white;
+    /* text-transform: uppercase; */
+    text-shadow: 0.15vh 0.15vh 0.1vh gold, 0.375vh 0.375vh 0.375vh black;
+    background-image: none;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.selection-container:has([data-item=""], [data-item="show"], [data-item="saveprofile"], [data-item="loadprofile"], [data-item="deleteprofile"]) {
+    display: none;
+}
+
+.selection-container:has(.selection_item[data-item="name"]),
+.selection-container:has(.selection_item[data-item="roomid"]) {
+    & .selection_item_direction_arrow-container {
+        display: none;
+    }
+}
+
+.selection_item[data-item="avatar"] .selection_item_display,
+.selection_item[data-item="background"] .selection_item_display {
+    height: auto;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-image: var(--url);
+}
+
+.selection_item[data-item="avatar"] .selection_item_display {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-size: 75%;
+}
+
+.selection_item[data-item="roomtype"] .selection_item_display,
+.selection_item[data-item="sound"] .selection_item_display,
+.selection_item[data-item="fullscreen"] .selection_item_display {
+    font-size: 6.5vh;
+}
+
+.selection_item[data-item="profileaction"] .selection_item_display {
+    font-size: 6vh;
+}
+
+.selection_item[data-item="name"] .selection_item_display:hover,
+.selection_item[data-item="profileaction"] .selection_item_display:hover {
+    cursor: pointer;
+}
+
+.selection_item_display_input_name {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    outline: none;
+    border: none;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12vh;
+    font-weight: 600;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    background: none;
+    user-select: text;
+}
+
+@media (display-mode: fullscreen) {
+    /* .menu_selection-container {
+        width: auto;
+        height: 30vh;
+        aspect-ratio: 3;
+        font-size: 23.5vh;
+        top: 5%;
+    }
+    
+    .menu_selection span {
+        font-size: 14.5vh;
+    } */
+}

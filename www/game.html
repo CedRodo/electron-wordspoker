@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/loading_game.css">
+    <link rel="stylesheet" href="./css/game.css">
+    <!-- <link rel="stylesheet" media="screen and (min-device-width : 320px) and (max-device-width : 480px)" href="../css/styles-mobile.css"> -->
+    <link rel="stylesheet" media="screen and (orientation:landscape) and (max-width: 1024px)" href="./css/styles-mobile.css">
+    <script src="./js/loading_game.js" defer></script>
+    <script src="./js/User.js" defer></script>
+    <script src="./js/UserPreferences.js" defer></script>
+    <script src="./js/GamePreferences.js" defer></script>
+    <script src="./js/InitData.js" defer></script>
+    <script src="./js/GameStatus.js" defer></script>
+    <script src="./js/AIProfiles.js" defer></script>
+    <script src="./js/Players.js" defer></script>
+    <script src="./js/UserPlayers.js" defer></script>
+    <script src="./js/VsPlayers.js" defer></script>
+    <script src="./js/AIPlayers.js" defer></script>
+    <script src="./js/GameEnvironment.js" defer></script>
+    <script src="./js/GameMechanics.js" defer></script>
+    <script src="./js/EventsListeners.js" defer></script>
+    <script src="./js/Sounds.js" defer></script>
+    <script src="./js/game.js" defer></script>
+    <title>Words Poker</title>
+</head>
+<body>
+    <audio src="" id="song" autoplay>
+        <source src="" type="audio/mpeg"/>
+    </audio>
+    <div class="loading_screen">
+        <div class="cards_animation-container">
+            <div class="cards_animation cards_animation_1"></div>
+            <div class="cards_animation cards_animation_2"></div>
+            <div class="cards_animation cards_animation_3"></div>
+            <div class="cards_animation cards_animation_4"></div>
+            <div class="cards_animation cards_animation_5"></div>
+        </div>
+    </div>
+    <main class="hide">
+        <div class="game_menu_button">
+            <span class="logo_letter logo_letter_w">W</span>
+            <span class="logo_letter logo_letter_p">P</span>
+        </div>
+        <div class="game_menu">
+            <div class="game_menu_item_button game_menu_back_to_game" data-item="backtogame">Revenir au jeu</div>
+            <div class="game_menu_item_button game_menu_sound_activation" data-item="soundactivation" data-state="">Son : <span> désactivé</span></div>
+            <div class="game_menu_item_button game_menu_fullscreen_activation" data-item="fullscreenactivation" data-state="off">Plein écran : <span> désactivé</span></div>
+            <div class="game_menu_item_button game_menu_go_to_home" data-item="gotohome">Aller à l'accueil</div>
+        </div>
+        <div class="game-container">
+            <div class="room_background"></div>
+            <div class="game_table-container" data-nbplayers="">
+                <div class="game_table">
+                    <div class="pot_amount-container">
+                        <span>Pot: </span>
+                        <span class="pot_amount"></span>
+                    </div>
+                    <div class="form_a_word-container">
+                        <div class="form_a_word_text">Formez votre mot</div>
+                        <div class="form_a_word_countdown"></div>
+                    </div>
+                </div>
+                <div class="cards_showdown">
+                    <div class="showdown_card card" data-status="concealed">
+                        <div class="card_details" data-letter="e" data-value="1" data-color="red"><span class="card_letter">E</span></div>
+                    </div>
+                    <div class="showdown_card card" data-status="concealed">
+                        <div class="card_details" data-letter="l" data-value="2" data-color="green"><span class="card_letter">L</span></div>
+                    </div>
+                    <div class="showdown_card card" data-status="concealed">
+                        <div class="card_details" data-letter="q" data-value="5" data-color="blue"><span class="card_letter">Q</span></div>
+                    </div>
+                    <div class="showdown_card card" data-status="concealed">
+                        <div class="card_details" data-letter="y" data-value="6" data-color="red"><span class="card_letter">Y</span></div>
+                    </div>
+                    <div class="showdown_card card" data-status="concealed">
+                        <div class="card_details" data-letter="l" data-value="2" data-color="yellow"><span class="card_letter">L</span></div>
+                    </div>
+                </div>
+                <div class="players_decks"></div>
+                <div class="player_actions-container">
+                    <button class="player_action player_fold" data-action="fold" disabled>Jeter</button>
+                    <button class="player_action player_check" data-action="call" disabled>Suivre</button>
+                    <button class="player_action player_raise" data-action="raise" disabled>Miser</button>
+                </div>
+                <div class="player_letters_holder" data-wordvalue="" data-word="">
+                    <div class="holder_top">
+                        <div class="holder_top_rack"></div>
+                    </div>
+                    <div class="holder_bottom">
+                        <div class="holder_bottom_rack"></div>
+                    </div>
+                </div>
+                <div class="bet_amount_selection-container">
+                    <div class="bet_amount_preselection-container">
+                        <div class="bet_amount_preselection" data-amount="min">Min</div>
+                        <div class="bet_amount_preselection" data-amount="half">Half</div>
+                        <div class="bet_amount_preselection" data-amount="pot">Pot</div>
+                        <div class="bet_amount_preselection" data-amount="max">Max</div>
+                    </div>
+                    <div class="bet_amount_range-container">
+                        <div class="bet_amount_range_value_display bet_amount_range_current_value_display"></div>
+                        <div class="bet_amount_range-background">
+                            <input id="bet_amount_range" type="range" name="range" min="" max="" step="1" value="" data-amount="">
+                        </div>
+                        <div class="bet_amount_range_value_display bet_amount_range_max_value_display"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" media="screen and (orientation:landscape) and (max-width: 1024px)" href="./css/styles-mobile.css">
+    <link rel="stylesheet" href="./css/loading_menu.css">
+    <link rel="stylesheet" href="./css/menu.css">
+    <script src="http://localhost:3000/socket.io/socket.io.js" defer></script>
+    <script src="./js/MenuSelectionElements.js" defer></script>
+    <script src="./js/UserPreferences.js" defer></script>
+    <script src="./js/GamePreferences.js" defer></script>
+    <script src="./js/InitData.js" defer></script>
+    <script src="./js/Sounds.js" defer></script>
+    <script src="./js/loading_menu.js" defer></script>
+    <script src="./js/menu.js" defer></script>
+    <title>Words Poker</title>
+</head>
+<body> 
+    <audio src="" id="song" autoplay>
+        <source src="" type="audio/mpeg"/>
+    </audio>
+    <div class="loading_screen">
+        <div class="chip_animation-container">
+            <img class="chip_animation" src="" alt="">
+        </div>
+    </div>
+    <main class="hide">
+        <div class="background-container">
+            <img class="background" src="./assets/img/backgrounds/menu/menu.jpg"/>
+        </div>
+        <div class="room_action_display"></div>
+        <div class="profile_action_display"></div>
+        <div class="menu-container" data-display="">
+            <div class="menu_selection-container">
+                <div class="menu_selection menu_selection_game_single">P<span>artie solo</span></div>
+                <div class="menu_selection menu_selection_game_multi">M<span>ultijoueurs</span></div>
+                <div class="menu_selection menu_selection_game_profile">C<span>ompte</span></div>
+                <div class="menu_selection menu_selection_game_options">O<span>ptions</span></div>
+            </div>
+            <div class="menu_selection_game-container">
+                <div class="menu_selection menu_selection_game_start">L<span>ancer la partie</span></div>
+                <div class="menu_selection menu_selection_game_create">C<span>réer la partie</span></div>
+                <div class="menu_selection menu_selection_game_id">I<span>d de la partie</span></div>
+                <div class="menu_selection menu_selection_game_type">T<span>ype de la partie</span></div>
+                <div class="menu_selection menu_selection_game_number_of_players">N<span>ombre de joueurs</span></div>
+                <div class="menu_selection menu_selection_game_buy_in">C<span>ave</span></div>
+                <div class="menu_selection menu_selection_game_background">E<span>mplacement</span></div>
+                <div class="menu_selection menu_selection_game_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_multi-container">
+                <div class="menu_selection menu_selection_game_multi_create_room">C<span>réer une partie</span></div>
+                <div class="menu_selection menu_selection_game_multi_join_room">R<span>ejoindre une partie</span></div>
+                <div class="menu_selection menu_selection_game_multi_back">R<span>etour</span></div>
+            </div>
+            <!-- <div class="menu_selection_game_multi_create_room-container">
+                <div class="menu_selection menu_selection_game_multi_create_room_create">C<span>réer la partie</span></div>
+                <div class="menu_selection menu_selection_game_multi_create_room_id">I<span>d de la partie</span></div>
+                <div class="menu_selection menu_selection_game_multi_create_room_type">T<span>ype de la partie</span></div>
+                <div class="menu_selection menu_selection_game_multi_create_room_back">R<span>etour</span></div>
+            </div> -->
+            <div class="menu_selection_game_multi_join_room-container">
+                <div class="menu_selection menu_selection_game_multi_join_room_public">P<span>artie publique</span></div>
+                <div class="menu_selection menu_selection_game_multi_join_room_private">P<span>artie privée</span></div>
+                <div class="menu_selection menu_selection_game_multi_join_room_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_multi_join_room_rooms-container">
+                <div class="menu_selection menu_selection_game_multi_join_room_rooms_create">C<span>réer la partie</span></div>
+                <div class="menu_selection_game_multi_join_room_rooms_list"></div>
+                <div class="menu_selection menu_selection_game_multi_join_room_rooms_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_multi_room-container">
+                <div class="menu_selection menu_selection_game_multi_room_start">L<span>ancer la partie</span></div>
+                <div class="menu_selection_game_multi_room_players_list"></div>
+                <div class="menu_selection menu_selection_game_multi_room_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_profile-container">
+                <div class="menu_selection menu_selection_game_profile_new">N<span>ouveau profil</span></div>
+                <div class="menu_selection menu_selection_game_profile_load">C<span>harger un profil</span></div>
+                <div class="menu_selection menu_selection_game_profile_show">A<span>fficher le profil</span></div>
+                <div class="menu_selection menu_selection_game_profile_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_edit_profile-container">
+                <div class="menu_selection menu_selection_game_edit_profile_save">S<span>auvegarder le profil</span></div>
+                <div class="menu_selection menu_selection_game_edit_profile_edit">M<span>odifier le profil</span></div>
+                <div class="menu_selection menu_selection_game_edit_profile_name">N<span>om de joueur</span></div>
+                <div class="menu_selection menu_selection_game_edit_profile_avatar">A<span>vatar de joueur</span></div>
+                <div class="menu_selection menu_selection_game_edit_profile_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_show_profile-container">
+                <div class="menu_selection_game_show_profile">
+                    <div class="menu_selection menu_selection_game_show_profile_number"></div>
+                    <div class="menu_selection menu_selection_game_show_profile_name"></div>
+                    <div class="menu_selection_game_show_profile_avatar-container">
+                        <img class="menu_selection_game_show_profile_avatar" src="">
+                    </div>
+                </div>
+                <div class="menu_selection menu_selection_game_show_profile_edit">M<span>odifier le profil</span></div>
+                <div class="menu_selection menu_selection_game_show_profile_delete">S<span>upprimer le profil</span></div>
+                <div class="menu_selection menu_selection_game_show_profile_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_profiles-container">
+                <div class="menu_selection_game_profiles_list">
+                    <div class="menu_selection menu_selection_game_profiles_profile" data-pflnb="1"></div>
+                    <div class="menu_selection menu_selection_game_profiles_profile" data-pflnb="2"></div>
+                    <div class="menu_selection menu_selection_game_profiles_profile" data-pflnb="3"></div>
+                    <div class="menu_selection menu_selection_game_profiles_profile" data-pflnb="4"></div>
+                    <div class="menu_selection menu_selection_game_profiles_profile" data-pflnb="5"></div>
+                </div>
+                <div class="menu_selection menu_selection_game_profiles_back">R<span>etour</span></div>
+            </div>
+            <div class="menu_selection_game_options-container">
+                <div class="menu_selection menu_selection_game_options_sound">S<span>on</span></div>
+                <div class="menu_selection menu_selection_game_options_fullscreen">P<span>lein écran</span></div>
+                <div class="menu_selection menu_selection_game_options_back">R<span>etour</span></div>
+            </div>
+        </div>
+        <div class="selection-container">
+            <div class="selection_item" data-item="">
+                <div class="selection_item_direction_arrow-container">
+                    <div class="selection_item_direction_arrow selection_item_previous"></div>
+                </div>
+                <div class="selection_item_display"></div>
+                <div class="selection_item_direction_arrow-container">
+                    <div class="selection_item_direction_arrow selection_item_next"></div>
+                </div>
+            </div>
+        </div>
+        <div class="menu_quit_game">Quitter</div>
+    </main>
+</body>
+</html>

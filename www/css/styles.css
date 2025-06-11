@@ -1,0 +1,31 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 1920px;
+    width: 100vw;
+    min-height: 905px;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    scrollbar-width: none;
+    overflow: hidden;
+}
+
+main {
+    width: 100%;
+    height: 100%;
+    filter: brightness(100%);
+    transition: filter 2s;
+}
+
+.d-none {
+    display: none;
+}
+
+main.hide {
+    filter: brightness(0%);
+}

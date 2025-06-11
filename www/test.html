@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="test" data-test="1"></div>
+    <div class="test" data-test="2"></div>
+    <div class="test" data-test="3"></div>
+    <div class="test" data-test="4"></div>
+    <script>
+        const tests = document.querySelectorAll(".test");
+        console.log("tests:", tests);
+        const test2 = Array.from(tests).find(test => test.dataset.test == "2");
+        console.log("test2:", test2);
+        
+    </script>
+</body>
+</html>

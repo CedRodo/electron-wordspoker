@@ -1,0 +1,36 @@
+{
+  "name": "words_poker",
+  "displayName": "Words Poker",
+  "version": "1.0.0",
+  "description": "A poker of words",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "devStart": "nodemon www/js/server.js",
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Electron, C.Rodony",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "cordova-android": "^14.0.1",
+    "cordova-electron": "^4.0.0",
+    "electron": "^36.2.1"
+  },
+  "cordova": {
+    "platforms": [
+      "electron",
+      "android"
+    ]
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "http": "^0.0.1-security",
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1"
+  }
+}

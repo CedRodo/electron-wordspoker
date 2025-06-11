@@ -1,0 +1,198 @@
+@font-face { font-family: "RubikGlitch"; src: url("../assets/fonts/RubikGlitch-Regular.ttf"); }
+
+.intro_screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0e0e0e;
+    position: absolute;    
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.intro_screen-show {
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.intro_screen-stop {
+    animation: intro_screen-stop 0.1s 0.5s linear forwards;
+}
+
+@keyframes intro_screen-stop {
+    from { opacity: 1; }
+    to { opacity: 0; z-index: -1000; }
+}
+
+.intro_screen-title-container {
+    width: 100%;
+    height: min(15vw, 30vh);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+
+.intro_screen-title {
+    width: fit-content;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "RubikGlitch";
+    font-size: min(14vw, 28vh);
+    color: rgb(247, 247, 247);
+    /* background: linear-gradient(176deg, #f1f1f1, #939292, #f1f1f1);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-size: contain; */
+    text-transform: initial;
+    opacity: 0;
+    animation: glitch 0.5s 0.75s linear forwards, cursor 0.1s 2s linear forwards;
+    user-select: none;
+}
+
+@keyframes glitch {
+    0% { opacity: 0; }
+    0.5% { opacity: 1; }
+    2%,64%{ transform: translate(2px,0) skew(0deg); opacity: 1; }
+    4%,60%{ transform: translate(-2px,0) skew(0deg); opacity: 1; }
+    62%{ transform: translate(0,0) skew(5deg); opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes cursor {
+    100% { cursor: pointer; }
+}
+
+.intro_screen-title:before,
+.intro_screen-title:after{
+  content: attr(title);
+  position: absolute;
+  left: 0;
+}
+
+.intro_screen-title:before{
+  animation: glitchTop 0.5s 0.75s linear forwards, hideBack 0.2s 1.25s linear forwards;
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+
+@keyframes glitchTop{
+  2%,64%{
+    transform: translate(2px,-2px);
+  }
+  4%,60%{
+    transform: translate(-2px,2px);
+  }
+  62%{
+    transform: translate(13px,-1px) skew(-13deg); 
+  }
+}
+
+.intro_screen-title:after{
+  animation: glitchBottom 1s 0.75s linear forwards, hideBack 0.2s 1.75s linear forwards;
+  clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+}
+
+@keyframes glitchBottom {
+  2%,64%{
+    transform: translate(-2px,0);
+  }
+  4%,60%{
+    transform: translate(-2px,0);
+  }
+  62%{
+    transform: translate(-22px,5px) skew(21deg); 
+  }
+}
+
+@keyframes hideBack {
+    to { opacity: 0; }
+}
+
+.intro_screen-title-letter_e1 {
+    --newPosX: -52%;
+    --newPosY: -72%;
+}
+
+.intro_screen-title-letter_l {
+    --newPosX: -37%;
+    --newPosY: 83%;
+}
+
+.intro_screen-title-letter_e2 {
+    --newPosX: -22%;
+    --newPosY: -95%;
+}
+
+.intro_screen-title-letter_c {
+    --newPosX: -10%;
+    --newPosY: 100%;
+}
+
+.intro_screen-title-letter_t {
+    --newPosX: 15%;
+    --newPosY: -92%;
+}
+
+.intro_screen-title-letter_r {
+    --newPosX: 26%;
+    --newPosY: 76%;
+}
+
+.intro_screen-title-letter_o {
+    --newPosX: 44%;
+    --newPosY: -87%;
+}
+
+.intro_screen-title-letter_n {
+    --newPosX: 73%;
+    --newPosY: 65%;
+}
+
+.intro_screen-title-letter_e1 {
+    --start: 0s;
+}
+
+.intro_screen-title-letter_l {
+    --start: 0.125s;
+}
+
+.intro_screen-title-letter_e2 {
+    --start: 0.25s;
+}
+
+.intro_screen-title-letter_c {
+    --start: 0.375s;
+}
+
+.intro_screen-title-letter_t {
+    --start: 0.5s;
+}
+
+.intro_screen-title-letter_r {
+    --start: 0.625s;
+}
+
+.intro_screen-title-letter_o {
+    --start: 0.75s;
+}
+
+.intro_screen-title-letter_n {
+    --start: 0.875s;
+}
+
+.intro_screen-title-clicked {
+    animation: letterMove 1.5s var(--start) ease-out forwards;
+}
+
+@keyframes letterMove {
+    66% { opacity: 0; }
+    100% { transform: translate(var(--newPosX), var(--newPosY)); opacity: 0; }
+}
