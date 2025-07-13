@@ -114,6 +114,47 @@
 }
 
 
+.connection_display,
+.joining_display {
+    width: 30%;
+    height: 5%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    position: absolute;
+    bottom: 1%;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    color: white;
+    font-size: 2.5vmin;
+    user-select: none;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+}
+
+.connection_display {
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    width: 30%;
+    left: 1%;
+}
+
+.connection_display::before {
+    content: "#" attr(data-id);
+    position: absolute;
+    top: 0;
+    left: 0;
+    translate: 0 -100%;
+}
+
+.joining_display {
+    width: 30%;
+    left: 50%;
+    translate: -50%;
+    color: white;
+}
+
+
 main:has(.menu-container[data-display=""]) .menu_quit_game,
 main:has(.menu-container[data-display="createroom"]) .room_action_display,
 main:has(.menu-container[data-display="createroom"]) .profile_action_display,
@@ -441,6 +482,11 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     object-fit: contain;
 } */
 
+.menu_selection_game_multi_join_room_rooms_list table {
+    border-collapse: separate;
+    border-spacing: 2vh;
+}
+
 .menu_selection_game_multi_join_room_rooms_list table tr {
     width: 100%;
     height: 6vh;
@@ -451,10 +497,27 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     text-transform: none;
     user-select: none;
     text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+    position: relative;
+    cursor: pointer;
+}
+
+.menu_selection_game_multi_join_room_rooms_list table tr::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: transparent;
+}
+
+.menu_selection_game_multi_join_room_rooms_list table tr.selected::after {
+    background-color: #e9728761;
 }
 
 .menu_selection_game_multi_join_room_rooms_list table td {
     height: 100%;
+    padding: 3%;
     text-align: center;
     vertical-align: middle;
     text-transform: none;
@@ -464,7 +527,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     color: gold;
 }
 
-.room_id-title {
+.room_host-title {
     width: 18%;
 }
 
@@ -641,4 +704,12 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     .menu_selection span {
         font-size: 14.5vh;
     } */
+     
+    .menu-container {
+        width: 55%;
+    }
+
+    .profile_action_display {
+        width: 12%;
+    }
 }

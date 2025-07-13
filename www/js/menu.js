@@ -14,23 +14,49 @@ const menuSelectionElements = new MenuSelectionElements();
 
 console.log("menuSelectionElements:", menuSelectionElements);
 
+const newUserRef = generateUserRef();
 
-const profiles = localStorage.getItem("profiles") ? JSON.parse(localStorage.getItem("profiles")) : { current: 0, profile0: { userPreferences: new UserPreferences(), gamePreferences: new GamePreferences() }};
+let roomInfo = {
+    nbOfPlayers: 8,
+    visibility: "public",
+    buyIn: 1000,
+    bigBlind: 20,
+    backgroundNumber: 1,
+    numberOfPlayers: 1
+};
+let roomsList = [];
+
+const profiles = localStorage.getItem("profiles") ?
+    JSON.parse(localStorage.getItem("profiles")) :
+    {
+        current: 0,
+        profile0: new User({
+            ref: newUserRef,
+            email: "user" + newUserRef + "@gmail.com",
+            username: "user" + newUserRef
+        })
+    };
 console.log("profiles:", profiles);
 console.log("profiles.current:", profiles.current);
 console.log("profiles profiles.current:", profiles[`profile${profiles.current}`]);
-let currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
+// let currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
+let currentProfile = profiles[`profile${profiles.current}`];
+
 let newProfile = false;
 const initData = new InitData();
 
 console.log("currentProfile:", currentProfile);
 
+socket.emit('new-user', currentProfile);
+
+// document.querySelector(".menu_selection_game_multi_create_room").addEventListener("click", () => {
+//     console.log("create room");
+//     socket.emit('create-room', generateRoomId(socket.id));
+// });
+
 const sounds = new Sounds(["smoothgenestarboulevardofbrokenbeats"], "menu", currentProfile.userPreferences);
 setTimeout(() => { sounds.generateSounds(); }, 3000);
 
-const socket = io('http://localhost:3000');
-
-const users = {};
 let roomId = 0;
 
 menuQuitGame.addEventListener("click", leavingApp);
@@ -95,11 +121,23 @@ function menuSelection(event) {
         case "gamemultiroom":
             console.log("gamemultiroom");
             if (menuSelect.type === "create") {
-                console.log("create");
-                currentProfile.gamePreferences.roomId = `#${socket.id.substring(0, 8)}`;
-                roomActionDisplay.innerText = currentProfile.gamePreferences.roomId;
-                appendRoom(currentProfile.gamePreferences);
-                socket.emit('create-room', currentProfile.gamePreferences);
+                console.log("create");                
+                currentProfile.gamePreferences.roomRef = currentProfile.ref;
+                console.log("create currentProfile.gamePreferences:", currentProfile.gamePreferences);
+                const gamePreferences = currentProfile.gamePreferences.getRoomPreferences();
+                const room = new Room({
+                    ref: currentProfile.ref,
+                    roomId: generateRoomId(socket.id),
+                    hostName: currentProfile.username,
+                    visibility: currentProfile.gamePreferences.roomVisibility,
+                    gamePreferences: gamePreferences,
+                });
+                console.log("create room: room");
+                
+                currentProfile.gamePreferences.roomRef = room.ref;
+                roomActionDisplay.innerText = room.roomId;
+                console.log("roomsList:", roomsList);                  
+                socket.emit('create-room', room);
                 break;
             };
             break;
@@ -107,12 +145,15 @@ function menuSelection(event) {
             console.log("joinroomrooms");
             if (menuSelect.type === "joinpublic" || menuSelect.type === "joinprivate") {
                 console.log("menuSelect.type:", menuSelect.type);
-                socket.emit('all-rooms', menuSelect.type);
+                // socket.emit('all-rooms', menuSelect.type);
+                socket.emit('enter-public-rooms');
             };
+            break;
         case "joinroom":
+            console.log("joinroom");
+            console.log("joinroom menuSelect:", menuSelect);
             if (menuSelect.element.classList.contains("menu_selection_game_multi_join_room")) {
                 console.log("joinroom");
-                // socket.emit('join-room');
             };
             break;
     }
@@ -236,6 +277,7 @@ function changeDisplay(event) {
     let imagePath;
     let imageNumber;
     let imageExtension;
+    
     switch (selectionItem.dataset.item) {
         case "avatar":
             const avatarMaxNumber = 81;
@@ -295,12 +337,12 @@ function changeDisplay(event) {
             break;
         case "roomtype":
             if (event.currentTarget === selectionItemPrevious) {
-                currentProfile.gamePreferences.roomType = "publique";
+                currentProfile.gamePreferences.roomVisibility = "public";
             }
             if (event.currentTarget === selectionItemNext) {
-                currentProfile.gamePreferences.roomType = "privée";
+                currentProfile.gamePreferences.roomVisibility = "private";
             }
-            selectionItemDisplay.textContent = currentProfile.gamePreferences.roomType;
+            selectionItemDisplay.textContent = currentProfile.gamePreferences.roomVisibility === "private" ? "privée" : "publique";
             break;
         case "sound":
             if (event.currentTarget === selectionItemPrevious) {
@@ -398,74 +440,151 @@ function showProfiles() {
     }
 }
 
-function appendRoom(roomData) {
-    console.log("appendRoom roomData:", roomData);
+function appendRoom(rooms) {
+    console.log("appendRoom rooms:", rooms);
 
-    if (document.getElementById(roomId)) return;
+    // if (document.getElementById(room.roomId)) return;
     
-    const roomsList = document.querySelector(".menu_selection_game_multi_join_room_rooms_list tbody");
-    
-    const roomContainer = document.createElement("tr");
-    roomContainer.classList.add("room-container");
-    roomContainer.setAttribute("id", roomId);
-    const roomId = document.createElement("td");
-    roomId.classList.add("room_id");
-    roomId.textContent = roomData.roomId;
-    const roomBackgroundContainer = document.createElement("td");
-    roomBackgroundContainer.classList.add("room_background-container");
-    const roomBackground = document.createElement("img");
-    roomBackground.classList.add("room_background");
-    roomBackground.src = "./assets/img/backgrounds/bg" + roomData.backgroundNumber + ".jpg";
-    roomBackgroundContainer.appendChild(roomBackground);
-    const roomNbOfPlayersContainer = document.createElement("td");
-    roomNbOfPlayersContainer.classList.add("room_nb_of_players-container");
-    const roomNbJoiningPlayers = document.createElement("span");
-    roomNbJoiningPlayers.classList.add("room_nb_joining_players");
-    roomNbJoiningPlayers.textContent = 1;
-    const roomPlayersSeparator = document.createElement("span");
-    roomPlayersSeparator.classList.add("room_players_separator");
-    roomPlayersSeparator.textContent = "/";
-    const roomNbMaxPlayers = document.createElement("span");
-    roomNbMaxPlayers.classList.add("room_nb_max_players");
-    roomNbMaxPlayers.textContent = roomData.numberOfPlayers;
-    roomNbOfPlayersContainer.append(roomNbJoiningPlayers, roomPlayersSeparator, roomNbMaxPlayers);
-    const roomBuyIn = document.createElement("td");
-    roomBuyIn.classList.add("room_buyin");
-    roomBuyIn.textContent = roomData.buyIn;
-    
-    roomContainer.append(roomId, roomBackgroundContainer, roomNbOfPlayersContainer, roomBuyIn);
+    const roomsListElement = document.querySelector(".menu_selection_game_multi_join_room_rooms_list tbody");
 
-    roomsList.appendChild(roomContainer);
+    while (Array.from(roomsListElement.querySelectorAll(".room-container"))[0]) {
+        Array.from(roomsListElement.querySelectorAll(".room-container")).at(-1).remove();
+    }
+
+    rooms.forEach(room => {
+        const roomContainer = document.createElement("tr");
+        roomContainer.classList.add("room-container");
+        roomContainer.setAttribute("id", room.roomId);
+        const roomHost = document.createElement("td");
+        roomHost.classList.add("room_host");
+        roomHost.textContent = room.hostName;
+        const roomBackgroundContainer = document.createElement("td");
+        roomBackgroundContainer.classList.add("room_background-container");
+        const roomBackground = document.createElement("img");
+        roomBackground.classList.add("room_background");
+        roomBackground.src = "./assets/img/backgrounds/bg" + room.gamePreferences.backgroundNumber + ".jpg";
+        roomBackgroundContainer.appendChild(roomBackground);
+        const roomNbOfPlayersContainer = document.createElement("td");
+        roomNbOfPlayersContainer.classList.add("room_nb_of_players-container");
+        const roomNbJoiningPlayers = document.createElement("span");
+        roomNbJoiningPlayers.classList.add("room_nb_joining_players");
+        roomNbJoiningPlayers.textContent = room.gamePreferences.nbOfVsPlayers;
+        const roomPlayersSeparator = document.createElement("span");
+        roomPlayersSeparator.classList.add("room_players_separator");
+        roomPlayersSeparator.textContent = "/";
+        const roomNbMaxPlayers = document.createElement("span");
+        roomNbMaxPlayers.classList.add("room_nb_max_players");
+        roomNbMaxPlayers.textContent = room.gamePreferences.nbOfPlayers;
+        roomNbOfPlayersContainer.append(roomNbJoiningPlayers, roomPlayersSeparator, roomNbMaxPlayers);
+        const roomBuyIn = document.createElement("td");
+        roomBuyIn.classList.add("room_buyin");
+        roomBuyIn.textContent = room.gamePreferences.buyIn;
+
+        roomContainer.append(roomHost, roomBackgroundContainer, roomNbOfPlayersContainer, roomBuyIn);
+
+        roomContainer.addEventListener("pointerup", selectRoom);
+
+        function selectRoom() {
+            document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
+            roomContainer.classList.add("selected");
+            const isJoined = confirm("Voulez-vous rejoindre cette salle ?");
+            if (isJoined) {
+                socket.emit("join-room", room);
+            } else {
+                roomContainer.classList.remove("selected");
+            }
+        }
+
+        roomsListElement.appendChild(roomContainer);
+    })
 }
 
 function loadProfile(profileNumber) {
     profiles.current = profileNumber;
-    currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
+    // currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
+    currentProfile = profiles[`profile${profiles.current}`];
     newProfile = false;
     updatePreferences();
 }
 
 function updatePreferences(profileNumber) {
     if (profileNumber) {
-        profiles[`profile${profileNumber}`] = structuredClone(currentProfile);
+        // profiles[`profile${profileNumber}`] = structuredClone(currentProfile);
+        profiles[`profile${profileNumber}`] = currentProfile;
         profiles.current = profileNumber;
     }
     socket.emit('check-playerName-change', currentProfile.userPreferences.playerName);
     localStorage.setItem("profiles", JSON.stringify(profiles));
 }
 
+function showNotifications(notification) {
+    profileActionDisplay.innerText = notification;
+}
+
+function generateRoomId(id) {
+    roomId = "#" + id.substring(0, 8);
+    console.log("roomId:", roomId);
+    return roomId;
+}
+
+function generateUserRef() {
+    return (Math.floor(Math.random() * 99999999 - 10000000 + 1) + 10000000).toString();
+}
+
 // ONLINE
 
-socket.on('room-creation', id => {
-    console.log("room-creation:", id);
-    roomActionDisplay.textContent = id;
+socket.on('display connection', name => {
+    if (!document.getElementById(socket.id)) {
+        const userConnectionDisplay = document.createElement("div");
+        userConnectionDisplay.classList.add("user_connection_display");
+        userConnectionDisplay.setAttribute("id", socket.id);
+        document.querySelector(".connection_display").appendChild(userConnectionDisplay);
+    }
+    document.getElementById(socket.id).innerHTML = `${name} is connected`;
+    document.querySelector(".connection_display").setAttribute("data-id", socket.id);
 });
 
-socket.on('display-rooms', rooms => {
-    console.log("display-rooms:", rooms);
+socket.on('display disconnection', name => {
+    document.getElementById(socket.id).innerHTML = `${name} is disconnected`;
+});
+
+socket.on('update-users', users => {
+    console.log("update-users:", users);
+    users.forEach(user => {
+        console.log("update-users user:", user);
+        // app.addUser(user);
+    });
+});
+
+// socket.emit('createRoom', generateRoomId(socket.id));
+
+socket.on('room-creation', room => {
+    console.log("room-creation:", room);
+    document.querySelector(".connection_display").dataset.id = room.roomId;
+});
+
+socket.on('update-room', (roomName, type) => {
+    console.log("update-room:", roomName);
+    socket.emit('room-users', roomName, type);
+});
+
+socket.on('update-rooms-list', rooms => {
+    console.log("update-rooms-list:", rooms);
+    roomsList = rooms;
+    const publicRooms = [];
     for (const room in rooms) {
-        appendRoom(rooms[room]["data"]);
+        console.log("rooms[room]:", rooms[room]);
+        if (rooms[room].visibility === "public") publicRooms.push(rooms[room]);
     }
+    appendRoom(publicRooms);
+});
+
+socket.on('display-room-users', (data) => {
+    console.log("display-room-users data:", data);
+});
+
+socket.on('display-public-rooms', rooms => {
+    console.log("display-public-rooms:", rooms);
 });
 
 socket.on('room-joining', room => {
@@ -479,7 +598,6 @@ socket.on('room-joining', room => {
 // });
 
 // socket.emit('user-connected', currentProfile.userPreferences.playerName);
-socket.emit('new-user', currentProfile.userPreferences.playerName);
 
 socket.on('user-connected', name => {
     console.log("user-connected:", name);
@@ -491,16 +609,6 @@ socket.on('user-disconnected', name => {
     console.log("user-disconnected:", name);
     showNotifications(`${name} déconnecté`);
 });
-
-function showNotifications(notification) {
-    profileActionDisplay.innerText = notification;
-}
-
-function generateRoomId(userId) {
-    roomId = "#" + userId.substring(0, 8);
-    console.log("roomId:", roomId);
-    return roomId;
-  }
 
 
 

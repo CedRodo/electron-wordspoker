@@ -8,9 +8,12 @@
     <link rel="stylesheet" href="./css/loading_menu.css">
     <link rel="stylesheet" href="./css/menu.css">
     <script src="http://localhost:3000/socket.io/socket.io.js" defer></script>
+    <script src="./js/script.js" defer></script>
     <script src="./js/MenuSelectionElements.js" defer></script>
     <script src="./js/UserPreferences.js" defer></script>
     <script src="./js/GamePreferences.js" defer></script>
+    <script src="./js/User.js" defer></script>
+    <script src="./js/Room.js" defer></script>
     <script src="./js/InitData.js" defer></script>
     <script src="./js/Sounds.js" defer></script>
     <script src="./js/loading_menu.js" defer></script>
@@ -32,6 +35,8 @@
         </div>
         <div class="room_action_display"></div>
         <div class="profile_action_display"></div>
+        <div class="connection_display" data-id=""></div>
+        <div class="joining_display"></div>
         <div class="menu-container" data-display="">
             <div class="menu_selection-container">
                 <div class="menu_selection menu_selection_game_single">P<span>artie solo</span></div>
@@ -42,7 +47,7 @@
             <div class="menu_selection_game-container">
                 <div class="menu_selection menu_selection_game_start">L<span>ancer la partie</span></div>
                 <div class="menu_selection menu_selection_game_create">C<span>réer la partie</span></div>
-                <div class="menu_selection menu_selection_game_id">I<span>d de la partie</span></div>
+                <!-- <div class="menu_selection menu_selection_game_id">I<span>d de la partie</span></div> -->
                 <div class="menu_selection menu_selection_game_type">T<span>ype de la partie</span></div>
                 <div class="menu_selection menu_selection_game_number_of_players">N<span>ombre de joueurs</span></div>
                 <div class="menu_selection menu_selection_game_buy_in">C<span>ave</span></div>
@@ -71,7 +76,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="room_id-title">Id Partie</th>
+                                <th class="room_id-title">Hôte</th>
                                 <th class="room_background-title">Emplacement</th>
                                 <th class="room_nb_of_players-title">Joueurs</th>
                                 <th class="room_buyin-title">Cave</th>
@@ -109,8 +114,8 @@
                         <img class="menu_selection_game_show_profile_avatar" src="">
                     </div>
                 </div>
-                <div class="menu_selection menu_selection_game_show_profile_edit">M<span>odifier le profil</span></div>
-                <div class="menu_selection menu_selection_game_show_profile_delete">S<span>upprimer le profil</span></div>
+                <div class="menu_selection menu_selection_game_show_profile_edit">M<span>odifier</span></div>
+                <div class="menu_selection menu_selection_game_show_profile_delete">S<span>upprimer</span></div>
                 <div class="menu_selection menu_selection_game_show_profile_back">R<span>etour</span></div>
             </div>
             <div class="menu_selection_game_profiles-container">

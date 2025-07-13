@@ -15,48 +15,102 @@ const users = {};
 const rooms = {};
 
 io.on('connection', socket => {
+  console.log("users:", users);
   console.log("socket id:", socket.id);
-  console.log("socket room:", socket.rooms);
-  socket.on('new-user', name => {
-    console.log("new-user:", name);
-    console.log("users:", users);
-    users[socket.id] = name;
-    socket.emit('user-connected', name);
+  socket.on('new-user', user => {
+    console.log("new user:", user);
+    users[socket.id] = user;
+    // let usersList = [];
+    // for (const sckt in users) {
+    //   usersList.push(users[sckt]);
+    // }
+    // console.log("usersList:", usersList);
+    // io.emit('update-users', usersList);
   });
-  // socket.on('send-chat-message', message => {
-  //   console.log("send-chat-message:", message);
-  //   socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] });
-  // });
-
-  socket.on('check-playerName-change', name => {
-    console.log("check-playerName-change:", name);
-    if (users[socket.id] !== name) users[socket.id] = name;
-    console.log("users[socket.id]:", users[socket.id]);
+  socket.on('room-users', async (roomId) => {
+    console.log("room-users roomId:", roomId);
+    const sockets = await io.in(roomId).fetchSockets();
+    // console.log("sockets:", sockets);
+    const socketsIds = sockets.map(socket => socket.id);
+    console.log("socketsIds:", socketsIds);
+    const usersInRoom = socketsIds.map(id => users[id]);
+    console.log("usersInRoom:", usersInRoom);
+    io.emit('display-room-users', { roomId: roomId, users: usersInRoom });
+    // io.to(roomId).emit('display-room-users', { roomId: roomId, users: usersInRoom });
   });
+  socket.on('create-room', (room) => {
+    console.log("create-room");
+    console.log("create-room room:", room);    
+    socket.join(room.roomId);
+    let isAlreadyPresent = false;
+    if (!rooms[room.ref]) {
+      Object.defineProperty(rooms, room.ref, { value: {}, enumerable: true, writable: true });
+      console.log("rooms[room.ref]:", rooms[room.ref]);
+    } else {
+      isAlreadyPresent = true;
+    }
+    if (!isAlreadyPresent) {
+      console.log("!isAlreadyPresent");
+      const userAlreadyPresent = room.usersList.find(u => u.ref === users[socket.id].ref);
+      if (typeof userAlreadyPresent === "undefined") {
+        room.usersList.push(users[socket.id]);
+      }
+      rooms[room.ref] = room;
+    }
+    console.log("rooms:", rooms);
 
-  socket.on('create-room', data => {
-    console.log("create-room:", data.roomId);
-    rooms[data.roomId] = { data: data, players: [{ id: socket.id, name: users[socket.id], type: "host" }]}
-    socket.broadcast.emit('room-creation', data.roomId);
+    socket.emit('room-creation', room);
+    io.emit('update-rooms-list', rooms);
   });
-
-  socket.on('all-rooms', visibility => {
-    console.log("all-rooms:", visibility);
-    socket.emit('display-rooms', rooms);
+  socket.on('enter-public-rooms', () => {
+    console.log("enter-public-rooms");
+    socket.emit('update-rooms-list', rooms);
+    // socket.emit('display-public-rooms', rooms);
   });
-
-  socket.on('join-room', (roomId, playerData) => {
-    console.log("join-room:", roomId);
-    socket.join(roomId);
-    rooms[roomId]["players"].push({ id: socket.id, name: playerData.playerName, avatar: playerData.avatarNumber, type: "client" })
-    socket.broadcast.emit('room-joining', rooms[roomId]);
-    // socket.emit('room-creation', id);
+  socket.on('join-room', (room) => {
+    if (!rooms[room.ref]) return;
+    socket.join(room.roomId);
+    if (!rooms[room.ref].usersList.includes(users[socket.id])) rooms[room.ref].usersList.push(users[socket.id]);
+    console.log("rooms[room.ref].usersList:", rooms[room.ref].usersList);
+    io.to(room.roomId).emit('room-joining', room);
+    // socket.emit('update-room', roomId, "join");
   });
-
+  socket.on('leave-room', (roomId) => {
+    socket.leave(roomId);
+    for (const r in rooms) {
+      if (rooms[r]["users"][socket.id]) {
+        console.log("socket.id:", rooms[r]["users"][socket.id]);
+        // delete rooms[r]["users"][socket.id];
+        socket.broadcast.emit('update-room', r);
+      }
+    }
+    console.log("rooms:", rooms);
+    socket.emit('update-room', roomId, "leave");
+  });
+  socket.on('update-local-user', (user) => {
+    console.log("update-local-user:", user);
+    for (const prop in users[socket.id]) {
+      if (users[socket.id][prop] !== user[prop]) users[socket.id][prop] = user[prop];
+    };
+  });
+  socket.on('join-user', (userName) => {
+    console.log("join-user userName:", userName);
+    let userSocket;
+    for (const sckt in users) {
+      const user = users[sckt];
+      if (user.username === userName) userSocket = sckt;
+    }
+    console.log("userSocket:", userSocket);
+    socket.join(userSocket);
+  });
   socket.on('disconnect', () => {
-    // console.log("disconnect:", users[socket.id]);
-    // socket.emit('user-disconnected', users[socket.id]);
-    socket.emit('user-disconnected', users[socket.id]);
+    console.log("disconnect:", users[socket.id]);
+    for (const r in rooms) {
+      if (rooms[r]["users"][socket.id]) {
+        // console.log("socket.id:", rooms[r]["users"][socket.id]);             
+        socket.broadcast.emit('update-room', r);
+      }
+    }
     delete users[socket.id];
   });
 });
