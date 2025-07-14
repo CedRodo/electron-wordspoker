@@ -197,6 +197,120 @@ class GameEnvironment {
         this.gameStatus.previousBetAmount = 0;
     }
 
+    generateVsPlayers() {
+        const numberOfVsPlayers = room.gamePreferences.numberOfVsPlayers;
+        console.log("numberOfVsPlayers:", numberOfVsPlayers);
+        document.querySelector(".game_table-container").dataset.nbplayers = numberOfVsPlayers;
+        room.usersList.forEach((user, index) => {
+            let playerName = user.userPreferences.playerName;
+            let avatarNumber = user.userPreferences.avatarNumber;
+            let gender = user.userPreferences.gender;
+            let playerNumber = index + 1;
+            if (user.ref === currentProfile.ref) this.gameStatus.yourTurnNumber = playerNumber;
+            const playerCash = this.gameStatus.startingCash;
+            this.players[`player${playerNumber}`] = user.ref === currentProfile.ref ? new UserPlayers(playerNumber, playerName, avatarNumber, gender, playerCash) : new VsPlayers(playerNumber, playerName, avatarNumber, gender, playerCash);
+            console.log("this.players:", this.players);
+            
+            // Player deck
+            const playerDeck = document.createElement("div");
+            playerDeck.classList.add("player_deck");
+            playerDeck.setAttribute("data-player", this.players[`player${playerNumber}`]["type"]);
+            playerDeck.setAttribute("data-playstatus", "wait");
+            playerDeck.setAttribute("data-playernumber", this.players[`player${playerNumber}`]["number"]);
+            playerDeck.setAttribute("data-bet", "");
+            if (this.players[`player${playerNumber}`]["type"] === "you") this.yourDeck = playerDeck;
+            // Player avatar
+            const playerAvatarContainer = document.createElement("div");
+            playerAvatarContainer.classList.add("player_avatar-container");
+            const playerAvatar = document.createElement("img");
+            playerAvatar.classList.add("player_avatar");
+            playerAvatar.src = `./assets/img/avatars/avatar${avatarNumber}.png`;
+            playerAvatarContainer.appendChild(playerAvatar);
+            // Player word suggested
+            const playerWordSuggestedContainer = document.createElement("div");
+            playerWordSuggestedContainer.classList.add("player_word_suggested-container");
+            // Player cards
+            const playerCardsContainer = document.createElement("div");
+            playerCardsContainer.classList.add("player_cards-container");
+            for (let j = 1; j <= 2; j++) {
+                const playerCard = document.createElement("div");
+                playerCard.classList.add("player_card", "card");
+                playerCard.setAttribute("data-status", user.ref === currentProfile.ref ? "revealed" : "concealed");
+                playerCard.setAttribute("data-number", j);
+                const cardDetails = document.createElement("div");
+                cardDetails.classList.add("card_details");
+                cardDetails.setAttribute("data-letter", "");
+                cardDetails.setAttribute("data-value", "");
+                cardDetails.setAttribute("data-color", "");
+                const cardLetter = document.createElement("span");
+                cardLetter.classList.add("card_letter");
+                cardDetails.appendChild(cardLetter);
+                playerCard.appendChild(cardDetails);
+                playerCardsContainer.appendChild(playerCard);
+            }
+
+            if (user.ref === currentProfile.ref) this.yourCards = playerCardsContainer.querySelectorAll(".player_card");
+            // Player infos
+            const playerInfos = document.createElement("div");
+            playerInfos.classList.add("player_infos");
+            const playerNameDisplay = document.createElement("div");
+            playerNameDisplay.classList.add("player_name");
+            playerNameDisplay.textContent = playerName;
+            const playerCashDisplay = document.createElement("div");
+            playerCashDisplay.classList.add("player_cash");
+            const cashAmount = document.createElement("span");
+            cashAmount.classList.add("cash_amount");
+            if (playerNumber === numberOfVsPlayers - 1) {
+                this.players[`player${playerNumber}`]["cashPut"] = this.gameStatus.smallBlind;
+                this.players[`player${playerNumber}`]["cash"] -= this.gameStatus.smallBlind;
+                playerDeck.setAttribute("data-bet", this.gameStatus.smallBlind);
+            }
+            if (playerNumber === numberOfVsPlayers) {
+                this.players[`player${playerNumber}`]["cashPut"] = this.gameStatus.bigBlind;
+                this.players[`player${playerNumber}`]["cash"] -= this.gameStatus.bigBlind;
+                playerDeck.setAttribute("data-bet", this.gameStatus.bigBlind);
+                this.gameStatus.bigBlindPlayerNumber = this.players[`player${playerNumber}`]["number"];
+            }
+            cashAmount.textContent = this.players[`player${playerNumber}`]["cash"];
+            const actionSign = document.createElement("span");
+            actionSign.classList.add("action_sign");
+            actionSign.textContent = "";
+            const betAmount = document.createElement("span");
+            betAmount.classList.add("bet_amount");
+            betAmount.textContent = "";
+            playerCashDisplay.append(cashAmount, actionSign, betAmount);
+            const playerWordSuggestedValueContainer = document.createElement("div");
+            playerWordSuggestedValueContainer.classList.add("player_word_suggested_value-container");
+            const playerWordSuggestedValue = document.createElement("span");
+            playerWordSuggestedValue.classList.add("player_word_suggested_value");
+            playerWordSuggestedValue.textContent = 0;
+            const playerWordSuggestedValuePtsText = document.createElement("span");
+            playerWordSuggestedValuePtsText.classList.add("player_word_suggested_value_pts_text");
+            playerWordSuggestedValuePtsText.textContent = "pts";
+            playerWordSuggestedValueContainer.append(playerWordSuggestedValue, playerWordSuggestedValuePtsText);
+            playerInfos.append(playerNameDisplay, playerCashDisplay, playerWordSuggestedValueContainer);
+            playerDeck.append(playerAvatarContainer, playerCardsContainer, playerWordSuggestedContainer, playerInfos);
+            document.querySelector(".players_decks").appendChild(playerDeck);
+
+            this.players[`player${playerNumber}`]["deck"] = playerDeck;
+            this.players[`player${playerNumber}`]["playStatus"] = "wait";
+
+            this.gameStatus.orderedPlayersTurns.push(playerNumber);
+        });
+
+        this.playersDecks = document.querySelectorAll(".player_deck");
+
+        this.gameStatus.playerTurnNumber = 1;
+        this.gameStatus.lastPlayerTurnNumber = this.gameStatus.playerTurnNumber;
+
+        this.betAmountRange.max = this.players[`player${this.gameStatus.yourTurnNumber}`]["cash"] - this.gameStatus.bigBlind;
+        this.betAmountRange.min = this.gameStatus.bigBlind;
+        this.betAmountRange.value = this.betAmountRange.min;
+        this.betAmountRange.dataset.amount = this.betAmountRange.value;
+        this.potAmount.textContent = this.gameStatus.potAmount;
+        this.gameStatus.previousBetAmount = 0;
+    }
+
     generateDistribution() {
         let showdown = this.initData.cardsShowdown();
         let colorsToSet = this.initData.generateColorsList();

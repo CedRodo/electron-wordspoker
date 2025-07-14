@@ -24,7 +24,7 @@ let roomInfo = {
     backgroundNumber: 1,
     numberOfPlayers: 1
 };
-let roomsList = [];
+let roomsList = {};
 
 const profiles = localStorage.getItem("profiles") ?
     JSON.parse(localStorage.getItem("profiles")) :
@@ -140,7 +140,6 @@ async function menuSelection(event) {
                 });
                 console.log("create room: room");                
                 currentProfile.gamePreferences.roomRef = room.ref;
-                currentProfile.gamePreferences.gameMode = "multi";
                 updatePreferences();
                 roomActionDisplay.innerText = room.roomId;
                 console.log("roomsList:", roomsList);
@@ -195,7 +194,6 @@ async function menuSelection(event) {
                         if (typeof isAlreadyPresent === "undefined") {
                             console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
                             room.gamePreferences.numberOfVsPlayers++;
-                            currentProfile.gamePreferences.gameMode = "multi";
                             updatePreferences();
                             room.usersList.push(currentProfile);
                             console.log("isJoined room:", room);
@@ -702,6 +700,7 @@ socket.on('update-rooms-list', rooms => {
         console.log("rooms[room]:", rooms[room]);
         if (rooms[room].visibility === "public") publicRooms.push(rooms[room]);
     }
+    console.log("update-rooms-list publicRooms:", publicRooms);
     appendRoom(publicRooms);
 });
 
@@ -723,19 +722,36 @@ socket.on('room-joining', room => {
     console.log("room-joining:", room);
 });
 
-socket.on('start-game-multi', () => {
+socket.on('start-game-multi', roomRef => {
     console.log("start-game-multi");
-    setTimeout(() => { window.location.assign("game.html"); }, 3000);
+    setTimeout(() => {
+        localStorage.setItem("room", roomRef);
+        let room;
+        for (const r in roomsList) {
+            if (roomsList[r].ref === roomRef)
+                room = roomsList[r];
+        }
+        console.log("start-game-multi room:", room);
+        if (!room) return;
+        for (const prop in room.gamePreferences) {
+            currentProfile.gamePreferences[prop] = room.gamePreferences[prop];
+        }
+        currentProfile.gamePreferences.roomRef = roomRef;
+        currentProfile.gamePreferences.gameMode = "multi";
+        console.log("start-game-multi currentProfile:", currentProfile);        
+        updatePreferences();
+        window.location.assign("game.html");
+    }, 1000);
 });
 
 socket.on('show-notification', data => {
     console.log("show-notification:", data);
     switch (data.type) {
         case "create":
-            document.querySelector(".room_action_display").textContent = data.obj.username + " a créé la salle";
+            document.querySelector(".room_action_display").textContent = data.object.username + " a créé la salle";
             break;
         case "join":
-            document.querySelector(".room_action_display").textContent = data.obj.username + " a joint la salle";
+            document.querySelector(".room_action_display").textContent = data.object.username + " a joint la salle";
             break;
     }
 });
