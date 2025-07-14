@@ -95,6 +95,7 @@ io.on('connection', socket => {
   });
   socket.on('enter-room-lobby', room => {
     console.log("enter-room-lobby");
+    console.log("enter-room-lobby room:", room);
     if (!rooms[room.ref]) return;
     io.to(room.roomId).emit('display-room-users', room);
     // socket.emit('display-public-rooms', rooms);

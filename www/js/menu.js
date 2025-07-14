@@ -141,9 +141,9 @@ async function menuSelection(event) {
                 
                 currentProfile.gamePreferences.roomRef = room.ref;
                 roomActionDisplay.innerText = room.roomId;
-                console.log("roomsList:", roomsList);                  
+                console.log("roomsList:", roomsList);
                 await socket.emit('create-room', room);
-                socket.emit('enter-room-lobby', room);
+                document.querySelector(".selection_item").setAttribute("data-item", "");
                 document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "create");
                 break;
             };
@@ -440,6 +440,7 @@ function profileAction() {
         if (document.querySelector(".selection_item_display_input_name")) return;
         const selectionItemDisplayInputName = document.createElement("input");
         selectionItemDisplayInputName.classList.add("selection_item_display_input_name");
+        selectionItemDisplayInputName.id = "player_name";
         selectionItemDisplayInputName.type = "text";
         console.log("selectionItemDisplay.textContent:", selectionItemDisplay.textContent);        
         console.log("userPreferences.playerName:", currentProfile.userPreferences.playerName);        
@@ -571,74 +572,52 @@ function appendRoom(rooms) {
 
 function appendUsers(room) {
     console.log("appendUsers room:", room);
+    if (room.usersList.length === 0) return;
+    console.log("appendUsers room.usersList:", room.usersList);
 
-    // if (document.getElementById(room.roomId)) return;
+    const roomPlayersListElement = document.querySelector(".menu_selection_game_multi_room_players_list tbody");
 
-    // const roomsListElement = document.querySelector(".menu_selection_game_multi_join_room_rooms_list tbody");
+    while (Array.from(roomPlayersListElement.querySelectorAll(".room_user-container"))[0]) {
+        Array.from(roomPlayersListElement.querySelectorAll(".room_user-container")).at(-1).remove();
+    }
 
-    // while (Array.from(roomsListElement.querySelectorAll(".room-container"))[0]) {
-    //     Array.from(roomsListElement.querySelectorAll(".room-container")).at(-1).remove();
-    // }
+    room.usersList.forEach(user => {
+        const roomUserContainer = document.createElement("tr");
+        roomUserContainer.classList.add("room_user-container");
+        roomUserContainer.setAttribute("data-ref", user.ref);
+        roomUserContainer.setAttribute("username", user.username);
+        const roomUserUsername = document.createElement("td");
+        roomUserUsername.classList.add("room_user_username");
+        roomUserUsername.textContent = user.username;
+        const roomUserAvatarContainer = document.createElement("td");
+        roomUserAvatarContainer.classList.add("room_user_avatar-container");
+        const roomUserAvatar = document.createElement("img");
+        roomUserAvatar.classList.add("room_user_avatar");
+        roomUserAvatar.src = "./assets/img/avatars/avatar" + user.userPreferences.avatarNumber + ".png";
+        roomUserAvatarContainer.appendChild(roomUserAvatar);
+        const roomUserPlayerName = document.createElement("td");
+        roomUserPlayerName.classList.add("room_user_playername");
+        roomUserPlayerName.textContent = user.userPreferences.playerName;
+        const roomUserRank = document.createElement("td");
+        roomUserRank.classList.add("room_user_rank");
+        roomUserRank.textContent = user.playerDetails.rank;
+        const roomUserGameStatsContainer = document.createElement("td");
+        roomUserGameStatsContainer.classList.add("room_user_game_stats-container");
+        const roomUserNbOfWins = document.createElement("span");
+        roomUserNbOfWins.classList.add("room_user_nb_of_wins");
+        roomUserNbOfWins.textContent = user.playerDetails.playStats.win;
+        const roomUserGameStatsSeparator = document.createElement("span");
+        roomUserGameStatsSeparator.classList.add("room_user_game_stats_separator");
+        roomUserGameStatsSeparator.textContent = "/";
+        const roomUserNbOfGames = document.createElement("span");
+        roomUserNbOfGames.classList.add("room_user_nb_of_games");
+        roomUserNbOfGames.textContent = user.playerDetails.playStats.nbOfGames;
+        roomUserGameStatsContainer.append(roomUserNbOfWins, roomUserGameStatsSeparator, roomUserNbOfGames);
 
-    // rooms.forEach(room => {
-    //     const roomContainer = document.createElement("tr");
-    //     roomContainer.classList.add("room-container");
-    //     roomContainer.setAttribute("data-ref", room.ref);
-    //     roomContainer.setAttribute("id", room.roomId);
-    //     const roomHost = document.createElement("td");
-    //     roomHost.classList.add("room_host");
-    //     roomHost.textContent = room.hostName;
-    //     const roomBackgroundContainer = document.createElement("td");
-    //     roomBackgroundContainer.classList.add("room_background-container");
-    //     const roomBackground = document.createElement("img");
-    //     roomBackground.classList.add("room_background");
-    //     roomBackground.src = "./assets/img/backgrounds/bg" + room.gamePreferences.backgroundNumber + ".jpg";
-    //     roomBackgroundContainer.appendChild(roomBackground);
-    //     const roomNbOfPlayersContainer = document.createElement("td");
-    //     roomNbOfPlayersContainer.classList.add("room_nb_of_players-container");
-    //     const roomNbJoiningPlayers = document.createElement("span");
-    //     roomNbJoiningPlayers.classList.add("room_nb_joining_players");
-    //     roomNbJoiningPlayers.textContent = room.gamePreferences.numberOfVsPlayers;
-    //     const roomPlayersSeparator = document.createElement("span");
-    //     roomPlayersSeparator.classList.add("room_players_separator");
-    //     roomPlayersSeparator.textContent = "/";
-    //     const roomNbMaxPlayers = document.createElement("span");
-    //     roomNbMaxPlayers.classList.add("room_nb_max_players");
-    //     roomNbMaxPlayers.textContent = room.gamePreferences.numberOfPlayers;
-    //     roomNbOfPlayersContainer.append(roomNbJoiningPlayers, roomPlayersSeparator, roomNbMaxPlayers);
-    //     const roomBuyIn = document.createElement("td");
-    //     roomBuyIn.classList.add("room_buyin");
-    //     roomBuyIn.textContent = room.gamePreferences.buyIn;
+        roomUserContainer.append(roomUserUsername, roomUserAvatarContainer, roomUserPlayerName, roomUserRank, roomUserGameStatsContainer);
 
-    //     roomContainer.append(roomHost, roomBackgroundContainer, roomNbOfPlayersContainer, roomBuyIn);
-
-    //     roomContainer.addEventListener("pointerup", selectRoom);
-
-    //     function selectRoom() {
-    //         document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
-    //         roomContainer.classList.add("selected");
-    //         const isJoined = confirm("Voulez-vous rejoindre cette salle ?");
-    //         if (isJoined) {
-    //             const isAlreadyPresent = room.usersList.find(r => r.ref === currentProfile.ref);
-    //             if (typeof isAlreadyPresent === "undefined") {
-    //                 console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
-    //                 room.gamePreferences.numberOfVsPlayers++;
-    //                 room.usersList.push(currentProfile);
-    //                 console.log("isJoined room:", room);
-    //                 socket.emit('join-room', room);
-    //             }
-    //         } else {
-    //             roomContainer.classList.remove("selected");
-    //         }
-    //     }
-
-    //     function selectRoom(event) {
-    //         document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
-    //         roomContainer.classList.add("selected");
-    //     }
-
-    //     roomsListElement.appendChild(roomContainer);
-    // })
+        roomPlayersListElement.appendChild(roomUserContainer);
+    });
 }
 
 function loadProfile(profileNumber) {
@@ -680,10 +659,10 @@ socket.on('display connection', name => {
         const userConnectionDisplay = document.createElement("div");
         userConnectionDisplay.classList.add("user_connection_display");
         userConnectionDisplay.setAttribute("id", socket.id);
-        document.querySelector(".connection_display").appendChild(userConnectionDisplay);
+        document.querySelector(".room_id_display").appendChild(userConnectionDisplay);
     }
     document.getElementById(socket.id).innerHTML = `${name} is connected`;
-    document.querySelector(".connection_display").setAttribute("data-id", socket.id);
+    document.querySelector(".room_id_display").setAttribute("data-id", socket.id);
 });
 
 socket.on('display disconnection', name => {
@@ -702,7 +681,8 @@ socket.on('update-users', users => {
 
 socket.on('room-creation', room => {
     console.log("room-creation:", room);
-    document.querySelector(".connection_display").dataset.id = room.roomId;
+    document.querySelector(".room_id_display").dataset.id = room.roomId;
+    socket.emit('enter-room-lobby', room);
 });
 
 socket.on('room-to-update', room => {
@@ -748,10 +728,10 @@ socket.on('show-notification', data => {
     console.log("show-notification:", data);
     switch (data.type) {
         case "create":
-            document.querySelector(".joining_display").textContent = data.obj.username + " created the room";
+            document.querySelector(".room_action_display").textContent = data.obj.username + " a créé la salle";
             break;
         case "join":
-            document.querySelector(".joining_display").textContent = data.obj.username + " joined the room";
+            document.querySelector(".room_action_display").textContent = data.obj.username + " a joint la salle";
             break;
     }
 });

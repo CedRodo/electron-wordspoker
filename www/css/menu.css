@@ -108,13 +108,14 @@
 
 .room_action_display {
     width: 20%;
+    top: 1%;
     left: 50%;
     translate: -50%;
     color: white;
 }
 
 
-.connection_display,
+.room_id_display,
 .joining_display {
     width: 30%;
     height: 5%;
@@ -122,7 +123,6 @@
     justify-content: start;
     align-items: center;
     position: absolute;
-    bottom: 1%;
     font-family: 'Times New Roman', Times, serif;
     font-weight: 600;
     color: white;
@@ -131,16 +131,22 @@
     text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
 }
 
-.connection_display {
+.joining_display {
+    bottom: 1%;
+}
+
+.room_id_display {
+    display: none;
     justify-content: center;
     align-items: start;
     flex-direction: column;
     width: 30%;
+    top: 4%;
     left: 1%;
 }
 
-.connection_display::before {
-    content: "#" attr(data-id);
+.room_id_display::before {
+    content: attr(data-id);
     position: absolute;
     top: 0;
     left: 0;
@@ -674,7 +680,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 .selection_item_display_input_name {
     width: 100%;
     height: 100%;
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -721,12 +727,12 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 }
 
 main:has(.menu_selection_game_multi_join_room_rooms_list table tr.selected) {
-    & .selection-container {
+
+    & .selection-container,
+    .selection_item_display_join_button {
         display: flex;
     }
-    & .selection_item_display_join_button {
-        display: flex;
-    }
+
     & .selection_item_direction_arrow-container {
         display: none;
     }
@@ -742,6 +748,91 @@ main:has(.menu_selection_game_multi_room-container[data-type="create"]) {
     }
 }
 
+.menu_selection_game_multi_room_players_list table {
+    border-collapse: separate;
+    border-spacing: 2vh;
+}
+
+.menu_selection_game_multi_room_players_list table tr {
+    width: 100%;
+    height: 4vh;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    color: white;
+    font-size: 3vmin;
+    text-transform: none;
+    user-select: none;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+    position: relative;
+    cursor: pointer;
+}
+
+.menu_selection_game_multi_room_players_list table tr::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: transparent;
+}
+
+.menu_selection_game_multi_room_players_list table tr.selected::after {
+    background-color: #e9728761;
+}
+
+.menu_selection_game_multi_room_players_list table td {
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    text-transform: none;
+}
+
+.menu_selection_game_multi_room_players_list table thead tr {
+    color: gold;
+}
+
+.room_user_username-title {
+    width: 15%;
+}
+
+.room_user_avatar-title {
+    width: 20%;
+}
+
+.room_user_playername-title {
+    width: 15%;
+}
+
+.room_user_rank-title {
+    width: 10%;
+}
+
+.room_user_gamestats-title {
+    width: 15%;
+}
+
+.room_user_avatar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.room_user_avatar {
+    width: auto;
+    height: 7.5vh;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+main:has(.menu-container[data-display="gamemultiroom"]) {
+
+    & .room_action_display,
+    .room_id_display {
+        display: flex;
+    }
+}
+
 @media (display-mode: fullscreen) {
     /* .menu_selection-container {
         width: auto;
@@ -754,7 +845,7 @@ main:has(.menu_selection_game_multi_room-container[data-type="create"]) {
     .menu_selection span {
         font-size: 14.5vh;
     } */
-     
+
     .menu-container {
         width: 55%;
     }

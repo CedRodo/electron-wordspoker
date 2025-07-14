@@ -1,6 +1,6 @@
 class PlayerDetails {
     constructor() {
-        this.level = 1;
+        this.rank = 1;
         this.wordHighestScore = 0;
         this.playStats = {
             call: 0,
