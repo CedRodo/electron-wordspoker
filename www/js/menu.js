@@ -68,7 +68,7 @@ function leavingApp() {
 
 menuContainer.addEventListener("pointerup", menuSelection);
 
-function menuSelection(event) {
+async function menuSelection(event) {
     if (preventActions || !event.target.closest(".menu_selection")) return;
     let menuSelect = { element: null, display: null, item: null };
     console.log("event.target:", event.target);
@@ -118,6 +118,11 @@ function menuSelection(event) {
                 setTimeout(() => { window.location.assign("game.html"); }, 2000);
             }
             break;
+        case "multi":
+            console.log("multi");
+            if (document.querySelector(".selection_item_display_join_button"))
+                document.querySelector(".selection_item_display_join_button").remove();
+            break;
         case "gamemultiroom":
             console.log("gamemultiroom");
             if (menuSelect.type === "create") {
@@ -137,7 +142,22 @@ function menuSelection(event) {
                 currentProfile.gamePreferences.roomRef = room.ref;
                 roomActionDisplay.innerText = room.roomId;
                 console.log("roomsList:", roomsList);                  
-                socket.emit('create-room', room);
+                await socket.emit('create-room', room);
+                socket.emit('enter-room-lobby', room);
+                document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "create");
+                break;
+            };
+            if (menuSelect.type === "start") {
+                console.log("start multi");
+                let roomRef = currentProfile.ref;
+                console.log("start multi roomRef:", roomRef);
+                console.log("start multi roomsList:", roomsList);
+                let room;
+                for (const r in roomsList) {
+                    if (roomsList[r].ref === roomRef) room = roomsList[r];
+                }
+                if (!room) return;
+                socket.emit('prepare-game-multi-start', room);
                 break;
             };
             break;
@@ -147,6 +167,43 @@ function menuSelection(event) {
                 console.log("menuSelect.type:", menuSelect.type);
                 // socket.emit('all-rooms', menuSelect.type);
                 socket.emit('enter-public-rooms');
+
+                if (document.querySelector(".selection_item_display_join_button")) return;
+                const selectionItemDisplayJoinButton = document.createElement("button");
+                selectionItemDisplayJoinButton.classList.add("selection_item_display_join_button");
+                selectionItemDisplayJoinButton.textContent = "Joindre";
+                selectionItemDisplay.appendChild(selectionItemDisplayJoinButton);
+
+                selectionItemDisplayJoinButton.addEventListener("pointerup", joinRoom);
+
+                async function joinRoom() {
+                    if (document.querySelector(".room-container.selected")) {
+                        if (!document.querySelector(".room-container.selected").dataset.ref ||
+                            document.querySelector(".room-container.selected").dataset.ref === "")
+                            return;
+                        let roomRef = document.querySelector(".room-container.selected").dataset.ref;
+                        console.log("joinRoom roomRef:", roomRef);
+                        console.log("joinRoom roomsList:", roomsList);
+                        let room;
+                        for (const r in roomsList) {
+                            if (roomsList[r].ref === roomRef) room = roomsList[r];
+                        }
+                        if (!room) return;
+                        const isAlreadyPresent = room.usersList.find(u => u.ref === currentProfile.ref);
+                        if (typeof isAlreadyPresent === "undefined") {
+                            console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
+                            room.gamePreferences.numberOfVsPlayers++;
+                            room.usersList.push(currentProfile);
+                            console.log("isJoined room:", room);
+                            await socket.emit('join-room', room);
+                            socket.emit('enter-room-lobby', room);
+                            document.querySelector(".menu-container").setAttribute("data-display", "gamemultiroom");
+                            document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "");
+                        }
+                    }
+                    // if (document.querySelector(".selection_item_display_join_button"))
+                    //     document.querySelector(".selection_item_display_join_button").remove();
+                }               
             };
             break;
         case "joinroom":
@@ -454,6 +511,7 @@ function appendRoom(rooms) {
     rooms.forEach(room => {
         const roomContainer = document.createElement("tr");
         roomContainer.classList.add("room-container");
+        roomContainer.setAttribute("data-ref", room.ref);
         roomContainer.setAttribute("id", room.roomId);
         const roomHost = document.createElement("td");
         roomHost.classList.add("room_host");
@@ -468,13 +526,13 @@ function appendRoom(rooms) {
         roomNbOfPlayersContainer.classList.add("room_nb_of_players-container");
         const roomNbJoiningPlayers = document.createElement("span");
         roomNbJoiningPlayers.classList.add("room_nb_joining_players");
-        roomNbJoiningPlayers.textContent = room.gamePreferences.nbOfVsPlayers;
+        roomNbJoiningPlayers.textContent = room.gamePreferences.numberOfVsPlayers;
         const roomPlayersSeparator = document.createElement("span");
         roomPlayersSeparator.classList.add("room_players_separator");
         roomPlayersSeparator.textContent = "/";
         const roomNbMaxPlayers = document.createElement("span");
         roomNbMaxPlayers.classList.add("room_nb_max_players");
-        roomNbMaxPlayers.textContent = room.gamePreferences.nbOfPlayers;
+        roomNbMaxPlayers.textContent = room.gamePreferences.numberOfPlayers;
         roomNbOfPlayersContainer.append(roomNbJoiningPlayers, roomPlayersSeparator, roomNbMaxPlayers);
         const roomBuyIn = document.createElement("td");
         roomBuyIn.classList.add("room_buyin");
@@ -488,15 +546,99 @@ function appendRoom(rooms) {
             document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
             roomContainer.classList.add("selected");
             const isJoined = confirm("Voulez-vous rejoindre cette salle ?");
-            if (isJoined) {
-                socket.emit("join-room", room);
+            if (isJoined) {                
+                const isAlreadyPresent = room.usersList.find(r => r.ref === currentProfile.ref);
+                if (typeof isAlreadyPresent === "undefined"){
+                    console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);                    
+                    room.gamePreferences.numberOfVsPlayers++;
+                    room.usersList.push(currentProfile);
+                    console.log("isJoined room:", room);                    
+                    socket.emit('join-room', room);
+                }
             } else {
                 roomContainer.classList.remove("selected");
             }
         }
 
+        function selectRoom(event) {
+            document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
+            roomContainer.classList.add("selected");
+        }
+
         roomsListElement.appendChild(roomContainer);
     })
+}
+
+function appendUsers(room) {
+    console.log("appendUsers room:", room);
+
+    // if (document.getElementById(room.roomId)) return;
+
+    // const roomsListElement = document.querySelector(".menu_selection_game_multi_join_room_rooms_list tbody");
+
+    // while (Array.from(roomsListElement.querySelectorAll(".room-container"))[0]) {
+    //     Array.from(roomsListElement.querySelectorAll(".room-container")).at(-1).remove();
+    // }
+
+    // rooms.forEach(room => {
+    //     const roomContainer = document.createElement("tr");
+    //     roomContainer.classList.add("room-container");
+    //     roomContainer.setAttribute("data-ref", room.ref);
+    //     roomContainer.setAttribute("id", room.roomId);
+    //     const roomHost = document.createElement("td");
+    //     roomHost.classList.add("room_host");
+    //     roomHost.textContent = room.hostName;
+    //     const roomBackgroundContainer = document.createElement("td");
+    //     roomBackgroundContainer.classList.add("room_background-container");
+    //     const roomBackground = document.createElement("img");
+    //     roomBackground.classList.add("room_background");
+    //     roomBackground.src = "./assets/img/backgrounds/bg" + room.gamePreferences.backgroundNumber + ".jpg";
+    //     roomBackgroundContainer.appendChild(roomBackground);
+    //     const roomNbOfPlayersContainer = document.createElement("td");
+    //     roomNbOfPlayersContainer.classList.add("room_nb_of_players-container");
+    //     const roomNbJoiningPlayers = document.createElement("span");
+    //     roomNbJoiningPlayers.classList.add("room_nb_joining_players");
+    //     roomNbJoiningPlayers.textContent = room.gamePreferences.numberOfVsPlayers;
+    //     const roomPlayersSeparator = document.createElement("span");
+    //     roomPlayersSeparator.classList.add("room_players_separator");
+    //     roomPlayersSeparator.textContent = "/";
+    //     const roomNbMaxPlayers = document.createElement("span");
+    //     roomNbMaxPlayers.classList.add("room_nb_max_players");
+    //     roomNbMaxPlayers.textContent = room.gamePreferences.numberOfPlayers;
+    //     roomNbOfPlayersContainer.append(roomNbJoiningPlayers, roomPlayersSeparator, roomNbMaxPlayers);
+    //     const roomBuyIn = document.createElement("td");
+    //     roomBuyIn.classList.add("room_buyin");
+    //     roomBuyIn.textContent = room.gamePreferences.buyIn;
+
+    //     roomContainer.append(roomHost, roomBackgroundContainer, roomNbOfPlayersContainer, roomBuyIn);
+
+    //     roomContainer.addEventListener("pointerup", selectRoom);
+
+    //     function selectRoom() {
+    //         document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
+    //         roomContainer.classList.add("selected");
+    //         const isJoined = confirm("Voulez-vous rejoindre cette salle ?");
+    //         if (isJoined) {
+    //             const isAlreadyPresent = room.usersList.find(r => r.ref === currentProfile.ref);
+    //             if (typeof isAlreadyPresent === "undefined") {
+    //                 console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
+    //                 room.gamePreferences.numberOfVsPlayers++;
+    //                 room.usersList.push(currentProfile);
+    //                 console.log("isJoined room:", room);
+    //                 socket.emit('join-room', room);
+    //             }
+    //         } else {
+    //             roomContainer.classList.remove("selected");
+    //         }
+    //     }
+
+    //     function selectRoom(event) {
+    //         document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
+    //         roomContainer.classList.add("selected");
+    //     }
+
+    //     roomsListElement.appendChild(roomContainer);
+    // })
 }
 
 function loadProfile(profileNumber) {
@@ -563,9 +705,9 @@ socket.on('room-creation', room => {
     document.querySelector(".connection_display").dataset.id = room.roomId;
 });
 
-socket.on('update-room', (roomName, type) => {
-    console.log("update-room:", roomName);
-    socket.emit('room-users', roomName, type);
+socket.on('room-to-update', room => {
+    console.log("room-to-update:", room);
+    socket.emit('update-room', room);
 });
 
 socket.on('update-rooms-list', rooms => {
@@ -579,8 +721,14 @@ socket.on('update-rooms-list', rooms => {
     appendRoom(publicRooms);
 });
 
-socket.on('display-room-users', (data) => {
-    console.log("display-room-users data:", data);
+socket.on('display-room-users', room => {
+    console.log("display-room-users:", room);
+    // let roomToFind;
+    // for (const r in roomsList) {
+    //     if (roomsList[r].ref === room.ref) roomToFind = roomsList[r];
+    // }
+    // if (!room) return;
+    appendUsers(room);
 });
 
 socket.on('display-public-rooms', rooms => {
@@ -591,13 +739,22 @@ socket.on('room-joining', room => {
     console.log("room-joining:", room);
 });
 
-// socket.on('room-join', id => {
-//     console.log("room-join:", id);
-//     roomActionDisplay.textContent = id;
-//     currentProfile.gamePreferences.roomId = id;
-// });
+socket.on('start-game-multi', () => {
+    console.log("start-game-multi");
+    setTimeout(() => { window.location.assign("game.html"); }, 3000);
+});
 
-// socket.emit('user-connected', currentProfile.userPreferences.playerName);
+socket.on('show-notification', data => {
+    console.log("show-notification:", data);
+    switch (data.type) {
+        case "create":
+            document.querySelector(".joining_display").textContent = data.obj.username + " created the room";
+            break;
+        case "join":
+            document.querySelector(".joining_display").textContent = data.obj.username + " joined the room";
+            break;
+    }
+});
 
 socket.on('user-connected', name => {
     console.log("user-connected:", name);

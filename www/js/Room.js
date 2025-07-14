@@ -17,11 +17,14 @@ class Room {
 
     addUser(user) {
         console.log("addUser user:", user);
-        const userAlreadyPresent = this.getUsers().find(u => u.username === user.username);
+        const userAlreadyPresent = this.getUsers().find(u => u.ref === user.ref);
+        let isAdded = false;
         if (typeof userAlreadyPresent === "undefined") {
             this.getUsers().push(user);
+            isAdded = true;
         }
         console.log("addUser usersList:", this.getUsers());
+        return isAdded;
     }
 
     removeUser(user) {

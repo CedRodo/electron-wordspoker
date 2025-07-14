@@ -21,8 +21,8 @@ class GamePreferences {
 
     getRoomPreferences() {
         return {
-            nbOfPlayers : this.numberOfPlayers,
-            nbOfVsPlayers : this.numberOfVsPlayers,
+            numberOfPlayers : this.numberOfPlayers,
+            numberOfVsPlayers : this.numberOfVsPlayers,
             buyIn: this.buyIn,
             bigBlind: this.bigBlind,
             backgroundNumber: this.backgroundNumber

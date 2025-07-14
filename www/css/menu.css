@@ -674,7 +674,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 .selection_item_display_input_name {
     width: 100%;
     height: 100%;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -690,6 +690,56 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
     translate: -50% 0;
     background: none;
     user-select: text;
+}
+
+.selection_item_display_join_button {
+    width: 40%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    outline: none;
+    border: none;
+    background: none;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 9vh;
+    font-weight: 600;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    user-select: none;
+    cursor: pointer;
+    transition: text-shadow 0.2s;
+}
+
+.selection_item_display_join_button:hover {
+    text-shadow: 0.3vh 0.3vh 0.5vh gold, 0.6vh 0.6vh 2vh black;
+    filter: brightness(125%);
+}
+
+main:has(.menu_selection_game_multi_join_room_rooms_list table tr.selected) {
+    & .selection-container {
+        display: flex;
+    }
+    & .selection_item_display_join_button {
+        display: flex;
+    }
+    & .selection_item_direction_arrow-container {
+        display: none;
+    }
+}
+
+.menu_selection_game_multi_room_start {
+    visibility: hidden;
+}
+
+main:has(.menu_selection_game_multi_room-container[data-type="create"]) {
+    & .menu_selection_game_multi_room_start {
+        visibility: visible;
+    }
 }
 
 @media (display-mode: fullscreen) {
