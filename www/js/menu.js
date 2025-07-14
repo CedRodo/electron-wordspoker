@@ -114,7 +114,8 @@ async function menuSelection(event) {
                 preventActions = true;
                 main.classList.add("hide");
                 sounds.audioThemeTag.pause();
-                updatePreferences(profiles.current);
+                currentProfile.gamePreferences.gameMode = "solo";
+                updatePreferences();
                 setTimeout(() => { window.location.assign("game.html"); }, 2000);
             }
             break;
@@ -137,9 +138,10 @@ async function menuSelection(event) {
                     visibility: currentProfile.gamePreferences.roomVisibility,
                     gamePreferences: gamePreferences,
                 });
-                console.log("create room: room");
-                
+                console.log("create room: room");                
                 currentProfile.gamePreferences.roomRef = room.ref;
+                currentProfile.gamePreferences.gameMode = "multi";
+                updatePreferences();
                 roomActionDisplay.innerText = room.roomId;
                 console.log("roomsList:", roomsList);
                 await socket.emit('create-room', room);
@@ -193,6 +195,8 @@ async function menuSelection(event) {
                         if (typeof isAlreadyPresent === "undefined") {
                             console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
                             room.gamePreferences.numberOfVsPlayers++;
+                            currentProfile.gamePreferences.gameMode = "multi";
+                            updatePreferences();
                             room.usersList.push(currentProfile);
                             console.log("isJoined room:", room);
                             await socket.emit('join-room', room);
@@ -631,9 +635,9 @@ function loadProfile(profileNumber) {
 function updatePreferences(profileNumber) {
     if (profileNumber) {
         // profiles[`profile${profileNumber}`] = structuredClone(currentProfile);
-        profiles[`profile${profileNumber}`] = currentProfile;
         profiles.current = profileNumber;
     }
+    profiles[`profile${profiles.current}`] = currentProfile;
     socket.emit('check-playerName-change', currentProfile.userPreferences.playerName);
     localStorage.setItem("profiles", JSON.stringify(profiles));
 }
