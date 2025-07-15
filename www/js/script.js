@@ -45,3 +45,8 @@ const socket = io('http://localhost:3000');
 //     connection = true;
 //   }
 // });
+
+socket.on('distribution', data => {
+    console.log("distribution data:", data);
+    
+})

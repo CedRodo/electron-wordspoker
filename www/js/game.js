@@ -78,11 +78,33 @@ async function initialization() {
             } else {
                 gameEnvironment.generatePlayers();
             }
-            gameEnvironment.generateDistribution();
-            gameEnvironment.gameMenuEvents();
-            eventsListeners.create();
-            sounds.generateSounds();
-            setTimeout(() => { gameMechanics.runningTurn(); }, 7500);
+            console.log("currentProfile.username:", currentProfile.username);
+            console.log("room.hostName:", room.hostName);
+
+            let nbOfPlayersReady = 0;
+            socket.emit('add-player-ready');
+            socket.on('number-of-players-ready', numberOfPlayersReady => {
+                nbOfPlayersReady = numberOfPlayersReady;
+            });
+            
+            let allReadyCheck = requestAnimationFrame(onceAllPlayersAreReady);
+
+            function onceAllPlayersAreReady() {
+                console.log("nbOfPlayersReady:", nbOfPlayersReady);
+                if (nbOfPlayersReady === room.gamePreferences.numberOfVsPlayers) {
+                    console.log("nbOfPlayersReady === room.gamePreferences.numberOfVsPlayers");                    
+                    cancelAnimationFrame(allReadyCheck);
+                    if (currentProfile.username === room.hostName) gameEnvironment.generateDistribution();
+                    gameEnvironment.gameMenuEvents();
+                    eventsListeners.create();
+                    sounds.generateSounds();
+                    setTimeout(() => { gameMechanics.runningTurn(); }, 7500);
+                    return;
+                } else {
+                    requestAnimationFrame(onceAllPlayersAreReady);
+                }
+            }
+
         }
     }
 

@@ -46,6 +46,8 @@ class GameMechanics {
         // let timeLimitMax = 200;
         // let timeLimitMin = 100;
         let timeLimitMax = 15000;
+        let timeLimitMin = 3000;
+        let thinkingTime = Math.floor(Math.random() * (timeLimitMax - timeLimitMin + 1)) + timeLimitMin;
         playerDeck.setAttribute("data-playstatus", "turn");
         playerDeck.style.setProperty("--time", this.countdownPercent);
         playerDeck.style.setProperty("--countdown_color", "#f0f003");
@@ -67,6 +69,56 @@ class GameMechanics {
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);
         }, 20);
+
+        if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"] === "cpu") {
+            setTimeout(() => {
+                clearInterval(this.thinkingCountdown);
+                this.countdownPercent = 100;
+                playerDeck.style.setProperty("--time", this.countdownPercent);
+                const aIPlayer = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
+                const aIChoice = aIPlayer.betDecision(this.gameStatus.cashToPut, this.gameStatus.previousBetAmount);
+                playerDeck.setAttribute("data-playstatus", aIChoice);
+                aIPlayer.playStatus = aIChoice;
+                console.log("aIPlayer:", aIPlayer.name);
+                console.log("aIChoice:", aIChoice);
+                switch (aIChoice) {
+                    case "call":
+                        playerDeck.querySelector(".action_sign").textContent = "►";
+                        playerDeck.querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
+                        playerDeck.setAttribute("data-bet", this.gameStatus.cashToPut);
+                        let callAmount = aIPlayer.cash > this.gameStatus.cashToPut - aIPlayer.cashPut ? this.gameStatus.cashToPut - aIPlayer.cashPut : aIPlayer.cash;
+                        this.gameStatus.potAmount += callAmount;
+                        aIPlayer.cash -= callAmount;
+                        aIPlayer.cashPut += callAmount;
+                        break;
+                    case "raise":
+                        console.log("raise this.gameStatus.cashToPut before:", this.gameStatus.cashToPut);
+                        let startingBetAmount = this.gameStatus.cashToPut > this.gameStatus.bigBlind ? this.gameStatus.cashToPut : this.gameStatus.bigBlind;
+                        let betAmount = Math.floor(Math.random() * ((startingBetAmount * 1.2) - startingBetAmount + 1)) + startingBetAmount;
+                        console.log("betAmount:", betAmount);                        
+                        if (aIPlayer.cash < this.gameStatus.cashToPut + betAmount) betAmount = aIPlayer.cash - this.gameStatus.cashToPut;
+                        this.gameStatus.cashToPut += betAmount;
+                        console.log("raise this.gameStatus.cashToPut final:", this.gameStatus.cashToPut);
+                        playerDeck.querySelector(".action_sign").textContent = "▲";
+                        playerDeck.querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
+                        playerDeck.setAttribute("data-bet", betAmount);
+                        this.gameStatus.potAmount += this.gameStatus.cashToPut;
+                        aIPlayer.cash -= this.gameStatus.cashToPut - aIPlayer.cashPut;
+                        aIPlayer.cashPut = this.gameStatus.cashToPut;
+                        break;
+                    case "fold":
+                        playerDeck.querySelector(".action_sign").textContent = "";
+                        playerDeck.querySelector(".bet_amount").textContent = "";
+                        this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
+                        this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
+                        break;
+                }
+                playerDeck.querySelector(".cash_amount").textContent = aIPlayer.cash;
+                aIPlayer.checkIfAllIn();
+                this.updatePotAndBetRange();
+                this.endingTurn();
+            }, thinkingTime);
+        }
 
     }
     endingTurn() {           
@@ -204,6 +256,7 @@ class GameMechanics {
                     this.gameEnvironment.players[player].getPossibleWords(this.initData.wordsList);
                     this.gameEnvironment.players[player].setWordsCards();
                     this.gameEnvironment.players[player].setWordsAndValues();
+                    if (this.gameEnvironment.players[player]["type"] === "cpu") this.gameEnvironment.players[player].wordDecision();
                     if (this.gameEnvironment.players[player]["wordToPlay"]["value"] > this.gameStatus.bestWordValue)
                         this.gameStatus.bestWordValue = this.gameEnvironment.players[player]["wordToPlay"]["value"];
                     console.log("this.gameEnvironment.players[player]:", this.gameEnvironment.players[player]);
@@ -436,8 +489,6 @@ class GameMechanics {
         this.gameStatus.cashToPut = this.gameStatus.bigBlind;
         this.gameStatus.potAmount = smallBlindPlayer.cashPut + bigBlindPlayer.cashPut;
         this.gameStatus.previousBetAmount = 0;
-        console.log("currentProfile.username:", currentProfile.username);
-        console.log("room.hostName:", room.hostName);        
-        if (currentProfile.username === room.hostName) this.gameEnvironment.generateDistribution();
+        this.gameEnvironment.generateDistribution();
     }
 }

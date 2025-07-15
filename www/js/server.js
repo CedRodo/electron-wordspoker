@@ -14,20 +14,22 @@ httpServer.listen(3000);
 
 const users = {};
 const rooms = {};
+let nbOfPlayersReady = 0;
 
 io.on('connection', socket => {
   console.log("users:", users);
   console.log("socket id:", socket.id);
 
+  socket.on('disconnect', () => {
+    console.log("disconnect:", users[socket.id]);
+    delete users[socket.id];
+  });
+
+  ///////////// MENU ///////////////
+
   socket.on('new-user', user => {
     console.log("new user:", user);
     if (!users[socket.id]) users[socket.id] = user;
-    // let usersList = [];
-    // for (const sckt in users) {
-    //   usersList.push(users[sckt]);
-    // }
-    // console.log("usersList:", usersList);
-    // io.emit('update-users', usersList);
   });
 
   socket.on('room-users', async (roomId) => {
@@ -39,7 +41,6 @@ io.on('connection', socket => {
     const usersInRoom = socketsIds.map(id => users[id]);
     console.log("usersInRoom:", usersInRoom);
     io.emit('display-room-users', { roomId: roomId, users: usersInRoom });
-    // io.to(roomId).emit('display-room-users', { roomId: roomId, users: usersInRoom });
   });
 
   socket.on('create-room', (room) => {
@@ -105,7 +106,6 @@ io.on('connection', socket => {
     console.log("enter-room-lobby room:", room);
     if (!rooms[room.ref]) return;
     io.to(room.roomId).emit('display-room-users', room);
-    // socket.emit('display-public-rooms', rooms);
   });
 
   socket.on('prepare-game-multi-start', (room) => {
@@ -129,8 +129,62 @@ io.on('connection', socket => {
     io.to(room.roomId).emit('game-multi-room', room);
   });
 
-  socket.on('disconnect', () => {
-    console.log("disconnect:", users[socket.id]);
-    delete users[socket.id];
+  ///////////// TEST ///////////////
+
+  socket.on('test-new-user', (user, roomId) => {
+    console.log("test-new-user");
+    console.log("test-new-user user:", user);
+    if (!users[socket.id]) users[socket.id] = user;
+    console.log("test-new-user users:", users);
+    socket.join(roomId);
+    io.to(roomId).emit('test-update-users', users);
+    io.to(roomId).emit('test-display-users');
   });
+
+  socket.on('test-new-room', room => {
+    console.log("test-new-room");
+    console.log("test-new-room room:", room);
+    if (!rooms[room.ref]) {
+      Object.defineProperty(rooms, room.ref, { value: {}, enumerable: true, writable: true });
+    }
+    rooms[room.ref] = room;
+    console.log("rooms:", rooms);
+  });
+
+  socket.on('test-update-room', (room, prop) => {
+    console.log("test-update-room");
+    console.log("test-update-room room:", room);
+    if (!rooms[room.ref]) return;
+    rooms[room.ref][prop] = room[prop];
+    console.log("test-update-room rooms[room.ref]:", rooms[room.ref]);
+  });
+
+  socket.on('launch-multi', roomId => {
+    console.log("launch-multi");
+    console.log("launch-multi roomId:", roomId);
+    io.to(roomId).emit('start-multi');
+  });
+
+  ///////////// GAME ///////////////
+
+  socket.on('player-action', data => {
+    console.log("player-action");
+    console.log("player-action data:", data);
+    io.emit('update-game-status', data);
+  });
+
+  socket.on('game-generate-distribution', data => {
+    console.log("game-generate-distribution");
+    console.log("game-generate-distribution data:", data);
+    io.emit('distribution', data);
+    io.emit('game-distribution', data);
+  });
+
+  socket.on('add-player-ready', () => {
+    console.log("add-player-ready nbOfPlayersReady:", nbOfPlayersReady);
+    nbOfPlayersReady++;
+    console.log("nbOfPlayersReady++:", nbOfPlayersReady);
+    io.emit('number-of-players-ready', nbOfPlayersReady);
+  });
+
 });

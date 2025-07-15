@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js" defer></script>
+    <script src="./js/script.js" defer></script>
+    <script src="./js/UserPreferences.js" defer></script>
+    <script src="./js/GamePreferences.js" defer></script>
+    <script src="./js/PlayerDetails.js" defer></script>
+    <script src="./js/User.js" defer></script>
+    <script src="./js/Room.js" defer></script>
+    <script src="./js/test.js" defer></script>
+    <title>Words Poker: Test Launch</title>
+    <style>
+        body { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #2e1010; position: relative; overflow: hidden; }
+        .users-container { width: 150px; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .user-container { width: 100%; height: 20px; display: flex; justify-content: start; align-items: center; font-size: 16px; color: beige; }
+        .user_ref, .user_username, .user_player_name { width: fit-content; height: 100%; padding: 0 10px ;display: flex; justify-content: center; align-items: center; }
+        .launch_game { width: 80px; height: 40px; display: flex; justify-content: center; align-items: center; position: absolute; top: 30px; right: 30px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <div class="test" data-test="1"></div>
-    <div class="test" data-test="2"></div>
-    <div class="test" data-test="3"></div>
-    <div class="test" data-test="4"></div>
-    <script>
-        const tests = document.querySelectorAll(".test");
-        console.log("tests:", tests);
-        const test2 = Array.from(tests).find(test => test.dataset.test == "2");
-        console.log("test2:", test2);
-        
-    </script>
+    <button class="launch_game">START</button>
+    <div class="users-container"></div>
 </body>
 </html>

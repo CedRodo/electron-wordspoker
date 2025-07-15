@@ -113,56 +113,50 @@ class EventsListeners {
             action.addEventListener("pointerup", (event) => {
                 if (event.currentTarget.disabled || this.gameStatus.disableActions || this.yourPlayer.playStatus === "allin") return;
                 console.log("event.currentTarget.dataset.action:", event.currentTarget.dataset.action);
-                // this.gameEnvironment.yourDeck.setAttribute("data-playstatus", event.currentTarget.dataset.action);
-                // switch (event.currentTarget.dataset.action) {
-                //     case "call":
-                //         console.log("call");                  
-                //         this.gameEnvironment.yourDeck.querySelector(".action_sign").textContent = "►";
-                //         this.gameEnvironment.yourDeck.querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
-                //         this.gameEnvironment.yourDeck.setAttribute("data-bet", this.gameStatus.cashToPut);
-                //         let callAmount = this.yourPlayer.cash > this.gameStatus.cashToPut - this.yourPlayer.cashPut ? this.gameStatus.cashToPut - this.yourPlayer.cashPut : this.yourPlayer.cash;
-                //         this.gameStatus.potAmount += callAmount;
-                //         this.yourPlayer.cash -= callAmount;
-                //         this.yourPlayer.cashPut += callAmount;
-                //         break;
-                //     case "raise":
-                //         console.log("raise");
-                //         console.log("user raise this.gameStatus.cashToPut before:", this.gameStatus.cashToPut);
-                //         console.log("this.gameEnvironment.betAmountRange.valueAsNumber:", this.gameEnvironment.betAmountRange.valueAsNumber);
-                //         this.gameStatus.cashToPut += this.gameEnvironment.betAmountRange.valueAsNumber;
-                //         console.log("user raise this.gameStatus.cashToPut final:", this.gameStatus.cashToPut);
-                //         this.gameEnvironment.yourDeck.querySelector(".action_sign").textContent = "▲";
-                //         this.gameEnvironment.yourDeck.querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
-                //         this.gameEnvironment.yourDeck.setAttribute("data-bet", this.gameEnvironment.betAmountRange.valueAsNumber);
-                //         this.gameStatus.potAmount += this.gameStatus.cashToPut;
-                //         this.yourPlayer.cash -= this.gameStatus.cashToPut - this.yourPlayer.cashPut;
-                //         this.yourPlayer.cashPut = this.gameStatus.cashToPut;
-                //         break;
-                //     case "fold":
-                //         console.log("fold");    
-                //         this.gameEnvironment.yourDeck.querySelector(".action_sign").textContent = "";
-                //         this.gameEnvironment.yourDeck.querySelector(".bet_amount").textContent = "";
-                //         this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
-                //         this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
-                //         break;
-                // }
-                // // console.log("this.gameMechanics:", this.gameMechanics);
-                // clearInterval(this.gameMechanics.thinkingCountdown);
-                // this.gameMechanics.countdownPercent = 100;
-                // this.gameEnvironment.yourDeck.style.setProperty("--time", this.gameMechanics.countdownPercent);
-                // this.gameEnvironment.yourDeck.querySelector(".cash_amount").textContent = this.yourPlayer.cash;
-                // this.yourPlayer.playStatus = event.currentTarget.dataset.action;
-                // // this.gameMechanics.turnNumberIndex + 1 < this.gameStatus.orderedPlayersTurns.length ? this.gameMechanics.turnNumberIndex++ : this.gameMechanics.turnNumberIndex = 0;
-                // this.yourPlayer.checkIfAllIn();
-                // this.gameEnvironment.playerActions.forEach(action => action.disabled = true);
-                // this.gameMechanics.updatePotAndBetRange();
-                // this.gameMechanics.endingTurn();
-                socket.emit('player-action', {
-                    playerNumber: this.yourPlayer.number,
-                    action: event.currentTarget.dataset.action,
-                    raise: this.gameEnvironment.betAmountRange.valueAsNumber
-                });
+                this.gameEnvironment.yourDeck.setAttribute("data-playstatus", event.currentTarget.dataset.action);
+                switch (event.currentTarget.dataset.action) {
+                    case "call":
+                        console.log("call");                  
+                        this.gameEnvironment.yourDeck.querySelector(".action_sign").textContent = "►";
+                        this.gameEnvironment.yourDeck.querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
+                        this.gameEnvironment.yourDeck.setAttribute("data-bet", this.gameStatus.cashToPut);
+                        let callAmount = this.yourPlayer.cash > this.gameStatus.cashToPut - this.yourPlayer.cashPut ? this.gameStatus.cashToPut - this.yourPlayer.cashPut : this.yourPlayer.cash;
+                        this.gameStatus.potAmount += callAmount;
+                        this.yourPlayer.cash -= callAmount;
+                        this.yourPlayer.cashPut += callAmount;
+                        break;
+                    case "raise":
+                        console.log("raise");
+                        console.log("user raise this.gameStatus.cashToPut before:", this.gameStatus.cashToPut);
+                        console.log("this.gameEnvironment.betAmountRange.valueAsNumber:", this.gameEnvironment.betAmountRange.valueAsNumber);
+                        this.gameStatus.cashToPut += this.gameEnvironment.betAmountRange.valueAsNumber;
+                        console.log("user raise this.gameStatus.cashToPut final:", this.gameStatus.cashToPut);
+                        this.gameEnvironment.yourDeck.querySelector(".action_sign").textContent = "▲";
+                        this.gameEnvironment.yourDeck.querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
+                        this.gameEnvironment.yourDeck.setAttribute("data-bet", this.gameEnvironment.betAmountRange.valueAsNumber);
+                        this.gameStatus.potAmount += this.gameStatus.cashToPut;
+                        this.yourPlayer.cash -= this.gameStatus.cashToPut - this.yourPlayer.cashPut;
+                        this.yourPlayer.cashPut = this.gameStatus.cashToPut;
+                        break;
+                    case "fold":
+                        console.log("fold");    
+                        this.gameEnvironment.yourDeck.querySelector(".action_sign").textContent = "";
+                        this.gameEnvironment.yourDeck.querySelector(".bet_amount").textContent = "";
+                        this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
+                        this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
+                        break;
+                }
+                // console.log("this.gameMechanics:", this.gameMechanics);
+                clearInterval(this.gameMechanics.thinkingCountdown);
+                this.gameMechanics.countdownPercent = 100;
+                this.gameEnvironment.yourDeck.style.setProperty("--time", this.gameMechanics.countdownPercent);
+                this.gameEnvironment.yourDeck.querySelector(".cash_amount").textContent = this.yourPlayer.cash;
+                this.yourPlayer.playStatus = event.currentTarget.dataset.action;
+                // this.gameMechanics.turnNumberIndex + 1 < this.gameStatus.orderedPlayersTurns.length ? this.gameMechanics.turnNumberIndex++ : this.gameMechanics.turnNumberIndex = 0;
+                this.yourPlayer.checkIfAllIn();
                 this.gameEnvironment.playerActions.forEach(action => action.disabled = true);
+                this.gameMechanics.updatePotAndBetRange();
+                this.gameMechanics.endingTurn();
             });
         });
 
@@ -212,62 +206,6 @@ class EventsListeners {
         });
 
         window.oncontextmenu = function () { return false; };
-
-        ////////////////////////////////
-
-        socket.on('update-game-status', data => {
-            console.log("update-game-status data:", data);            
-            let action = data.action;
-            let playerNumber = data.playerNumber;
-            let raise = data.raise;
-            console.log("this.gameEnvironment.getPlayerDeck(playerNumber):", this.gameEnvironment.getPlayerDeck(playerNumber));
-            console.log("this.gameEnvironment.players[`player${playerNumber}`]:", this.gameEnvironment.players[`player${playerNumber}`]);
-            
-            this.gameEnvironment.getPlayerDeck(playerNumber).setAttribute("data-playstatus", action);
-            switch (action) {
-                case "call":
-                    console.log("call");
-                    this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".action_sign").textContent = "►";
-                    this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
-                    this.gameEnvironment.getPlayerDeck(playerNumber).setAttribute("data-bet", this.gameStatus.cashToPut);
-                    let callAmount = this.gameEnvironment.players[`player${playerNumber}`]["cash"] > this.gameStatus.cashToPut - this.gameEnvironment.players[`player${playerNumber}`]["cashPut"] ? this.gameStatus.cashToPut - this.gameEnvironment.players[`player${playerNumber}`]["cashPut"] : this.gameEnvironment.players[`player${playerNumber}`]["cash"];
-                    this.gameStatus.potAmount += callAmount;
-                    this.gameEnvironment.players[`player${playerNumber}`]["cash"] -= callAmount;
-                    this.gameEnvironment.players[`player${playerNumber}`]["cashPut"] += callAmount;
-                    break;
-                case "raise":
-                    console.log("raise");
-                    console.log("user raise this.gameStatus.cashToPut before:", this.gameStatus.cashToPut);
-                    console.log("this.gameEnvironment.betAmountRange.valueAsNumber:", raise);
-                    this.gameStatus.cashToPut += raise;
-                    console.log("user raise this.gameStatus.cashToPut final:", this.gameStatus.cashToPut);
-                    this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".action_sign").textContent = "▲";
-                    this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".bet_amount").textContent = this.gameStatus.cashToPut;
-                    this.gameEnvironment.getPlayerDeck(playerNumber).setAttribute("data-bet", raise);
-                    this.gameStatus.potAmount += this.gameStatus.cashToPut;
-                    this.gameEnvironment.players[`player${playerNumber}`]["cash"] -= this.gameStatus.cashToPut - this.gameEnvironment.players[`player${playerNumber}`]["cashPut"];
-                    this.gameEnvironment.players[`player${playerNumber}`]["cashPut"] = this.gameStatus.cashToPut;
-                    break;
-                case "fold":
-                    console.log("fold");
-                    this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".action_sign").textContent = "";
-                    this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".bet_amount").textContent = "";
-                    this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
-                    this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
-                    break;
-            }
-            // console.log("this.gameMechanics:", this.gameMechanics);
-            clearInterval(this.gameMechanics.thinkingCountdown);
-            this.gameMechanics.countdownPercent = 100;
-            this.gameEnvironment.getPlayerDeck(playerNumber).style.setProperty("--time", this.gameMechanics.countdownPercent);
-            this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".cash_amount").textContent = this.gameEnvironment.players[`player${playerNumber}`]["cash"];
-            this.gameEnvironment.players[`player${playerNumber}`]["playStatus"] = action;
-
-            this.gameEnvironment.players[`player${playerNumber}`].checkIfAllIn();
-            this.gameEnvironment.playerActions.forEach(action => action.disabled = true);
-            this.gameMechanics.updatePotAndBetRange();
-            this.gameMechanics.endingTurn();
-        });
 
 
     }
