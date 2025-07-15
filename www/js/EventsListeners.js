@@ -161,7 +161,7 @@ class EventsListeners {
                     playerNumber: this.yourPlayer.number,
                     action: event.currentTarget.dataset.action,
                     raise: this.gameEnvironment.betAmountRange.valueAsNumber
-                });
+                }, room.roomId);
                 this.gameEnvironment.playerActions.forEach(action => action.disabled = true);
             });
         });
@@ -257,7 +257,10 @@ class EventsListeners {
                     break;
             }
             // console.log("this.gameMechanics:", this.gameMechanics);
-            clearInterval(this.gameMechanics.thinkingCountdown);
+            // clearInterval(this.gameMechanics.thinkingCountdown);
+            console.log("this.gameMechanics.thinkingCountdown:", this.gameMechanics.thinkingCountdown);            
+            // cancelAnimationFrame(this.gameMechanics.thinkingCountdown);
+            this.gameMechanics.stopCoundown = true;
             this.gameMechanics.countdownPercent = 100;
             this.gameEnvironment.getPlayerDeck(playerNumber).style.setProperty("--time", this.gameMechanics.countdownPercent);
             this.gameEnvironment.getPlayerDeck(playerNumber).querySelector(".cash_amount").textContent = this.gameEnvironment.players[`player${playerNumber}`]["cash"];

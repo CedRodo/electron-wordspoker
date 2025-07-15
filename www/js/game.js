@@ -81,29 +81,53 @@ async function initialization() {
             console.log("currentProfile.username:", currentProfile.username);
             console.log("room.hostName:", room.hostName);
 
-            let nbOfPlayersReady = 0;
-            socket.emit('add-player-ready');
-            socket.on('number-of-players-ready', numberOfPlayersReady => {
-                nbOfPlayersReady = numberOfPlayersReady;
+            // let nbOfPlayersReady = 0;
+            // socket.emit('add-player-ready');
+            // socket.on('number-of-players-ready', numberOfPlayersReady => {
+            //     nbOfPlayersReady = numberOfPlayersReady;
+            //     if (nbOfPlayersReady === room.gamePreferences.numberOfVsPlayers) {
+            //         console.log("nbOfPlayersReady === room.gamePreferences.numberOfVsPlayers");
+            //         if (currentProfile.username === room.hostName) gameEnvironment.generateDistribution();
+            //         gameEnvironment.gameMenuEvents();
+            //         eventsListeners.create();
+            //         sounds.generateSounds();
+            //         setTimeout(() => { gameMechanics.runningTurn(); }, 7500);
+            //         return;
+            //     }
+            // });
+            socket.emit('player-set-ready', { roomId: room.roomId, type: "init" });
+            socket.on('init-update-players-status', data => {
+                console.log("init-update-players-status:", data);
+                socket.emit('players-check-status', data);
             });
-            
-            let allReadyCheck = requestAnimationFrame(onceAllPlayersAreReady);
 
-            function onceAllPlayersAreReady() {
-                console.log("nbOfPlayersReady:", nbOfPlayersReady);
-                if (nbOfPlayersReady === room.gamePreferences.numberOfVsPlayers) {
-                    console.log("nbOfPlayersReady === room.gamePreferences.numberOfVsPlayers");                    
-                    cancelAnimationFrame(allReadyCheck);
+            let isAlreadyInitialized = false;
+
+            socket.on('init-players-status', players => {
+                console.log("init-players-status players:", players);
+
+                let countNbOfPlyersReady = 0;
+                
+                players.forEach(p => {
+                    for (const ref in p) {
+                        console.log("p[ref]:", p[ref]);
+                        if (p[ref].ready === true) {
+                            countNbOfPlyersReady++;
+                        }
+                    }
+                });
+                
+                if (countNbOfPlyersReady === room.gamePreferences.numberOfVsPlayers && !isAlreadyInitialized) {
+                    console.log("everyPlayersAreReady");
+                    isAlreadyInitialized = true;
                     if (currentProfile.username === room.hostName) gameEnvironment.generateDistribution();
                     gameEnvironment.gameMenuEvents();
                     eventsListeners.create();
                     sounds.generateSounds();
                     setTimeout(() => { gameMechanics.runningTurn(); }, 7500);
                     return;
-                } else {
-                    requestAnimationFrame(onceAllPlayersAreReady);
                 }
-            }
+            });
 
         }
     }

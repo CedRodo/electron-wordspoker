@@ -26,9 +26,11 @@ class Sounds {
     }
 
     createPlaylist() {
+        // console.log("this.soundsList:", this.soundsList);        
         for (let i = 0; i < this.soundsList.length; i++) {
             let theme = this.soundsList[Math.floor(Math.random() * this.soundsList.length)];
             while (this.playlist.includes(theme)) {
+                // console.log("this.playlist:", this.playlist, "/ theme:", theme);       
                 theme = this.soundsList[Math.floor(Math.random() * this.soundsList.length)];
             }
             this.playlist.push(theme);

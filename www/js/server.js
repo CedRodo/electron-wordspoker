@@ -167,24 +167,45 @@ io.on('connection', socket => {
 
   ///////////// GAME ///////////////
 
-  socket.on('player-action', data => {
+  socket.on('player-action', (data, roomId) => {
     console.log("player-action");
     console.log("player-action data:", data);
-    io.emit('update-game-status', data);
+    io.to(roomId).emit('update-game-status', data);
   });
 
-  socket.on('game-generate-distribution', data => {
+  socket.on('game-generate-distribution', (data, roomId) => {
     console.log("game-generate-distribution");
     console.log("game-generate-distribution data:", data);
-    io.emit('distribution', data);
-    io.emit('game-distribution', data);
+    io.to(roomId).emit('distribution', data);
+    io.to(roomId).emit('game-distribution', data);
   });
 
-  socket.on('add-player-ready', () => {
+  socket.on('add-player-ready', (roomId) => {
     console.log("add-player-ready nbOfPlayersReady:", nbOfPlayersReady);
     nbOfPlayersReady++;
     console.log("nbOfPlayersReady++:", nbOfPlayersReady);
-    io.emit('number-of-players-ready', nbOfPlayersReady);
+    io.to(roomId).emit('number-of-players-ready', nbOfPlayersReady);
+  });
+
+  socket.on('player-set-ready', data => {
+    console.log("player-set-ready data:", data);
+    console.log("player-set-ready socket.data:", socket.data);
+    socket.data.ready = true;
+    console.log("player-set-ready socket.data.ready:", socket.data.ready);
+    let event = data.type + "-update-players-status";
+    io.to(data.roomId).emit(event, data);
+  });
+
+  socket.on('players-check-status', async (data) => {
+    console.log("player-check-status data:", data);
+    let players = [];
+    const sockets = await io.in(data.roomId).fetchSockets();
+    console.log("player-check-status sockets.length:", sockets.length);
+    
+    sockets.forEach(s => { players.push({ [users[s.id].ref]: { ready: s.data.ready } }); });
+    console.log("player-check-status players:", players);
+    let event = data.type + "-players-status";
+    io.to(data.roomId).emit(event, players);
   });
 
 });

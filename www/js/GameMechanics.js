@@ -4,12 +4,15 @@ class GameMechanics {
     gameStatus;
     countdownPercent;
     thinkingCountdown;
+    stopCoundown = false;
     constructor(initData, gameEnvironment, gameStatus) {
         this.initData = initData;
         this.gameEnvironment = gameEnvironment;
         this.gameStatus = gameStatus;
     }
     runningTurn() {
+        console.log("runningTurn");
+        
         // console.log("this.gameEnvironment.betAmountRange.value:", this.gameEnvironment.betAmountRange.value);
         // console.log("runningTurn this.gameStatus.orderedPlayersTurnsIndex:", this.gameStatus.orderedPlayersTurnsIndex);
         console.log("runningTurn this.gameStatus.orderedPlayersTurns:", this.gameStatus.orderedPlayersTurns);
@@ -19,14 +22,14 @@ class GameMechanics {
         // console.log("runningTurn this.gameStatus.lastPlayerTurnNumber:", this.gameStatus.lastPlayerTurnNumber);
         // this.showWinner(this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]); return;
 
-        console.log("checkIfAllInFaceOffSituation:", this.checkIfAllInFaceOffSituation());       
+        // console.log("checkIfAllInFaceOffSituation:", this.checkIfAllInFaceOffSituation());       
         if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["playStatus"] === "allin" || this.checkIfAllInFaceOffSituation()) {
             this.endingTurn();
             return;
         }
         
         const playerDeck = this.gameEnvironment.getPlayerDeck(this.gameStatus.playerTurnNumber);
-        // console.log("runningTurn playerDeck:", playerDeck);
+        console.log("runningTurn playerDeck:", playerDeck);
         this.gameEnvironment.playerActions.forEach((action) => {
             if (this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber) {
                 action.disabled = false;
@@ -40,6 +43,8 @@ class GameMechanics {
                 action.disabled = true;
             }
         });
+
+        this.stopCoundown = false;
         this.countdownPercent = 0;
         // let timeLimitMax = this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber ? 12000 : 3000;
         // let timeLimitMin = 2000;
@@ -49,9 +54,16 @@ class GameMechanics {
         playerDeck.setAttribute("data-playstatus", "turn");
         playerDeck.style.setProperty("--time", this.countdownPercent);
         playerDeck.style.setProperty("--countdown_color", "#f0f003");
-        
-        this.thinkingCountdown = setInterval(() => {
-            this.countdownPercent += (100 * 20) / (timeLimitMax);              
+
+        let thinkingCountdownStart = performance.now();
+        let thinkingCountdownEnd = thinkingCountdownStart + timeLimitMax;
+
+        const thinkingCountdownAnimation = () => {
+            let currentThinkingCountdown = performance.now();
+            // console.log("thinkingCountdownAnimation this.countdownPercent:", this.countdownPercent);
+            // console.log("currentThinkingCountdown:", currentThinkingCountdown);        
+            this.countdownPercent = (((thinkingCountdownEnd - thinkingCountdownStart) - (thinkingCountdownEnd - currentThinkingCountdown)) / (thinkingCountdownEnd - thinkingCountdownStart)) * 100;
+            // console.log("this.countdownPercent:", this.countdownPercent);  
             if (this.countdownPercent >= 25 && this.countdownPercent < 50) {
                 playerDeck.style.setProperty("--countdown_color", "gold");
             }
@@ -61,12 +73,20 @@ class GameMechanics {
             if (this.countdownPercent >= 75 && this.countdownPercent < 100) {
                 playerDeck.style.setProperty("--countdown_color", "red");
             }
-            if (this.countdownPercent >= 100) {
-                clearInterval(this.thinkingCountdown);
+            if (this.countdownPercent >= 100 || this.stopCoundown) {
                 this.countdownPercent = 100;
+                cancelAnimationFrame(this.thinkingCountdown);
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);
-        }, 20);
+
+            if (this.countdownPercent < 100 && !this.stopCoundown) {
+                requestAnimationFrame(thinkingCountdownAnimation);
+            } else {
+                return;
+            }
+        }
+
+        this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
 
     }
     endingTurn() {           
@@ -79,13 +99,38 @@ class GameMechanics {
                     const formAWordCountdown = document.querySelector(".form_a_word_countdown");
                     let wordToFormCountdownPercent = 0;
                     formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
-                    let wordToFormCountdown = setInterval(() => {
-                        // wordToFormCountdownPercent += (100 * 20) / 1000;
-                        wordToFormCountdownPercent += (100 * 20) / 20000;
-                        // console.log("wordToFormCountdownPercent:", wordToFormCountdownPercent);                        
+
+
+                    // let wordToFormCountdown = setInterval(() => {
+                    //     // wordToFormCountdownPercent += (100 * 20) / 1000;
+                    //     wordToFormCountdownPercent += (100 * 20) / 20000;
+                    //     // console.log("wordToFormCountdownPercent:", wordToFormCountdownPercent);                        
+                    //     if (wordToFormCountdownPercent >= 100) {
+                    //         // console.log("wordToFormCountdownPercent >= 100");                        
+                    //         clearInterval(wordToFormCountdown);
+                    //         wordToFormCountdownPercent = 100;
+                    //         formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
+                    //         this.gameStatus.disableActions = true;
+                    //         setTimeout(() => {
+                    //             document.querySelector(".form_a_word-container").classList.remove("show");
+                    //             formAWordCountdown.style.setProperty("--time_ratio", 0);
+                    //         }, 1000);
+                    //         setTimeout(() => { this.showResult(); }, 2000);                            ;
+                    //         return;
+                    //     }
+                    //     formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
+                    // }, 20);
+
+                    let wordToFormCountdownStart = performance.now();
+                    let wordToFormCountdownEnd = wordToFormCountdownStart + 20000;
+
+                    const wordToFormCountdownAnimation = () => {
+                        let currentWordToFormCountdown = performance.now();
+                        console.log("wordToFormCountdownAnimation wordToFormCountdownPercent:", wordToFormCountdownPercent);
+                        console.log("currentWordToFormCountdown:", currentWordToFormCountdown);
+                        wordToFormCountdownPercent = (((wordToFormCountdownEnd - wordToFormCountdownStart) - (wordToFormCountdownEnd - currentWordToFormCountdown)) / (wordToFormCountdownEnd - wordToFormCountdownStart)) * 100;
+                        console.log("wordToFormCountdownPercent:", wordToFormCountdownPercent);
                         if (wordToFormCountdownPercent >= 100) {
-                            // console.log("wordToFormCountdownPercent >= 100");                        
-                            clearInterval(wordToFormCountdown);
                             wordToFormCountdownPercent = 100;
                             formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
                             this.gameStatus.disableActions = true;
@@ -93,11 +138,18 @@ class GameMechanics {
                                 document.querySelector(".form_a_word-container").classList.remove("show");
                                 formAWordCountdown.style.setProperty("--time_ratio", 0);
                             }, 1000);
-                            setTimeout(() => { this.showResult(); }, 2000);                            ;
+                            setTimeout(() => { this.showResult(); }, 2000);
+                            cancelAnimationFrame(wordToFormCountdown);
                             return;
                         }
                         formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
-                    }, 20);
+
+                        if (wordToFormCountdownPercent < 100) requestAnimationFrame(wordToFormCountdownAnimation);
+                    }
+
+                    let wordToFormCountdown = requestAnimationFrame(wordToFormCountdownAnimation);
+
+
                 }, 2000);
             } else {
                 this.showResult();

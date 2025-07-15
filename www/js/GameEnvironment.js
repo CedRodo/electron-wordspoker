@@ -369,7 +369,7 @@ class GameEnvironment {
         let colorsToSet = this.initData.generateColorsList();
         // console.log("showdown:", showdown);
         // console.log("colorsToSet:", colorsToSet);
-        socket.emit('game-generate-distribution', { showdown: showdown, colorsToSet: colorsToSet });
+        socket.emit('game-generate-distribution', { showdown: showdown, colorsToSet: colorsToSet }, room.roomId);
         // document.querySelectorAll(".holder_letter").forEach(letter => letter.remove());
         // this.playerLettersHolder.dataset.word = "";
         // this.playerLettersHolder.dataset.wordvalue = "";
