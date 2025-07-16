@@ -1,6 +1,9 @@
 import { log } from "console";
+import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+
+const app = express();
 
 const httpServer = createServer();
 
@@ -167,16 +170,33 @@ io.on('connection', socket => {
 
   ///////////// GAME ///////////////
 
+  socket.on('player-number', (data, roomId) => {
+    console.log("player-number");
+    console.log("player-number data:", data);
+    io.to(roomId).emit(data.eventName, data.playerNumber);
+  });
+
+  socket.on('send-my-player-infos', (player, roomId) => {
+    console.log("send-my-player-infos");
+    console.log("send-my-player-infos player:", player);
+    io.to(roomId).emit('get-player-infos', player);
+  });
+
   socket.on('player-action', (data, roomId) => {
     console.log("player-action");
     console.log("player-action data:", data);
     io.to(roomId).emit('update-game-status', data);
   });
 
+  socket.on('send-word-to-play', (data, roomId) => {
+    console.log("send-word-to-play");
+    console.log("send-word-to-play data:", data);
+    socket.to(roomId).emit('player-word-to-play', data);
+  });
+
   socket.on('game-generate-distribution', (data, roomId) => {
     console.log("game-generate-distribution");
     console.log("game-generate-distribution data:", data);
-    io.to(roomId).emit('distribution', data);
     io.to(roomId).emit('game-distribution', data);
   });
 

@@ -49,7 +49,7 @@ class Sounds {
     eventsListeners() {
         this.audioThemeTag.addEventListener("canplaythrough", () => {
             setTimeout(() => {
-                console.log("this.userPreferences.soundActivation:", this.userPreferences.soundActivation);                
+                // console.log("this.userPreferences.soundActivation:", this.userPreferences.soundActivation);                
                 if (this.userPreferences.soundActivation) this.audioThemeTag.play();
                 if (this.audioThemeTag.paused || !(this.audioThemeTag.currentTime > 0) || !this.userPreferences.soundActivation) {
                     document.querySelector(".game_menu_sound_activation").dataset.state = "off";
@@ -61,13 +61,13 @@ class Sounds {
             }, 2500);
         });
         this.audioThemeTag.addEventListener("play", (event) => {
-            console.log("Playing song:", event.target.currentSrc);
+            // console.log("Playing song:", event.target.currentSrc);
         });
         this.audioThemeTag.addEventListener("error", (event) => {
             console.log("Error song:", event.target.currentSrc);
         });
         this.audioThemeTag.addEventListener("ended", (event) => {
-            console.log("Song has ended:", event.target.currentSrc, " --> ", event);
+            // console.log("Song has ended:", event.target.currentSrc, " --> ", event);
             this.playlistIndex++;
             if (this.playlistIndex === this.playlist.length) this.playlistIndex = 0;
             if (!this.isStoppedByUser) this.loadSong();

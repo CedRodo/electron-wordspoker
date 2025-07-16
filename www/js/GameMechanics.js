@@ -89,51 +89,32 @@ class GameMechanics {
         this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
 
     }
-    endingTurn() {           
+    async endingTurn() {           
+        const yourPlayer = this.gameEnvironment.players[`player${this.gameStatus.yourTurnNumber}`];
         if (this.gameStatus.orderedPlayersTurns.length <= 1 || (this.gameStatus.showdownStatuses[this.gameStatus.showdownStatusesIndex] === "river" && this.roundStatusQuo())) {
             if (this.gameStatus.orderedPlayersTurns.length > 1 &&
-                this.gameEnvironment.players[`player${this.gameStatus.yourTurnNumber}`]["playStatus"] !== "fold" &&
-                this.gameEnvironment.players[`player${this.gameStatus.yourTurnNumber}`]["playStatus"] !== "eliminated") {
+                yourPlayer["playStatus"] !== "fold" &&
+                yourPlayer["playStatus"] !== "eliminated") {
                 document.querySelector(".form_a_word-container").classList.add("show");
-                setTimeout(() => {
+                setTimeout(async () => {
                     const formAWordCountdown = document.querySelector(".form_a_word_countdown");
                     let wordToFormCountdownPercent = 0;
                     formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
 
-
-                    // let wordToFormCountdown = setInterval(() => {
-                    //     // wordToFormCountdownPercent += (100 * 20) / 1000;
-                    //     wordToFormCountdownPercent += (100 * 20) / 20000;
-                    //     // console.log("wordToFormCountdownPercent:", wordToFormCountdownPercent);                        
-                    //     if (wordToFormCountdownPercent >= 100) {
-                    //         // console.log("wordToFormCountdownPercent >= 100");                        
-                    //         clearInterval(wordToFormCountdown);
-                    //         wordToFormCountdownPercent = 100;
-                    //         formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
-                    //         this.gameStatus.disableActions = true;
-                    //         setTimeout(() => {
-                    //             document.querySelector(".form_a_word-container").classList.remove("show");
-                    //             formAWordCountdown.style.setProperty("--time_ratio", 0);
-                    //         }, 1000);
-                    //         setTimeout(() => { this.showResult(); }, 2000);                            ;
-                    //         return;
-                    //     }
-                    //     formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
-                    // }, 20);
-
                     let wordToFormCountdownStart = performance.now();
                     let wordToFormCountdownEnd = wordToFormCountdownStart + 20000;
 
-                    const wordToFormCountdownAnimation = () => {
+                    const wordToFormCountdownAnimation = async () => {
                         let currentWordToFormCountdown = performance.now();
-                        console.log("wordToFormCountdownAnimation wordToFormCountdownPercent:", wordToFormCountdownPercent);
-                        console.log("currentWordToFormCountdown:", currentWordToFormCountdown);
+                        // console.log("wordToFormCountdownAnimation wordToFormCountdownPercent:", wordToFormCountdownPercent);
+                        // console.log("currentWordToFormCountdown:", currentWordToFormCountdown);
                         wordToFormCountdownPercent = (((wordToFormCountdownEnd - wordToFormCountdownStart) - (wordToFormCountdownEnd - currentWordToFormCountdown)) / (wordToFormCountdownEnd - wordToFormCountdownStart)) * 100;
-                        console.log("wordToFormCountdownPercent:", wordToFormCountdownPercent);
+                        // console.log("wordToFormCountdownPercent:", wordToFormCountdownPercent);
                         if (wordToFormCountdownPercent >= 100) {
                             wordToFormCountdownPercent = 100;
                             formAWordCountdown.style.setProperty("--time_ratio", wordToFormCountdownPercent);
                             this.gameStatus.disableActions = true;
+                            await socket.emit('send-my-player-infos', yourPlayer, room.roomId);
                             setTimeout(() => {
                                 document.querySelector(".form_a_word-container").classList.remove("show");
                                 formAWordCountdown.style.setProperty("--time_ratio", 0);
@@ -152,6 +133,7 @@ class GameMechanics {
 
                 }, 2000);
             } else {
+                await socket.emit('send-my-player-infos', yourPlayer, room.roomId);
                 this.showResult();
                 return;
             }
@@ -162,7 +144,7 @@ class GameMechanics {
             return;
         } else {
             this.gameStatus.orderedPlayersTurnsIndex + 1 < this.gameStatus.orderedPlayersTurns.length ? this.gameStatus.orderedPlayersTurnsIndex++ : this.gameStatus.orderedPlayersTurnsIndex = 0;
-            setTimeout(() => { this.runningTurn(); }, this.gameEnvironment.players[`player${this.gameStatus.yourTurnNumber}`]["playStatus"] !== "allin" ? 2000 : 1000);
+            setTimeout(() => { this.runningTurn(); }, yourPlayer["playStatus"] !== "allin" ? 2000 : 1000);
         }
     }
 
@@ -279,7 +261,11 @@ class GameMechanics {
             const p = this.gameEnvironment.players[player];
             if (p.playStatus !== "fold") {
                 p.deck.classList.add("result");
-                p.revealWordSuggested();
+                // p.revealWordSuggested();
+                if (p.type === "you") socket.emit('player-number', {
+                    playerNumber: p.number,
+                    eventName: 'player-reveal-word-suggested'
+                }, room.roomId);
                 console.log("player:", p.name, "/ p.wordToPlay.value:", p.wordToPlay.value);
                 if (p.wordToPlay.value === this.gameStatus.bestWordValue || this.gameStatus.orderedPlayersTurns.length === 1) {
                     console.log("win!");                    
@@ -361,6 +347,9 @@ class GameMechanics {
         this.gameStatus.bestWordValue = 0;
         this.gameStatus.orderedPlayersTurns.forEach((playerNumber) => {
             const p = this.gameEnvironment.players[`player${playerNumber}`];
+            console.log("bestWord p:", p);
+            console.log("bestWord p.wordToPlay:", p.wordToPlay);
+            
             if (p.playStatus !== "eliminated") {
                 if (p.wordToPlay.value > this.gameStatus.bestWordValue) this.gameStatus.bestWordValue = p.wordToPlay.value;
             }

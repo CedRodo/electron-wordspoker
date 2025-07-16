@@ -211,7 +211,7 @@ class Players {
         if (this.wordsCards.length === 0) return;
         this.possibleWordsToPlay.length = 0;
         this.wordsCards.forEach((word) => {
-            this.wordCards = word.cards;
+            // this.wordCards = word.cards;
             // console.log("word.word:", word.word);
             const value = this.getWordTotalValue(word.word);
             this.possibleWordsToPlay.push({
@@ -224,21 +224,21 @@ class Players {
         console.log("this.possibleWordsToPlay:", this.possibleWordsToPlay);
     }
 
-    revealWordSuggested() {
-        console.log("revealWordSuggested!");
-        if (this.wordCards.length === 0) return;       
-        const playerWordSuggestedContainer = this.deck.querySelector(".player_word_suggested-container");
-        const playerWordSuggestedValue = this.deck.querySelector(".player_word_suggested_value");
-        this.wordCards.forEach((card) => {
-            const playerWordSuggestedCard = document.createElement("div");
-            playerWordSuggestedCard.classList.add("player_word_suggested_card");
-            playerWordSuggestedCard.textContent = card.letter;
-            playerWordSuggestedCard.setAttribute("data-value", card.value);
-            playerWordSuggestedCard.setAttribute("data-color", card.color);
-            playerWordSuggestedContainer.appendChild(playerWordSuggestedCard);
-        });
-        playerWordSuggestedValue.textContent = this.wordToPlay.value;
-    }
+    // revealWordSuggested() {
+    //     console.log("revealWordSuggested!");
+    //     if (this.wordCards.length === 0) return;       
+    //     const playerWordSuggestedContainer = this.deck.querySelector(".player_word_suggested-container");
+    //     const playerWordSuggestedValue = this.deck.querySelector(".player_word_suggested_value");
+    //     this.wordCards.forEach((card) => {
+    //         const playerWordSuggestedCard = document.createElement("div");
+    //         playerWordSuggestedCard.classList.add("player_word_suggested_card");
+    //         playerWordSuggestedCard.textContent = card.letter;
+    //         playerWordSuggestedCard.setAttribute("data-value", card.value);
+    //         playerWordSuggestedCard.setAttribute("data-color", card.color);
+    //         playerWordSuggestedContainer.appendChild(playerWordSuggestedCard);
+    //     });
+    //     playerWordSuggestedValue.textContent = this.wordToPlay.value;
+    // }
 
     checkIfAllIn() {
         if (this.cash === 0) {

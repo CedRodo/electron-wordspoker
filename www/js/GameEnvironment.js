@@ -309,58 +309,7 @@ class GameEnvironment {
         this.betAmountRange.dataset.amount = this.betAmountRange.value;
         this.potAmount.textContent = this.gameStatus.potAmount;
         this.gameStatus.previousBetAmount = 0;
-
-
-        socket.on('game-distribution', data => {
-            console.log("game-distribution data:", data);
-            let showdown = data.showdown;
-            let colorsToSet = data.colorsToSet;
-            document.querySelectorAll(".holder_letter").forEach(letter => letter.remove());
-            document.querySelector(".player_letters_holder").dataset.word = "";
-            document.querySelector(".player_letters_holder").dataset.wordvalue = "";
-
-            document.querySelectorAll(".player_card").forEach((card) => {
-                // if (!(card.closest(`.player_deck[data-player="you"]`) && this.gameStatus.isEliminated)) {
-                const letterDetails = showdown.shift();
-                const color = colorsToSet.shift();
-                // console.log("letterDetails:", letterDetails);
-                card.querySelector(".card_details").setAttribute("data-letter", letterDetails[0]);
-                card.querySelector(".card_details").setAttribute("data-value", letterDetails[1]);
-                card.querySelector(".card_details").setAttribute("data-color", color);
-                card.querySelector(".card_details .card_letter").textContent = letterDetails[0];
-
-                const playerNumber = card.closest(".player_deck").dataset.playernumber;
-                console.log("game-distribution playerNumber:", playerNumber);
-                if (this.players[`player${playerNumber}`]["cardsList"].length >= 2) this.players[`player${playerNumber}`]["cardsList"].length = 0;
-                this.players[`player${playerNumber}`]["cardsList"].push({ letter: letterDetails[0], value: letterDetails[1], color: color });
-                if (this.players[`player${playerNumber}`]["lettersList"].length >= 2) this.players[`player${playerNumber}`]["lettersList"].length = 0;
-                this.players[`player${playerNumber}`]["lettersList"].push(letterDetails[0]);
-
-                if (card.closest(`.player_deck[data-player="you"]`)) {
-                    const holderLetter = document.createElement("div");
-                    holderLetter.classList.add("holder_letter");
-                    holderLetter.setAttribute("data-letter", letterDetails[0]);
-                    holderLetter.setAttribute("data-value", letterDetails[1]);
-                    holderLetter.setAttribute("data-color", color);
-                    holderLetter.textContent = letterDetails[0];
-                    this.holderBottomRack.appendChild(holderLetter);
-                }
-            });
-            // console.log("generateDistribution showdown:", showdown);
-            // console.log("this.players before:", this.players);
-
-            this.showdownCards.forEach((card) => {
-                card.dataset.status = "concealed";
-                const letterDetails = showdown.shift();
-                const color = colorsToSet.shift();
-                // console.log("letterDetails:", letterDetails);
-                card.querySelector(".card_details").setAttribute("data-letter", letterDetails[0]);
-                card.querySelector(".card_details").setAttribute("data-value", letterDetails[1]);
-                card.querySelector(".card_details").setAttribute("data-color", color);
-                card.querySelector(".card_details .card_letter").textContent = letterDetails[0];
-            });
-            console.log("this.players after:", this.players);
-        });
+        
     }
 
     generateDistribution() {
@@ -369,53 +318,7 @@ class GameEnvironment {
         let colorsToSet = this.initData.generateColorsList();
         // console.log("showdown:", showdown);
         // console.log("colorsToSet:", colorsToSet);
-        socket.emit('game-generate-distribution', { showdown: showdown, colorsToSet: colorsToSet }, room.roomId);
-        // document.querySelectorAll(".holder_letter").forEach(letter => letter.remove());
-        // this.playerLettersHolder.dataset.word = "";
-        // this.playerLettersHolder.dataset.wordvalue = "";
-        
-        // document.querySelectorAll(".player_card").forEach((card) => {
-        //     if (!(card.closest(`.player_deck[data-player="you"]`) && this.gameStatus.isEliminated)) {
-        //         const letterDetails = showdown.shift();
-        //         const color = colorsToSet.shift();
-        //         // console.log("letterDetails:", letterDetails);
-        //         card.querySelector(".card_details").setAttribute("data-letter", letterDetails[0]);
-        //         card.querySelector(".card_details").setAttribute("data-value", letterDetails[1]);
-        //         card.querySelector(".card_details").setAttribute("data-color", color);
-        //         card.querySelector(".card_details .card_letter").textContent = letterDetails[0];
-
-        //         const playerNumber = card.closest(".player_deck").dataset.playernumber;
-        //         if (this.players[`player${playerNumber}`]["cardsList"].length >= 2) this.players[`player${playerNumber}`]["cardsList"].length = 0;
-        //         this.players[`player${playerNumber}`]["cardsList"].push({ letter: letterDetails[0], value: letterDetails[1], color: color });
-        //         if (this.players[`player${playerNumber}`]["lettersList"].length >= 2) this.players[`player${playerNumber}`]["lettersList"].length = 0;
-        //         this.players[`player${playerNumber}`]["lettersList"].push(letterDetails[0]);
-
-        //         if (card.closest(`.player_deck[data-player="you"]`)) {
-        //             const holderLetter = document.createElement("div");
-        //             holderLetter.classList.add("holder_letter");
-        //             holderLetter.setAttribute("data-letter", letterDetails[0]);
-        //             holderLetter.setAttribute("data-value", letterDetails[1]);
-        //             holderLetter.setAttribute("data-color", color);
-        //             holderLetter.textContent = letterDetails[0];
-        //             this.holderBottomRack.appendChild(holderLetter);
-        //         }
-        //     }
-        // });
-        // // console.log("generateDistribution showdown:", showdown);
-        // // console.log("this.players before:", this.players);
-
-        // this.showdownCards.forEach((card) => {
-        //     card.dataset.status = "concealed";
-        //     const letterDetails = showdown.shift();
-        //     const color = colorsToSet.shift();
-        //     // console.log("letterDetails:", letterDetails);
-        //     card.querySelector(".card_details").setAttribute("data-letter", letterDetails[0]);
-        //     card.querySelector(".card_details").setAttribute("data-value", letterDetails[1]);
-        //     card.querySelector(".card_details").setAttribute("data-color", color);
-        //     card.querySelector(".card_details .card_letter").textContent = letterDetails[0];
-        // });
-        // console.log("this.players after:", this.players);
-        
+        socket.emit('game-generate-distribution', { showdown: showdown, colorsToSet: colorsToSet }, room.roomId);        
     }
 
     getPlayerDeck(playerNumber) {
