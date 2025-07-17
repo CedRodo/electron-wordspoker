@@ -56,6 +56,7 @@ const initData = new InitData();
 console.log("currentProfile:", currentProfile);
 
 socket.emit('new-user', currentProfile);
+socket.emit('check-host-room', currentProfile);
 
 // document.querySelector(".menu_selection_game_multi_create_room").addEventListener("click", () => {
 //     console.log("create room");
@@ -123,6 +124,7 @@ async function menuSelection(event) {
                 document.querySelector("main").classList.add("hide");
                 sounds.audioThemeTag.pause();
                 currentProfile.gamePreferences.gameMode = "solo";
+                socket.emit('update-user', currentProfile);
                 updatePreferences();
                 // setTimeout(() => { window.location.assign("game.html"); }, 2000);
                 setTimeout(() => { window.location.assign("/game"); }, 2000);
@@ -139,7 +141,14 @@ async function menuSelection(event) {
                 console.log("create");                
                 currentProfile.gamePreferences.roomRef = currentProfile.ref;
                 console.log("create currentProfile.gamePreferences:", currentProfile.gamePreferences);
-                const gamePreferences = currentProfile.gamePreferences.getRoomPreferences();
+                // const gamePreferences = currentProfile.gamePreferences.getRoomPreferences();
+                const gamePreferences = {};
+                gamePreferences["numberOfPlayers"] = currentProfile.gamePreferences.numberOfPlayers;
+                currentProfile.gamePreferences.numberOfVsPlayers = 1;
+                gamePreferences["numberOfVsPlayers"] = currentProfile.gamePreferences.numberOfVsPlayers;
+                gamePreferences["buyIn"] = currentProfile.gamePreferences.buyIn;
+                gamePreferences["bigBlind"] = currentProfile.gamePreferences.bigBlind;
+                gamePreferences["backgroundNumber"] = currentProfile.gamePreferences.backgroundNumber;
                 const room = new Room({
                     ref: currentProfile.ref,
                     roomId: generateRoomId(socket.id),
@@ -149,6 +158,7 @@ async function menuSelection(event) {
                 });
                 console.log("create room: room");                
                 currentProfile.gamePreferences.roomRef = room.ref;
+                socket.emit('update-user', currentProfile);
                 updatePreferences();
                 roomActionDisplay.innerText = room.roomId;
                 console.log("roomsList:", roomsList);
@@ -204,7 +214,7 @@ async function menuSelection(event) {
                         if (typeof isAlreadyPresent === "undefined") {
                             console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
                             room.gamePreferences.numberOfVsPlayers++;
-                            updatePreferences();
+                            // updatePreferences();
                             room.usersList.push(currentProfile);
                             console.log("isJoined room:", room);
                             await socket.emit('join-room', room);
@@ -305,12 +315,14 @@ async function menuSelection(event) {
                 }
                 newProfile = false;
                 if (slotAvailable) {
+                    socket.emit('update-user', currentProfile);
                     updatePreferences(profileNumberToSelect);
                 }
                 profileActionDisplay.textContent = slotAvailable ? "Profil sauvegardé" : "Maximum dépassé";
                 break;
             case "editprofile":
                 // document.querySelector(".sfx-continue").play();
+                socket.emit('update-user', currentProfile);
                 updatePreferences(profiles.current);
                 profileActionDisplay.textContent = "Profil modifié";
                 break;
@@ -323,6 +335,7 @@ async function menuSelection(event) {
                     if (!confirm("Êtes-vous sûr de vouloir supprimer le profil ?")) return;                   
                     delete profiles[`profile${profiles.current}`];
                     profiles.current = 0;
+                    socket.emit('delete-user', currentProfile);
                     updatePreferences();
                     profileActionDisplay.textContent = "Profil supprimé";
                 }
@@ -423,6 +436,7 @@ function changeDisplay(event) {
                 sounds.audioThemeTag.play();
             }
             selectionItemDisplay.textContent = currentProfile.userPreferences.soundActivation ? "activé" : "désactivé";
+            socket.emit('update-user', currentProfile);
             updatePreferences(profiles.current);
             break;
         case "fullscreen":
@@ -437,6 +451,7 @@ function changeDisplay(event) {
                 });
             }
             selectionItemDisplay.textContent = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
+            socket.emit('update-user', currentProfile);
             updatePreferences(profiles.current);
             break;
             
@@ -639,6 +654,7 @@ function loadProfile(profileNumber) {
     // currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
     currentProfile = profiles[`profile${profiles.current}`];
     newProfile = false;
+    socket.emit('update-user', currentProfile);
     updatePreferences();
 }
 
@@ -726,7 +742,8 @@ socket.on('start-game-multi', roomRef => {
         }
         currentProfile.gamePreferences.roomRef = roomRef;
         currentProfile.gamePreferences.gameMode = "multi";
-        console.log("start-game-multi currentProfile:", currentProfile);        
+        console.log("start-game-multi currentProfile:", currentProfile);
+        socket.emit('update-user', currentProfile);     
         updatePreferences();
         // window.location.assign("game.html");
         window.location.assign("/game");

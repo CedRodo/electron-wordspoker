@@ -132,9 +132,26 @@ io.on('connection', socket => {
   ///////////// MENU ///////////////
 
   socket.on('new-user', user => {
-    // console.log("new user:", user);
+    console.log("new user:", user);
+    console.log("new user socket.id:", socket.id);
     if (!users[socket.id]) users[socket.id] = user;
-    // console.log("new users[socket.id]:", users[socket.id]);
+    console.log("new user users[socket.id]:", users[socket.id]);
+  });
+
+  socket.on('check-host-room', user => {
+    console.log("check-host-room:", user);;
+    console.log("check-host-room rooms:", rooms);
+    let roomRef;
+    for (const ref in rooms) {
+      console.log("check-host-room ref:", ref);
+      console.log("check-host-room rooms[ref]:", rooms[ref]);
+      if (ref === user.ref) {
+        console.log("ref === user.ref");        
+        roomRef = ref;
+      }
+    }
+    delete rooms[roomRef];
+    console.log("rooms after:", rooms);  
   });
 
   socket.on('room-users', async (roomId) => {
@@ -148,25 +165,58 @@ io.on('connection', socket => {
     io.emit('display-room-users', { roomId: roomId, users: usersInRoom });
   });
 
+  socket.on('update-user', user => {
+    console.log("update-user");
+    console.log("update-user user:", user);
+    console.log("update-user socket.id:", socket.id);
+    console.log("update-user users[socket.id]:", users[socket.id]);
+    console.log("update-user users before:", users);
+    if (!users[socket.id]) return;
+    for (const prop in users[socket.id]) {
+      users[socket.id][prop] = user[prop];
+    }
+    console.log("update-user users after:", users);
+  });
+
+  socket.on('delete-user', user => {
+    console.log("delete-user");
+    console.log("delete-user user:", user);
+    console.log("delete-user users[socket.id]:", users[socket.id]);
+    console.log("delete-user users before:", users);
+    if (!users[socket.id]) return;
+    delete users[socket.id];
+    console.log("update-user users after:", users);
+  });
+
   socket.on('create-room', (room) => {
     console.log("create-room");
     console.log("create-room room:", room);    
-    socket.join(room.roomId);
     let isAlreadyPresent = false;
     if (!rooms[room.ref]) {
-      Object.defineProperty(rooms, room.ref, { value: {}, enumerable: true, writable: true });
+      Object.defineProperty(rooms, room.ref, { value: {}, enumerable: true, writable: true, configurable: true });
       console.log("rooms[room.ref]:", rooms[room.ref]);
     } else {
-      isAlreadyPresent = true;
+      // isAlreadyPresent = true;
+      io.to(room.roomId).socketsLeave();
+      delete rooms[room.ref];
     }
-    if (!isAlreadyPresent) {
-      console.log("!isAlreadyPresent");
-      const userAlreadyPresent = room.usersList.find(u => u.ref === users[socket.id].ref);
-      if (typeof userAlreadyPresent === "undefined") {
-        room.usersList.push(users[socket.id]);
-      }
-      rooms[room.ref] = room;
+    // if (!isAlreadyPresent) {
+    //   console.log("!isAlreadyPresent");
+    //   console.log("create-room users[socket.id]:", users[socket.id]);  
+    //   const userAlreadyPresent = room.usersList.find(u => u.ref === users[socket.id].ref);
+    //   if (typeof userAlreadyPresent === "undefined") {
+    //     room.usersList.push(users[socket.id]);
+    //   }
+    //   rooms[room.ref] = room;
+    // }
+    console.log("!isAlreadyPresent");
+    console.log("create-room users[socket.id]:", users[socket.id]);  
+    const userAlreadyPresent = room.usersList.find(u => u.ref === users[socket.id].ref);
+    if (typeof userAlreadyPresent === "undefined") {
+      room.usersList.push(users[socket.id]);
     }
+    rooms[room.ref] = room;
+    socket.join(room.roomId);
     console.log("rooms:", rooms);
     io.to(room.roomId).emit('show-notification', { object: users[socket.id], type: "create" });
     socket.emit('room-creation', room);
@@ -189,6 +239,24 @@ io.on('connection', socket => {
     socket.leave(roomId);
     io.to(room.roomId).emit('room-leaving', room);
   });
+
+  // socket.on('clear-other-rooms', async (roomRef) => {
+  //   console.log("clear-other-rooms");
+  //   console.log("clear-other-rooms roomRef:", roomRef);
+  //   room.usersList.forEach(u => {
+  //     for (const user in users) {
+  //       if (users[user].ref === u.ref) {
+  //         users[user]["gamePreferences"]["roomRef"] = "";
+  //       }
+  //     }
+  //   })
+  //   if (!rooms[room.ref]) return;
+  //   // delete rooms[room.ref];
+  //   console.log("remove-room rooms:", rooms);
+  //   io.emit('update-rooms-list', rooms);
+  //   io.to(room.roomId).emit('close-lobby', room);
+  //   io.in(room.roomId).socketsLeave();
+  // });
 
   socket.on('remove-room', async (room) => {
     console.log("remove-room");
@@ -241,8 +309,9 @@ io.on('connection', socket => {
   socket.on('get-room', (roomRef, username) => {
     console.log("get-room");
     console.log("get-room roomRef:", roomRef);
-    console.log("get-room username:", username);
+    // console.log("get-room username:", username);
     console.log("get-room rooms:", rooms);
+    console.log("get-room rooms.usersList:", rooms.usersList);
     if (!rooms[roomRef]) return;
     // console.log("get-room rooms[roomRef]:", rooms[roomRef]);
     console.log("get-room users[socket.id]:", users[socket.id]);

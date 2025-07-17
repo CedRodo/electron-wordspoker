@@ -199,6 +199,7 @@ class GameEnvironment {
 
     generateVsPlayers() {
         const numberOfVsPlayers = room.gamePreferences.numberOfVsPlayers;
+        console.log("generateVsPlayers room:", room);
         console.log("numberOfVsPlayers:", numberOfVsPlayers);
         document.querySelector(".game_table-container").dataset.nbplayers = numberOfVsPlayers;
         room.usersList.forEach((user, index) => {
@@ -361,7 +362,7 @@ class GameEnvironment {
 
     goToHome() {
         document.querySelector("main").classList.add("hide");
-        setTimeout(() => { window.location.assign("menu.html"); })
+        setTimeout(() => { window.location.assign("/menu"); })
     }
 
     toggleSoundState(button) {
