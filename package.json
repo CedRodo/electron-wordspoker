@@ -3,11 +3,10 @@
   "displayName": "Words Poker",
   "version": "1.0.0",
   "description": "A poker of words",
-  "type": "module",
   "main": "main.js",
   "scripts": {
     "devStart": "nodemon www/js/server.js",
-    "start": "electron .",
+    "electron": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

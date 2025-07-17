@@ -5,11 +5,19 @@ import { Server } from "socket.io";
 
 const app = express();
 
-const httpServer = createServer();
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/', (req, res) => {
+  console.log("home");
+});
+
+const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost"
+    // origin: "http://localhost"
+    origin: "https://electron-wordspoker.onrender.com"
   }
 });
 

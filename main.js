@@ -15,7 +15,8 @@ const createWindow = () => {
     // win.setBackgroundColor('rgb(255, 145, 145)')
     // win.setBackgroundColor('#ff00a3')
     // win.setBackgroundColor('blueviolet')
-    win.setFullScreen(true);
+    // win.setFullScreen(true);
+    win.setFullScreen(false);
     // win.setAutoHideMenuBar(true);
 
     win.loadFile('./www/index.html')

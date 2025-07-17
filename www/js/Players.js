@@ -224,22 +224,6 @@ class Players {
         console.log("this.possibleWordsToPlay:", this.possibleWordsToPlay);
     }
 
-    // revealWordSuggested() {
-    //     console.log("revealWordSuggested!");
-    //     if (this.wordCards.length === 0) return;       
-    //     const playerWordSuggestedContainer = this.deck.querySelector(".player_word_suggested-container");
-    //     const playerWordSuggestedValue = this.deck.querySelector(".player_word_suggested_value");
-    //     this.wordCards.forEach((card) => {
-    //         const playerWordSuggestedCard = document.createElement("div");
-    //         playerWordSuggestedCard.classList.add("player_word_suggested_card");
-    //         playerWordSuggestedCard.textContent = card.letter;
-    //         playerWordSuggestedCard.setAttribute("data-value", card.value);
-    //         playerWordSuggestedCard.setAttribute("data-color", card.color);
-    //         playerWordSuggestedContainer.appendChild(playerWordSuggestedCard);
-    //     });
-    //     playerWordSuggestedValue.textContent = this.wordToPlay.value;
-    // }
-
     checkIfAllIn() {
         if (this.cash === 0) {
             this.deck.dataset.playstatus = "allin";
