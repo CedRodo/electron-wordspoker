@@ -21,7 +21,7 @@ const io = new Server(httpServer, {
   }
 });
 
-// httpServer.listen(3000);
+httpServer.listen(3000);
 
 const users = {};
 const rooms = {};
