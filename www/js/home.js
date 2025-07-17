@@ -1,4 +1,3 @@
-const main = document.querySelector("main");
 const homeContinue = document.querySelector(".continue");
 const introScreen = document.querySelector(".intro_screen");
 const introScreenTitle = document.querySelector(".intro_screen-title");
@@ -9,7 +8,7 @@ homeContinue.addEventListener("click", launchSelectionScreen);
 function launchSelectionScreen() {
     // homeContinue.classList.add("pressed");
     // document.querySelector(".sfx-continue").play();
-    main.classList.add("hide");
+    document.querySelector("main").classList.add("hide");
     // setTimeout(() => { window.location.assign("menu.html"); }, 2000);
     setTimeout(() => { window.location.assign("/menu"); }, 2000);
 }
@@ -29,7 +28,7 @@ setTimeout(() => {
         setTimeout(() => {
             homeScreenIsLoaded = true;
             introScreen.classList.add("intro_screen-stop");
-            main.classList.add("show");
+            document.querySelector("main").classList.add("show");
             setTimeout(() => {
                 introScreen.remove();
             }, 500);

@@ -1,5 +1,5 @@
 
-let main = document.querySelector("main");
+const main = document.querySelector("main");
 let innerWidth = window.innerWidth;
 let innerHeight = window.innerHeight;
 let aspectRatioDefault = parseFloat(getComputedStyle(main).getPropertyValue("aspect-ratio"));

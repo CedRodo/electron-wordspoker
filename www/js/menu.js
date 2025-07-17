@@ -111,7 +111,7 @@ async function menuSelection(event) {
                 //     break;
                     // document.querySelector(".sfx-continue").play();
                 preventActions = true;
-                main.classList.add("hide");
+                document.querySelector("main").classList.add("hide");
                 sounds.audioThemeTag.pause();
                 currentProfile.gamePreferences.gameMode = "solo";
                 updatePreferences();
