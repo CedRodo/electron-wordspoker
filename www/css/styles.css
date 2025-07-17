@@ -5,21 +5,27 @@
 }
 
 body {
-    min-width: 1920px;
+    /* min-width: 1920px; */
     width: 100vw;
-    min-height: 905px;
+    /* min-height: 905px; */
     height: 100vh;
     margin: 0;
     padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
     scrollbar-width: none;
     overflow: hidden;
 }
 
 main {
-    width: 100%;
+    width: auto;
     height: 100%;
+    aspect-ratio: 2.0317;
     filter: brightness(100%);
     transition: filter 2s;
+    overflow: hidden;
 }
 
 .d-none {
@@ -28,4 +34,11 @@ main {
 
 main.hide {
     filter: brightness(0%);
+}
+
+
+@media all and (display-mode: fullscreen) and (min-width: 640px) {
+    main {
+        aspect-ratio: 16/9;
+    }
 }

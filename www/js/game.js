@@ -156,8 +156,6 @@ async function initialization() {
                         gameEnvironment.holderBottomRack.appendChild(holderLetter);
                     }
                 });
-                // console.log("generateDistribution showdown:", showdown);
-                // console.log("players before:", players);
 
                 gameEnvironment.showdownCards.forEach((card) => {
                     card.dataset.status = "concealed";
@@ -169,7 +167,6 @@ async function initialization() {
                     card.querySelector(".card_details").setAttribute("data-color", color);
                     card.querySelector(".card_details .card_letter").textContent = letterDetails[0];
                 });
-                console.log("players after:", players);
             });
 
             socket.on('get-player-infos', player => {

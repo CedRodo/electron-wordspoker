@@ -5,10 +5,6 @@
 }
 
 body {
-    min-width: 1920px;
-    width: 100vw;
-    min-height: 905px;
-    height: 100vh;
     scrollbar-width: none;
     overflow: hidden;
 }
