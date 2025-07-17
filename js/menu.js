@@ -115,8 +115,7 @@ async function menuSelection(event) {
                 sounds.audioThemeTag.pause();
                 currentProfile.gamePreferences.gameMode = "solo";
                 updatePreferences();
-                // setTimeout(() => { window.location.assign("game.html"); }, 2000);
-                setTimeout(() => { window.location.assign("/game"); }, 2000);
+                setTimeout(() => { window.location.assign("game.html"); }, 2000);
             }
             break;
         case "multi":
@@ -740,8 +739,7 @@ socket.on('start-game-multi', roomRef => {
         currentProfile.gamePreferences.gameMode = "multi";
         console.log("start-game-multi currentProfile:", currentProfile);        
         updatePreferences();
-        // window.location.assign("game.html");
-        window.location.assign("/game");
+        window.location.assign("game.html");
     }, 1000);
 });
 

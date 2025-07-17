@@ -1,6 +1,6 @@
 {
-    "name": "L'école",
-    "description": "Un Point&Click avec des mini-jeux",
+    "name": "wordspoker",
+    "description": "Un poker de mots",
     "display": "fullscreen",
     "lang": "fr",
     "orientation": "landscape"

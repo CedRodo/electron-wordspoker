@@ -1,0 +1,31 @@
+class AIProfiles {
+    firstInCash = [0, 0];
+    secondInCash = [0, 0];
+    lastInCash = [0, 0];
+    betRiskMaxTenthOfCash = [0, 0];
+    betRiskMaxFifthOfCash = [0, 0];
+    betRiskMaxQuarterOfCash = [0, 0];
+    betRiskMaxThirdOfCash = [0, 0];
+    betRiskMaxHalfOfCash = [0, 0];
+    betRiskMaxTwoThirdOfCash = [0, 0];
+    betRiskMaxThreeQuarterOfCash = [0, 0];
+    preFlopRaiseWhenBigBlind = [0, 0];
+    preFlopRaiseWhenSmallBlind = [0, 0];
+    preFlopCallWhenBigBlind = [0, 0];
+    preFlopCallWhenSmallBlind = [0, 0];
+    preFlopCallBigBlind = [0, 0];
+    callWhenOneAlreadyRaised = [0, 0];
+    callWhenTwoAlreadyRaised = [0, 0];
+    callWhenThreeAlreadyRaised = [0, 0];
+    raiseWhenNoOneAlreadyRaised = [0, 0];
+    raiseWhenOneAlreadyRaised = [0, 0];
+    raiseWhenTwoAlreadyRaised = [0, 0];
+    raiseWhenTwoRemaining = [0, 0];
+    raiseWhenThreeRemaining = [0, 0];
+    raiseWhenFourOrMoreRemaining = [0, 0];
+    raiseWhenLastAndNoOneAlreadyRaised = [0, 0];
+    raiseToStealPot = [0, 0];
+    allIn = [0, 0];
+    wordPotential = [0, 0];
+    wordsKnowledge = [0, 0];
+}

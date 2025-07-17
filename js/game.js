@@ -1,14 +1,11 @@
-// if (!localStorage.getItem("profiles")) window.location.assign("menu.html");
-if (!localStorage.getItem("profiles")) window.location.assign("/menu");
+if (!localStorage.getItem("profiles")) window.location.assign("menu.html");
 const profiles = JSON.parse(localStorage.getItem("profiles"));
 const currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
-// if (!currentProfile) window.location.assign("menu.html");
-if (!currentProfile) window.location.assign("/menu");
+if (!currentProfile) window.location.assign("menu.html");
 const userPreferences = currentProfile.userPreferences ? currentProfile.userPreferences : null;
 const gamePreferences = currentProfile.gamePreferences ? currentProfile.gamePreferences : null;
 if (!userPreferences || !gamePreferences) {
-    // window.location.assign("menu.html");
-    window.location.assign("/menu");
+    window.location.assign("menu.html");
 } else {
     socket.emit('new-user', currentProfile);
 }

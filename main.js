@@ -22,6 +22,9 @@ const createWindow = () => {
     win.loadFile('./www/index.html')
 }
 
+console.log("app:", app);
+
+
 app.whenReady().then(() => {
     createWindow()
 

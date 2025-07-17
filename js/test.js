@@ -129,6 +129,5 @@ socket.on('start-multi', async () => {
     usersRoom.hostName = usersRoom.usersList[0].username;
     socket.emit('test-update-room', usersRoom, "hostName");
     localStorage.setItem("room", usersRoom.ref);
-    // setTimeout(() => { window.location.assign("game.html"); }, 1000);
-    setTimeout(() => { window.location.assign("/game"); }, 1000);
+    setTimeout(() => { window.location.assign("game.html"); }, 1000);
 });

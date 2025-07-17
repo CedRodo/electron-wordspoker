@@ -10,8 +10,7 @@ function launchSelectionScreen() {
     // homeContinue.classList.add("pressed");
     // document.querySelector(".sfx-continue").play();
     main.classList.add("hide");
-    // setTimeout(() => { window.location.assign("menu.html"); }, 2000);
-    setTimeout(() => { window.location.assign("/menu"); }, 2000);
+    setTimeout(() => { window.location.assign("menu.html"); }, 2000);
 }
 
 let homeScreenIsLoaded = false;

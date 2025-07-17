@@ -3,9 +3,9 @@
   "displayName": "Words Poker",
   "version": "1.0.0",
   "description": "A poker of words",
-  "main": "main.js",
+  "main": "www/server.js",
   "scripts": {
-    "devStart": "nodemon www/js/server.js",
+    "devStart": "nodemon --env-file=.env www/server.js",
     "electron": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +17,8 @@
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-electron": "^4.0.0",
-    "electron": "^36.2.1"
+    "electron": "^36.2.1",
+    "webpack": "^5.100.2"
   },
   "cordova": {
     "platforms": [
@@ -27,9 +28,12 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "http": "^0.0.1-security",
     "nodemon": "^3.1.10",
+    "path": "^0.12.7",
     "socket.io": "^4.8.1"
   }
 }

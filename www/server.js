@@ -2,17 +2,31 @@ import { log } from "console";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import cors from "cors";
+import path from "path";
+// import "dotenv/config";
+
+const __dirname = path.resolve();
+
+console.log("process.env.APP_ENV", process.env.APP_ENV);
+
+const APP_ENV = process.env.APP_ENV;
 
 const app = express();
 
-app.set('views', '../views')
+app.set('views', './www/views')
 app.set('view engine', 'ejs')
-app.use(express.static('public'))
+app.use(cors());
+app.use("/js", express.static(path.join(__dirname + "/www/js")));
+app.use("/css", express.static(path.join(__dirname + "/www/css")));
+app.use("/data", express.static(path.join(__dirname + "/www/data")));
+app.use("/assets", express.static(path.join(__dirname + "/www/assets")));
+app.use("/sounds", express.static(path.join(__dirname + "/www/sounds")));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-  console.log("home");
-  res.render('test');
+  console.log("index");
+  res.render('index');
 });
 
 app.get('/menu', (req, res) => {
@@ -32,14 +46,32 @@ app.get('/test', (req, res) => {
 
 const httpServer = createServer(app);
 
+let host;
+
+switch (APP_ENV) {
+  case "DEV1":
+    host = "https://www.electronglitch.com/words_poker"
+    break;
+  case "DEV2":
+    host = "https://electron-wordspoker.onrender.com";
+    break;
+  case "PROD":
+    host = "http://localhost";
+    break;
+  default:
+    host = "http://localhost";
+    break;
+}
+
+const PORT = process.env.PORT;
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost"
-    // origin: "https://electron-wordspoker.onrender.com"
+    origin: host
   }
 });
 
-httpServer.listen(3000);
+httpServer.listen(PORT);
 
 const users = {};
 const rooms = {};
