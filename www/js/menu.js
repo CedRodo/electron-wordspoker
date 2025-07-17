@@ -35,6 +35,15 @@ const profiles = localStorage.getItem("profiles") ?
             username: "user" + newUserRef
         })
     };
+
+// const profiles = {
+//         current: 0,
+//         profile0: new User({
+//             ref: newUserRef,
+//             email: "user" + newUserRef + "@gmail.com",
+//             username: "user" + newUserRef
+//         })
+//     };
 console.log("profiles:", profiles);
 console.log("profiles.current:", profiles.current);
 console.log("profiles profiles.current:", profiles[`profile${profiles.current}`]);
@@ -167,6 +176,7 @@ async function menuSelection(event) {
             if (menuSelect.type === "joinpublic" || menuSelect.type === "joinprivate") {
                 console.log("menuSelect.type:", menuSelect.type);
                 // socket.emit('all-rooms', menuSelect.type);
+                document.querySelector(".joining_display").textContent = "";
                 socket.emit('enter-public-rooms');
 
                 if (document.querySelector(".selection_item_display_join_button")) return;
@@ -586,6 +596,8 @@ function appendUsers(room) {
     room.usersList.forEach(user => {
         const roomUserContainer = document.createElement("tr");
         roomUserContainer.classList.add("room_user-container");
+        if (user.username === room.hostName) roomUserContainer.classList.add("host");
+        if (user.ref === currentProfile.ref) roomUserContainer.classList.add("you");
         roomUserContainer.setAttribute("data-ref", user.ref);
         roomUserContainer.setAttribute("username", user.username);
         const roomUserUsername = document.createElement("td");
@@ -656,31 +668,6 @@ function generateUserRef() {
 
 // ONLINE
 
-socket.on('display connection', name => {
-    if (!document.getElementById(socket.id)) {
-        const userConnectionDisplay = document.createElement("div");
-        userConnectionDisplay.classList.add("user_connection_display");
-        userConnectionDisplay.setAttribute("id", socket.id);
-        document.querySelector(".room_id_display").appendChild(userConnectionDisplay);
-    }
-    document.getElementById(socket.id).innerHTML = `${name} is connected`;
-    document.querySelector(".room_id_display").setAttribute("data-id", socket.id);
-});
-
-socket.on('display disconnection', name => {
-    document.getElementById(socket.id).innerHTML = `${name} is disconnected`;
-});
-
-socket.on('update-users', users => {
-    console.log("update-users:", users);
-    users.forEach(user => {
-        console.log("update-users user:", user);
-        // app.addUser(user);
-    });
-});
-
-// socket.emit('createRoom', generateRoomId(socket.id));
-
 socket.on('room-creation', room => {
     console.log("room-creation:", room);
     document.querySelector(".room_id_display").dataset.id = room.roomId;
@@ -705,12 +692,13 @@ socket.on('update-rooms-list', rooms => {
 });
 
 socket.on('display-room-users', room => {
-    console.log("display-room-users:", room);
-    // let roomToFind;
-    // for (const r in roomsList) {
-    //     if (roomsList[r].ref === room.ref) roomToFind = roomsList[r];
-    // }
-    // if (!room) return;
+    console.log("display-room-users room:", room);
+    let roomToFind;
+    for (const r in roomsList) {
+        if (roomsList[r].ref === room.ref) roomToFind = roomsList[r];
+    }
+    console.log("display-room-users roomToFind:", roomToFind);
+    // if (!roomToFind) return;
     appendUsers(room);
 });
 
@@ -755,6 +743,49 @@ socket.on('show-notification', data => {
             document.querySelector(".room_action_display").textContent = data.object.username + " a joint la salle";
             break;
     }
+});
+
+socket.on('user-disconnecting', (roomId, userRef) => {
+    console.log("user-disconnecting roomId/userRef:", roomId, userRef);
+    let room;
+    for (const r in roomsList) {
+        if (roomsList[r].roomId === roomId) room = roomsList[r];
+    }
+    console.log("user-disconnecting room:", room);
+    if (!room) return;
+    let username = "";
+    let indexToRemove = "";
+    room.usersList.forEach((u, index) => {
+        if (u.ref === userRef) {
+            username = u.username;
+            indexToRemove = index;
+        }        
+    });
+    room.usersList.splice(indexToRemove, 1);
+    console.log("menu-update-users user:", username);
+    console.log("menu-update-users room:", room);
+    console.log("menu-update-users room.hostName => username:", room.hostName, username);
+    if (room.hostName === username) {
+        console.log("menu-update-users room.hostName === username");
+        room.usersList.forEach(u => u.gamePreferences.roomRef = "");
+        socket.emit('remove-room', room);
+    } else {
+        console.log("menu-update-users room.hostName !== username");
+        socket.emit('enter-room-lobby', room);
+    }
+});
+
+socket.on('close-lobby', room => {
+    console.log("close-lobby:", room);
+    if (document.querySelector(".menu-container").dataset.display === "gamemultiroom") {
+        document.querySelector(".menu-container").dataset.display = "joinroom";
+        document.querySelector(".room_action_display").textContent = "La salle a été fermée";
+    }
+    console.log("close-lobby roomsList before:", roomsList);
+    for (const r in roomsList) {
+        if (roomsList[r].ref === room.ref) delete roomsList[r];
+    }
+    console.log("close-lobby roomsList after:", roomsList);    
 });
 
 socket.on('user-connected', name => {

@@ -24,23 +24,29 @@ app.use("/assets", express.static(path.join(__dirname + "/www/assets")));
 app.use("/sounds", express.static(path.join(__dirname + "/www/sounds")));
 app.use(express.urlencoded({ extended: true }));
 
+let page = ""
+
 app.get('/', (req, res) => {
   console.log("index");
+  page = "";
   res.render('index');
 });
 
 app.get('/menu', (req, res) => {
   console.log("menu");
+  page = "menu";
   res.render('menu');
 });
 
 app.get('/game', (req, res) => {
   console.log("game");
+  page = "game";
   res.render('game');
 });
 
 app.get('/test', (req, res) => {
   console.log("test");
+  page = "test";
   res.render('test');
 });
 
@@ -80,17 +86,55 @@ let nbOfPlayersReady = 0;
 io.on('connection', socket => {
   console.log("users:", users);
   console.log("socket id:", socket.id);
+  socket.on('disconnecting', () => {
+    if (!users[socket.id]) return;
+    console.log("disconnecting users[socket.id]:", users[socket.id]);
+    let userRef = users[socket.id].ref;
+    delete users[socket.id];
+    switch (page) {
+      case "test":
+        socket.rooms.forEach(roomId => {
+          socket.leave(roomId);
+          io.to(roomId).emit('test-update-users', users);
+        });
+        break;
+      case "menu":
+        socket.rooms.forEach(roomId => {
+          socket.leave(roomId);
+          io.to(roomId).emit('user-disconnecting', roomId, userRef);
+        });
+        break;
+    }
+    console.log("disconnecting users:", users);
+  });
 
   socket.on('disconnect', () => {
-    console.log("disconnect:", users[socket.id]);
+    console.log("disconnect users[socket.id]:", users[socket.id]);
+    // let eventName = "";
+    // switch (page) {
+    //   case "test":
+    //     eventName = 'test-update-users';
+    //     break;
+    //   default:
+    //     eventName = '';
+    //     break;
+    // }
+    // console.log("disconnect eventName:", eventName);
+    // if (eventName !== '') {
+    //   socket.rooms.forEach(roomId => {
+    //     io.to(roomId).emit(eventName);
+    //   });
+    // }
     delete users[socket.id];
+    console.log("disconnect users:", users);
   });
 
   ///////////// MENU ///////////////
 
   socket.on('new-user', user => {
-    console.log("new user:", user);
+    // console.log("new user:", user);
     if (!users[socket.id]) users[socket.id] = user;
+    // console.log("new users[socket.id]:", users[socket.id]);
   });
 
   socket.on('room-users', async (roomId) => {
@@ -146,6 +190,24 @@ io.on('connection', socket => {
     io.to(room.roomId).emit('room-leaving', room);
   });
 
+  socket.on('remove-room', async (room) => {
+    console.log("remove-room");
+    console.log("remove-room room:", room);
+    room.usersList.forEach(u => {
+      for (const user in users) {
+        if (users[user].ref === u.ref) {
+          users[user]["gamePreferences"]["roomRef"] = "";
+        }
+      }
+    })
+    if (!rooms[room.ref]) return;
+    // delete rooms[room.ref];
+    console.log("remove-room rooms:", rooms);
+    io.emit('update-rooms-list', rooms);
+    io.to(room.roomId).emit('close-lobby', room);
+    io.in(room.roomId).socketsLeave();
+  });
+
   socket.on('update-room', (room) => {
     console.log("update-room");
     console.log("update-room room:", room);
@@ -176,11 +238,13 @@ io.on('connection', socket => {
     io.to(room.roomId).emit('start-game-multi', room.ref);
   });
 
-  socket.on('get-room', (roomRef) => {
+  socket.on('get-room', (roomRef, username) => {
     console.log("get-room");
     console.log("get-room roomRef:", roomRef);
+    console.log("get-room username:", username);
+    console.log("get-room rooms:", rooms);
     if (!rooms[roomRef]) return;
-    console.log("get-room rooms[roomRef]:", rooms[roomRef]);
+    // console.log("get-room rooms[roomRef]:", rooms[roomRef]);
     console.log("get-room users[socket.id]:", users[socket.id]);
     const room = rooms[roomRef];
     rooms[roomRef].usersList.forEach(u => {

@@ -29,7 +29,7 @@ const profiles = {
 let currentProfile = profiles[`profile${profiles.current}`];
 
 const usersRoom = new Room({
-    ref: 12345678,
+    ref: "12345678",
     roomId: "test",
     hostName: "",
     visibility: "public",
@@ -103,7 +103,9 @@ function saveUserProfile() {
 
 socket.on('test-update-users', users => {
     console.log("test-update-users users:", users);
+    let usersRefs = []; 
     for (const user in users) {
+        usersRefs.push(users[user].ref);
         let userAlreadyPresent;
         if (usersRoom.usersList.length > 0) {
             userAlreadyPresent = usersRoom.usersList.find(u => u.ref === users[user].ref);
@@ -117,6 +119,11 @@ socket.on('test-update-users', users => {
             socket.emit('test-update-room', usersRoom, "gamePreferences");
         }
     }
+    console.log("test-update-users usersRefs:", usersRefs);
+    // usersRoom.usersList = usersRoom.usersList.filter(u => {
+    //     console.log("u.ref => usersRefs:", u.ref, usersRefs);
+    //     return usersRefs.includes(u.ref);
+    // });
     console.log("test-update-users usersRoom:", usersRoom);
     socket.emit('test-update-room', usersRoom, "usersList");
 

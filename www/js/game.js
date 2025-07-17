@@ -10,6 +10,7 @@ if (!userPreferences || !gamePreferences) {
     // window.location.assign("menu.html");
     window.location.assign("/menu");
 } else {
+    console.log("new-user currentProfile:", currentProfile);    
     socket.emit('new-user', currentProfile);
 }
 let room;
@@ -23,8 +24,8 @@ async function initialization() {
             if (localStorage.getItem("room")) {
                 console.log("getItem room");
                 roomRef = localStorage.getItem("room");
-                console.log("getItem room roomRef:", roomRef);
-                socket.emit('get-room', roomRef);
+                // console.log("getItem room roomRef:", roomRef);
+                socket.emit('get-room', roomRef, currentProfile.username);
             } else {
                 console.log("!getItem room");
             }
