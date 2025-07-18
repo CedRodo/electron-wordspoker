@@ -55,7 +55,7 @@ const httpServer = createServer(app);
 let host;
 
 switch (APP_ENV) {
-  case "DEV1":
+  case "DEV":
     host = "https://www.electronglitch.com/words_poker"
     break;
   case "DEV2":
