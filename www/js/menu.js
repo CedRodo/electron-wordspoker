@@ -25,18 +25,9 @@ let roomInfo = {
 };
 let roomsList = {};
 
-const profiles = localStorage.getItem("profiles") ?
-    JSON.parse(localStorage.getItem("profiles")) :
-    {
-        current: 0,
-        profile0: new User({
-            ref: newUserRef,
-            email: "user" + newUserRef + "@gmail.com",
-            username: "user" + newUserRef
-        })
-    };
-
-// const profiles = {
+// const profiles = localStorage.getItem("profiles") ?
+//     JSON.parse(localStorage.getItem("profiles")) :
+//     {
 //         current: 0,
 //         profile0: new User({
 //             ref: newUserRef,
@@ -44,6 +35,15 @@ const profiles = localStorage.getItem("profiles") ?
 //             username: "user" + newUserRef
 //         })
 //     };
+
+const profiles = {
+        current: 0,
+        profile0: new User({
+            ref: newUserRef,
+            email: "user" + newUserRef + "@gmail.com",
+            username: "user" + newUserRef
+        })
+    };
 console.log("profiles:", profiles);
 console.log("profiles.current:", profiles.current);
 console.log("profiles profiles.current:", profiles[`profile${profiles.current}`]);
@@ -67,6 +67,7 @@ const sounds = new Sounds(["smoothgenestarboulevardofbrokenbeats"], "menu", curr
 setTimeout(() => { sounds.generateSounds(); }, 3000);
 
 let roomId = 0;
+let privateRoomId = "";
 
 menuQuitGame.addEventListener("click", leavingApp);
 
@@ -187,45 +188,22 @@ async function menuSelection(event) {
                 console.log("menuSelect.type:", menuSelect.type);
                 // socket.emit('all-rooms', menuSelect.type);
                 document.querySelector(".joining_display").textContent = "";
-                socket.emit('enter-public-rooms');
+                if (menuSelect.type === "joinpublic") {
+                    selectionItemDisplay.innerText = "";
+                    socket.emit('enter-public-rooms');
+                }
+                if (menuSelect.type === "joinprivate") {
+                    selectionItemDisplay.innerText = "ID de la salle à joindre";
+                    document.querySelector(".selection_item").setAttribute("data-item", "roomid");
+                }
 
-                if (document.querySelector(".selection_item_display_join_button")) return;
-                const selectionItemDisplayJoinButton = document.createElement("button");
-                selectionItemDisplayJoinButton.classList.add("selection_item_display_join_button");
-                selectionItemDisplayJoinButton.textContent = "Joindre";
-                selectionItemDisplay.appendChild(selectionItemDisplayJoinButton);
+                // if (document.querySelector(".selection_item_display_join_button")) return;
+                // const selectionItemDisplayJoinButton = document.createElement("button");
+                // selectionItemDisplayJoinButton.classList.add("selection_item_display_join_button");
+                // selectionItemDisplayJoinButton.textContent = "Joindre";
+                // selectionItemDisplay.appendChild(selectionItemDisplayJoinButton);
 
-                selectionItemDisplayJoinButton.addEventListener("pointerup", joinRoom);
-
-                async function joinRoom() {
-                    if (document.querySelector(".room-container.selected")) {
-                        if (!document.querySelector(".room-container.selected").dataset.ref ||
-                            document.querySelector(".room-container.selected").dataset.ref === "")
-                            return;
-                        let roomRef = document.querySelector(".room-container.selected").dataset.ref;
-                        console.log("joinRoom roomRef:", roomRef);
-                        console.log("joinRoom roomsList:", roomsList);
-                        let room;
-                        for (const r in roomsList) {
-                            if (roomsList[r].ref === roomRef) room = roomsList[r];
-                        }
-                        if (!room) return;
-                        const isAlreadyPresent = room.usersList.find(u => u.ref === currentProfile.ref);
-                        if (typeof isAlreadyPresent === "undefined") {
-                            console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
-                            room.gamePreferences.numberOfVsPlayers++;
-                            // updatePreferences();
-                            room.usersList.push(currentProfile);
-                            console.log("isJoined room:", room);
-                            await socket.emit('join-room', room);
-                            socket.emit('enter-room-lobby', room);
-                            document.querySelector(".menu-container").setAttribute("data-display", "gamemultiroom");
-                            document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "");
-                        }
-                    }
-                    // if (document.querySelector(".selection_item_display_join_button"))
-                    //     document.querySelector(".selection_item_display_join_button").remove();
-                }               
+                // selectionItemDisplayJoinButton.addEventListener("pointerup", joinRoom);
             };
             break;
         case "joinroom":
@@ -262,29 +240,29 @@ async function menuSelection(event) {
 
         switch (menuSelect.item) {
             case "nbofplayers":
-                selectionItemDisplay.textContent = currentProfile.gamePreferences.numberOfPlayers;
+                selectionItemDisplay.innerText = currentProfile.gamePreferences.numberOfPlayers;
                 break;
             case "buyin":
-                selectionItemDisplay.textContent = currentProfile.gamePreferences.buyIn;
+                selectionItemDisplay.innerText = currentProfile.gamePreferences.buyIn;
                 break;
             case "background":
-                selectionItemDisplay.textContent = "";
+                selectionItemDisplay.innerText = "";
                 selectionItemDisplay.style.setProperty("--url", `url('../assets/img/backgrounds/bg${currentProfile.gamePreferences.backgroundNumber}.jpg')`);
                 break;
             case "name":
-                selectionItemDisplay.textContent = currentProfile.userPreferences.playerName;
+                selectionItemDisplay.innerText = currentProfile.userPreferences.playerName;
                 break;
             case "avatar":
                 console.log("userPreferences.avatarNumber:", currentProfile.userPreferences.avatarNumber);
-                selectionItemDisplay.textContent = "";
+                selectionItemDisplay.innerText = "";
                 selectionItemDisplay.style.setProperty("--url", `url('../assets/img/avatars/avatar${currentProfile.userPreferences.avatarNumber}.png')`);
                 break;
             case "roomid":
                 console.log("roomid:", currentProfile.gamePreferences.roomId);
-                selectionItemDisplay.textContent = currentProfile.gamePreferences.roomId;
+                selectionItemDisplay.innerText = currentProfile.gamePreferences.roomId;
                 break;
             case "roomtype":
-                selectionItemDisplay.textContent = "publique";
+                selectionItemDisplay.innerText = "publique";
                 break;
             case "show":
                 const menuSelectionGameShowProfileNumber = document.querySelector(".menu_selection_game_show_profile_number");
@@ -341,10 +319,10 @@ async function menuSelection(event) {
                 }
                 break;
             case "sound":
-                selectionItemDisplay.textContent = currentProfile.userPreferences.soundActivation ? "activé" : "désactivé";
+                selectionItemDisplay.innerText = currentProfile.userPreferences.soundActivation ? "activé" : "désactivé";
                 break;
             case "fullscreen":
-                selectionItemDisplay.textContent = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
+                selectionItemDisplay.innerText = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
                 break;
         }
     }
@@ -401,7 +379,7 @@ function changeDisplay(event) {
                 nbOfPlayers + 1 <= playerMaxNumber ? nbOfPlayers++ : nbOfPlayers = playerMaxNumber;
             }
             currentProfile.gamePreferences.numberOfPlayers = nbOfPlayers;
-            selectionItemDisplay.textContent = nbOfPlayers;
+            selectionItemDisplay.innerText = nbOfPlayers;
             break;
         case "buyin":
             const buyInMaxNumber = 5000;
@@ -415,7 +393,7 @@ function changeDisplay(event) {
                 buyIn + incrementation <= buyInMaxNumber ? buyIn += incrementation : buyIn = buyInMaxNumber;
             }
             currentProfile.gamePreferences.buyIn = buyIn;
-            selectionItemDisplay.textContent = buyIn;
+            selectionItemDisplay.innerText = buyIn;
             break;
         case "roomtype":
             if (event.currentTarget === selectionItemPrevious) {
@@ -424,7 +402,7 @@ function changeDisplay(event) {
             if (event.currentTarget === selectionItemNext) {
                 currentProfile.gamePreferences.roomVisibility = "private";
             }
-            selectionItemDisplay.textContent = currentProfile.gamePreferences.roomVisibility === "private" ? "privée" : "publique";
+            selectionItemDisplay.innerText = currentProfile.gamePreferences.roomVisibility === "private" ? "privée" : "publique";
             break;
         case "sound":
             if (event.currentTarget === selectionItemPrevious) {
@@ -435,7 +413,7 @@ function changeDisplay(event) {
                 currentProfile.userPreferences.soundActivation = true;
                 sounds.audioThemeTag.play();
             }
-            selectionItemDisplay.textContent = currentProfile.userPreferences.soundActivation ? "activé" : "désactivé";
+            selectionItemDisplay.innerText = currentProfile.userPreferences.soundActivation ? "activé" : "désactivé";
             socket.emit('update-user', currentProfile);
             updatePreferences(profiles.current);
             break;
@@ -450,7 +428,7 @@ function changeDisplay(event) {
                     alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
                 });
             }
-            selectionItemDisplay.textContent = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
+            selectionItemDisplay.innerText = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
             socket.emit('update-user', currentProfile);
             updatePreferences(profiles.current);
             break;
@@ -469,20 +447,50 @@ function profileAction() {
         selectionItemDisplayInputName.classList.add("selection_item_display_input_name");
         selectionItemDisplayInputName.id = "player_name";
         selectionItemDisplayInputName.type = "text";
-        console.log("selectionItemDisplay.textContent:", selectionItemDisplay.textContent);        
+        console.log("selectionItemDisplay.innerText:", selectionItemDisplay.innerText);        
         console.log("userPreferences.playerName:", currentProfile.userPreferences.playerName);        
         selectionItemDisplayInputName.value = currentProfile.userPreferences.playerName;
-        selectionItemDisplay.textContent = "";
+        selectionItemDisplay.innerText = "";
         selectionItemDisplay.appendChild(selectionItemDisplayInputName);
         
         selectionItemDisplayInputName.addEventListener("blur", setNameValue);
 
         function setNameValue(event) {
             currentProfile.userPreferences.playerName = event.currentTarget.value;
-            selectionItemDisplay.textContent = event.currentTarget.value;
+            selectionItemDisplay.innerText = event.currentTarget.value;
             // updatePreferences();
             selectionItemDisplayInputName.removeEventListener("blur", setNameValue);
             selectionItemDisplayInputName.remove();
+        }
+    }
+    if (selectionItem.dataset.item === "roomid") {
+        if (document.querySelector(".selection_item_display_input_name")) return;
+        const selectionItemDisplayInputName = document.createElement("input");
+        selectionItemDisplayInputName.classList.add("selection_item_display_input_name");
+        selectionItemDisplayInputName.id = "room_id";
+        selectionItemDisplayInputName.type = "text";
+        console.log("selectionItemDisplay.innerText:", selectionItemDisplay.innerText); 
+        console.log("privateRoomId:", privateRoomId);
+        selectionItemDisplayInputName.value = privateRoomId;
+        selectionItemDisplay.innerText = "";
+        selectionItemDisplay.appendChild(selectionItemDisplayInputName);
+        
+        selectionItemDisplayInputName.addEventListener("blur", setNameValue);
+
+        function setNameValue(event) {
+            currentProfile.gamePreferences.roomRef = event.currentTarget.value;
+            currentProfile.gamePreferences.roomVisibility = "private";
+            selectionItemDisplay.innerText = event.currentTarget.value;
+            // updatePreferences();
+            selectionItemDisplayInputName.removeEventListener("blur", setNameValue);
+            selectionItemDisplayInputName.remove();
+            findPrivateRoom(event.currentTarget.value);
+        }
+
+        function findPrivateRoom(roomId) {
+            console.log("findPrivateRoom roomId:", roomId);
+            if (!roomId || roomId === "") return;          
+            socket.emit('find-private-room', roomId);
         }
     }
     if (selectionItem.dataset.action === "edit") {
@@ -525,7 +533,7 @@ function showProfiles() {
     }
 }
 
-function appendRoom(rooms) {
+function appendRooms(rooms) {
     console.log("appendRoom rooms:", rooms);
 
     // if (document.getElementById(room.roomId)) return;
@@ -534,7 +542,7 @@ function appendRoom(rooms) {
 
     while (Array.from(roomsListElement.querySelectorAll(".room-container"))[0]) {
         Array.from(roomsListElement.querySelectorAll(".room-container")).at(-1).remove();
-    }
+    }    
 
     rooms.forEach(room => {
         const roomContainer = document.createElement("tr");
@@ -571,6 +579,7 @@ function appendRoom(rooms) {
         roomContainer.addEventListener("pointerup", selectRoom);
 
         function selectRoom() {
+            console.log("selectRoom");    
             document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
             roomContainer.classList.add("selected");
             const isJoined = confirm("Voulez-vous rejoindre cette salle ?");
@@ -589,8 +598,18 @@ function appendRoom(rooms) {
         }
 
         function selectRoom(event) {
+            console.log("selectRoom");
             document.querySelectorAll(".room-container").forEach(c => c.classList.remove("selected"));
             roomContainer.classList.add("selected");
+            selectionItemDisplay.innerText = "";
+            selectionItem.setAttribute("data-item", "");
+            if (document.querySelector(".selection_item_display_join_button")) return;
+            const selectionItemDisplayJoinButton = document.createElement("button");
+            selectionItemDisplayJoinButton.classList.add("selection_item_display_join_button");
+            selectionItemDisplayJoinButton.textContent = "Joindre";
+            selectionItemDisplay.appendChild(selectionItemDisplayJoinButton);
+
+            selectionItemDisplayJoinButton.addEventListener("pointerup", joinRoom);
         }
 
         roomsListElement.appendChild(roomContainer);
@@ -602,11 +621,15 @@ function appendUsers(room) {
     if (room.usersList.length === 0) return;
     console.log("appendUsers room.usersList:", room.usersList);
 
+    document.querySelector(".menu_selection_game_multi_room_players_list").setAttribute("data-id", room.roomId);
+
     const roomPlayersListElement = document.querySelector(".menu_selection_game_multi_room_players_list tbody");
 
     while (Array.from(roomPlayersListElement.querySelectorAll(".room_user-container"))[0]) {
         Array.from(roomPlayersListElement.querySelectorAll(".room_user-container")).at(-1).remove();
     }
+
+    document.querySelector(".room_user_username-title").textContent = `${room.usersList.length}/${room.gamePreferences.numberOfPlayers} joueurs`;
 
     room.usersList.forEach(user => {
         const roomUserContainer = document.createElement("tr");
@@ -649,6 +672,36 @@ function appendUsers(room) {
     });
 }
 
+async function joinRoom() {
+    if (document.querySelector(".room-container.selected")) {
+        if (!document.querySelector(".room-container.selected").dataset.ref ||
+            document.querySelector(".room-container.selected").dataset.ref === "")
+            return;
+        let roomRef = document.querySelector(".room-container.selected").dataset.ref;
+        console.log("joinRoom roomRef:", roomRef);
+        console.log("joinRoom roomsList:", roomsList);
+        let room;
+        for (const r in roomsList) {
+            if (roomsList[r].ref === roomRef) room = roomsList[r];
+        }
+        if (!room) return;
+        const isAlreadyPresent = room.usersList.find(u => u.ref === currentProfile.ref);
+        if (typeof isAlreadyPresent === "undefined") {
+            console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
+            room.gamePreferences.numberOfVsPlayers++;
+            // updatePreferences();
+            room.usersList.push(currentProfile);
+            console.log("isJoined room:", room);
+            await socket.emit('join-room', room);
+            socket.emit('enter-room-lobby', room);
+            document.querySelector(".menu-container").setAttribute("data-display", "gamemultiroom");
+            document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "");
+        }
+    }
+    // if (document.querySelector(".selection_item_display_join_button"))
+    //     document.querySelector(".selection_item_display_join_button").remove();
+}
+
 function loadProfile(profileNumber) {
     profiles.current = profileNumber;
     // currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
@@ -686,13 +739,19 @@ function generateUserRef() {
 
 socket.on('room-creation', room => {
     console.log("room-creation:", room);
-    document.querySelector(".room_id_display").dataset.id = room.roomId;
+    // document.querySelector(".room_id_display").dataset.id = room.roomId;
     socket.emit('enter-room-lobby', room);
 });
 
 socket.on('room-to-update', room => {
     console.log("room-to-update:", room);
     socket.emit('update-room', room);
+});
+
+socket.on('show-private-room', room => {
+    console.log("show-private-room:", room);
+    let rooms = [room];
+    appendRooms(rooms);
 });
 
 socket.on('update-rooms-list', rooms => {
@@ -704,7 +763,7 @@ socket.on('update-rooms-list', rooms => {
         if (rooms[room].visibility === "public") publicRooms.push(rooms[room]);
     }
     console.log("update-rooms-list publicRooms:", publicRooms);
-    appendRoom(publicRooms);
+    appendRooms(publicRooms);
 });
 
 socket.on('display-room-users', room => {

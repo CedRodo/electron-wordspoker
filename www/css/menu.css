@@ -673,6 +673,7 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 }
 
 .selection_item[data-item="name"] .selection_item_display:hover,
+.selection_item[data-item="roomid"] .selection_item_display:hover,
 .selection_item[data-item="profileaction"] .selection_item_display:hover {
     cursor: pointer;
 }
@@ -750,6 +751,27 @@ main:has(.menu_selection_game_multi_room-container[data-type="create"]) {
 
 .menu_selection_game_multi_room_players_list {
     width: 80% !important;
+    position: relative;
+}
+
+.menu_selection_game_multi_room_players_list::after {
+    content: "ID: " attr(data-id);
+    width: 25%;
+    height: fit-content;
+    padding: 3% 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    font-size: 2.5vmin;
+    text-transform: none;
+    color: white;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+    position: absolute;
+    right: 0;
+    top: 0;
+    translate: 100% 0;
 }
 
 .menu_selection_game_multi_room_players_list table {
@@ -844,6 +866,30 @@ main:has(.menu-container[data-display="gamemultiroom"]) {
     .room_id_display {
         display: flex;
     }
+}
+
+.selection_item[data-item="roomid"] .selection_item_display {
+    font-size: 6vh;
+}
+
+.selection_item[data-item="roomid"] .selection_item_display::before {
+    content: "ID salle privée";
+    width: 100%;
+    height: fit-content;
+    padding: 3% 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    font-size: 2.5vmin;
+    text-transform: none;
+    color: white;
+    text-shadow: 0.25vmin 0.25vmin 0.5vmin black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    translate: 0 -100%;
 }
 
 @media (display-mode: fullscreen) {

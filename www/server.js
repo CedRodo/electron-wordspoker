@@ -292,6 +292,22 @@ io.on('connection', socket => {
     socket.emit('update-rooms-list', rooms);
   });
 
+  socket.on('find-private-room', roomId => {
+    console.log("find-private-room");
+    console.log("find-private-room roomId:", roomId);
+    let privateRoom;
+    for (const room in rooms) {
+      console.log("find-private-room rooms[room]:", rooms[room]);
+      console.log("find-private-room rooms[room].roomId:", rooms[room].roomId);
+      if (rooms[room].roomId === roomId && rooms[room].visibility === "private") {
+        console.log("PRIVATE!");        
+        privateRoom = rooms[room];
+      }
+    }
+    console.log("privateRoom:", privateRoom); 
+    if (typeof privateRoom !== "undefined") socket.emit('show-private-room', privateRoom);
+  });
+
   socket.on('enter-room-lobby', room => {
     console.log("enter-room-lobby");
     console.log("enter-room-lobby room:", room);

@@ -22,7 +22,7 @@ class MenuSelectionElements {
         this.menuSelectionGameMultiBack = { element: this.qS(".menu_selection_game_multi_back"), display: "", item: "" };
         this.menuSelectionGameMultiJoinRoomPublic = { element: this.qS(".menu_selection_game_multi_join_room_public"), display: "joinroomrooms", type: "joinpublic", target: "menu_selection_game_multi_join_room_rooms-container" };
         this.menuSelectionGameMultiJoinRoomPrivate = { element: this.qS(".menu_selection_game_multi_join_room_private"), display: "joinroomrooms", type: "joinprivate", target: "menu_selection_game_multi_join_room_rooms-container" };
-        this.menuSelectionGameMultiJoinRoomPrivate = { element: this.qS(".menu_selection_game_multi_room_start"), display: "gamemultiroom", type: "start" };
+        this.menuSelectionGameMultiJoinRoomStart = { element: this.qS(".menu_selection_game_multi_room_start"), display: "gamemultiroom", type: "start" };
         this.menuSelectionGameMultiJoinRoomBack = { element: this.qS(".menu_selection_game_multi_join_room_back"), display: "multi", item: "" };
         this.menuSelectionGameMultiJoinRoomRoomsBack = { element: this.qS(".menu_selection_game_multi_join_room_rooms_back"), display: "joinroom", item: "" };
         this.menuSelectionGameMultiRoomBack = { element: this.qS(".menu_selection_game_multi_room_back"), display: "", item: "" };
