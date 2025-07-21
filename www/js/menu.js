@@ -120,14 +120,31 @@ async function menuSelection(event) {
                 //     roomActionDisplay.innerText = currentProfile.gamePreferences.roomId;
                 //     socket.emit('create-room', currentProfile.gamePreferences);
                 //     break;
-                    // document.querySelector(".sfx-continue").play();
+                // document.querySelector(".sfx-continue").play();
+                const gamePreferences = {};
+                gamePreferences["numberOfPlayers"] = currentProfile.gamePreferences.numberOfPlayers;
+                currentProfile.gamePreferences.numberOfVsPlayers = 1;
+                gamePreferences["numberOfVsPlayers"] = currentProfile.gamePreferences.numberOfVsPlayers;
+                gamePreferences["buyIn"] = currentProfile.gamePreferences.buyIn;
+                gamePreferences["bigBlind"] = currentProfile.gamePreferences.bigBlind;
+                gamePreferences["backgroundNumber"] = currentProfile.gamePreferences.backgroundNumber;
+                const room = new Room({
+                    ref: currentProfile.ref,
+                    roomId: generateRoomId(socket.id),
+                    hostName: currentProfile.username,
+                    visibility: currentProfile.gamePreferences.roomVisibility,
+                    gamePreferences: gamePreferences,
+                });
+                room.usersList.push(currentProfile);
+                await socket.emit('create-room', room);
+                localStorage.setItem("room", room.ref);
+                currentProfile.gamePreferences.roomRef = room.ref;
                 preventActions = true;
                 document.querySelector("main").classList.add("hide");
                 sounds.audioThemeTag.pause();
                 currentProfile.gamePreferences.gameMode = "solo";
                 socket.emit('update-user', currentProfile);
                 updatePreferences();
-                // setTimeout(() => { window.location.assign("game.html"); }, 2000);
                 setTimeout(() => { window.location.assign("/game"); }, 2000);
             }
             break;

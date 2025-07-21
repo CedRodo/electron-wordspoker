@@ -328,7 +328,7 @@ io.on('connection', socket => {
     console.log("get-room roomRef:", roomRef);
     // console.log("get-room username:", username);
     console.log("get-room rooms:", rooms);
-    console.log("get-room rooms.usersList:", rooms.usersList);
+    console.log("get-room rooms[roomRef].usersList:", rooms[roomRef].usersList);
     if (!rooms[roomRef]) return;
     // console.log("get-room rooms[roomRef]:", rooms[roomRef]);
     console.log("get-room users[socket.id]:", users[socket.id]);
