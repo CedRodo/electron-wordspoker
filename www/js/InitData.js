@@ -65,7 +65,7 @@ class InitData {
         this.wordsList = await fetch("./data/words_list_fr.txt")
             .then((response) => response.text())
             .then((data) => { return JSON.parse(data) });
-        console.log("this.wordsList:", this.wordsList);
+        // console.log("this.wordsList:", this.wordsList);
         // this.originalWordsList = await fetch("./data/words_fr.txt")
         //     .then((response) => response.text())
         //     .then((data) => { return JSON.parse(data) });

@@ -15,12 +15,12 @@ class Players {
     wordsCards = [];
     possibleWordsToPlay = [];
     wordToPlay = { word: "", value: 0 };
-    constructor(number, name, avatar, gender, cash) {
-        this.number = number;
-        this.name = name;
-        this.avatar = avatar;
-        this.gender = gender;
-        this.cash = cash;
+    constructor(data) {
+        this.number = data.playerNumber;
+        this.name = data.playerName;
+        this.avatar = data.avatarNumber;
+        this.gender = data.gender;
+        this.cash = data.playerCash;
     }
 
     getPossibleWords(initWordsList) {
@@ -225,6 +225,7 @@ class Players {
     }
 
     checkIfAllIn() {
+        console.log("checkIfAllIn");        
         if (this.cash === 0) {
             this.deck.dataset.playstatus = "allin";
             this.playStatus = "allin";

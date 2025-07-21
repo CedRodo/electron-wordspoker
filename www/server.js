@@ -4,7 +4,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import path from "path";
-// import "dotenv/config";
+import "dotenv/config";
 
 const __dirname = path.resolve();
 
@@ -55,13 +55,14 @@ const httpServer = createServer(app);
 let host;
 
 switch (APP_ENV) {
-  case "DEV":
-    host = "https://www.electronglitch.com/words_poker"
+  case "PROD":
+    // host = "https://www.electronglitch.com/wordspoker";
+    host = "https://wordspoker.electronglitch.com";
     break;
-  case "DEV2":
+  case "PROD2":
     host = "https://electron-wordspoker.onrender.com";
     break;
-  case "PROD":
+  case "DEV":
     host = "http://localhost";
     break;
   default:
@@ -395,15 +396,44 @@ io.on('connection', socket => {
     io.to(roomId).emit('update-game-status', data);
   });
 
+  socket.on('get-ai-thinking-time', (data, roomId) => {
+    console.log("get-ai-thinking-time data:", data);
+    let thinkingTime = Math.floor(Math.random() * (data.timeLimitMax - data.timeLimitMin + 1)) + data.timeLimitMin;
+    io.to(roomId).emit('ai-thinking-time', thinkingTime);
+  });
+
+  socket.on('ai-play-decision', (data, roomId) => {
+    console.log("ai-play-decision");
+    console.log("ai-play-decision data:", data);
+    io.to(roomId).emit('ai-play', data);
+  });
+
+  socket.on('activate-ai-play', (roomId, callback) => {
+    console.log("activate-ai-play");
+    console.log("activate-ai-play callback:", callback);
+    io.to(roomId).emit('ai-play', callback);
+  });
+
   socket.on('send-word-to-play', (data, roomId) => {
     console.log("send-word-to-play");
     console.log("send-word-to-play data:", data);
     socket.to(roomId).emit('player-word-to-play', data);
   });
 
+  socket.on('send-ai-players-list', async (AIPlayersList, roomId) => {
+    console.log("send-ai-players-list");
+    console.log("send-ai-players-list AIPlayersList:", AIPlayersList);
+    // const sockets = await io.in(roomId).fetchSockets();
+    // const socketsIds = sockets.map(socket => socket.id);
+    // console.log("socketsIds:", socketsIds);
+    // const usersInRoom = socketsIds.map(id => users[id]);
+    // console.log("usersInRoom:", usersInRoom);
+    io.to(roomId).emit('game-create-ai-players', AIPlayersList);
+  });
+
   socket.on('game-generate-distribution', (data, roomId) => {
     console.log("game-generate-distribution");
-    console.log("game-generate-distribution data:", data);
+    // console.log("game-generate-distribution data:", data);
     io.to(roomId).emit('game-distribution', data);
   });
 
@@ -429,7 +459,11 @@ io.on('connection', socket => {
     const sockets = await io.in(data.roomId).fetchSockets();
     console.log("player-check-status sockets.length:", sockets.length);
     
-    sockets.forEach(s => { players.push({ [users[s.id].ref]: { ready: s.data.ready } }); });
+    sockets.forEach(s => {
+      console.log("s.id:", s.id);
+      console.log("s.data.ready:", s.data.ready);
+      players.push({ [users[s.id].ref]: { ready: s.data.ready } });
+    });
     console.log("player-check-status players:", players);
     let event = data.type + "-players-status";
     io.to(data.roomId).emit(event, players);

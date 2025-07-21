@@ -10,7 +10,7 @@ class GameMechanics {
         this.gameEnvironment = gameEnvironment;
         this.gameStatus = gameStatus;
     }
-    runningTurn() {
+    async runningTurn() {
         console.log("runningTurn");
         
         // console.log("this.gameEnvironment.betAmountRange.value:", this.gameEnvironment.betAmountRange.value);
@@ -49,7 +49,7 @@ class GameMechanics {
         // let timeLimitMax = this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber ? 12000 : 3000;
         // let timeLimitMin = 2000;
         // let timeLimitMax = 200;
-        // let timeLimitMin = 100;
+        let timeLimitMin = 1000;
         let timeLimitMax = 15000;
         playerDeck.setAttribute("data-playstatus", "turn");
         playerDeck.style.setProperty("--time", this.countdownPercent);
@@ -57,7 +57,7 @@ class GameMechanics {
 
         let thinkingCountdownStart = performance.now();
         let thinkingCountdownEnd = thinkingCountdownStart + timeLimitMax;
-
+        
         const thinkingCountdownAnimation = () => {
             let currentThinkingCountdown = performance.now();
             // console.log("thinkingCountdownAnimation this.countdownPercent:", this.countdownPercent);
@@ -78,18 +78,52 @@ class GameMechanics {
                 cancelAnimationFrame(this.thinkingCountdown);
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);
-
+            
             if (this.countdownPercent < 100 && !this.stopCoundown) {
                 requestAnimationFrame(thinkingCountdownAnimation);
             } else {
                 return;
             }
         }
-
+        
         this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
 
+        if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"] === "cpu") {
+            this.AITurn(timeLimitMin, timeLimitMax);
+        }
+
     }
-    async endingTurn() {           
+    
+    AITurn(timeLimitMin, timeLimitMax) {
+        console.log("AITurn");
+        let thinkingTime;
+        if (currentProfile.username === room.hostName) {
+            socket.emit('get-ai-thinking-time', { timeLimitMin: timeLimitMin, timeLimitMax: timeLimitMax }, room.roomId);
+        }
+    }
+
+    waitAIPlay(thinkingTime) {
+        console.log("waitAIPlay");
+        console.log("waitAIPlay thinkingTime:", thinkingTime);
+        const AIPlayer = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
+        console.log("waitAIPlay AIPlayer:", AIPlayer);
+        setTimeout(async () => {
+            console.log("timeout");
+            cancelAnimationFrame(this.thinkingCountdown);
+            this.stopCoundown = true;
+            this.countdownPercent = 100;
+            AIPlayer.deck.style.setProperty("--time", this.countdownPercent);
+            // const aIPlayer = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
+            if (currentProfile.username === room.hostName) {
+                const betData = { cashToPut: this.gameStatus.cashToPut, previousBetAmount: this.gameStatus.previousBetAmount }
+                await AIPlayer.betDecision(betData);
+            }
+            console.log("TEST!!!!!!!!!!!");
+        }, thinkingTime);
+    }
+
+    async endingTurn() {     
+        console.log("endingTurn");              
         const yourPlayer = this.gameEnvironment.players[`player${this.gameStatus.yourTurnNumber}`];
         if (this.gameStatus.orderedPlayersTurns.length <= 1 || (this.gameStatus.showdownStatuses[this.gameStatus.showdownStatusesIndex] === "river" && this.roundStatusQuo())) {
             if (this.gameStatus.orderedPlayersTurns.length > 1 &&
@@ -130,7 +164,6 @@ class GameMechanics {
 
                     let wordToFormCountdown = requestAnimationFrame(wordToFormCountdownAnimation);
 
-
                 }, 2000);
             } else {
                 await socket.emit('send-my-player-infos', yourPlayer, room.roomId);
@@ -138,11 +171,14 @@ class GameMechanics {
                 return;
             }
         } else if (this.roundStatusQuo()) {
+            console.log("this.roundStatusQuo");            
             this.gameStatus.orderedPlayersTurnsIndex = 0           
             this.gameStatus.showdownStatusesIndex++;
             setTimeout(() => { this.showdown(); }, 2000);
             return;
         } else {
+            console.log("!this.roundStatusQuo");
+            // if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["number"] === 4) return;
             this.gameStatus.orderedPlayersTurnsIndex + 1 < this.gameStatus.orderedPlayersTurns.length ? this.gameStatus.orderedPlayersTurnsIndex++ : this.gameStatus.orderedPlayersTurnsIndex = 0;
             setTimeout(() => { this.runningTurn(); }, yourPlayer["playStatus"] !== "allin" ? 2000 : 1000);
         }
@@ -156,7 +192,7 @@ class GameMechanics {
         list.forEach((number) => {
             const player = this.gameEnvironment.players[`player${number}`];
             // console.log("player number:", player.number);
-            console.log("player:", player.name);
+            // console.log("player:", player.name);
             // console.log("player playStatus:", player.playStatus);
             // console.log("player cashPut:", player.cashPut);            
             if ((!(player.playStatus === "call" || player.playStatus === "raise" || player.playStatus === "allin") ||
@@ -238,6 +274,7 @@ class GameMechanics {
                     this.gameEnvironment.players[player].getPossibleWords(this.initData.wordsList);
                     this.gameEnvironment.players[player].setWordsCards();
                     this.gameEnvironment.players[player].setWordsAndValues();
+                    if (this.gameEnvironment.players[player]["type"] === "cpu") this.gameEnvironment.players[player].wordDecision();
                     if (this.gameEnvironment.players[player]["wordToPlay"]["value"] > this.gameStatus.bestWordValue)
                         this.gameStatus.bestWordValue = this.gameEnvironment.players[player]["wordToPlay"]["value"];
                     console.log("this.gameEnvironment.players[player]:", this.gameEnvironment.players[player]);
@@ -266,6 +303,7 @@ class GameMechanics {
                     playerNumber: p.number,
                     eventName: 'player-reveal-word-suggested'
                 }, room.roomId);
+                if (p.type === "cpu") p.revealWordSuggested();
                 console.log("player:", p.name, "/ p.wordToPlay.value:", p.wordToPlay.value);
                 if (p.wordToPlay.value === this.gameStatus.bestWordValue || this.gameStatus.orderedPlayersTurns.length === 1) {
                     console.log("win!");                    
@@ -377,10 +415,10 @@ class GameMechanics {
                 atLeastOneAllIn = true;
             }
         });
-        console.log("atLeastOneAllIn:", atLeastOneAllIn);        
+        // console.log("atLeastOneAllIn:", atLeastOneAllIn);  
         this.gameStatus.orderedPlayersTurns.forEach((playerNumber) => {
             const p = this.gameEnvironment.players[`player${playerNumber}`];
-            console.log("p.playStatus:", p.playStatus, "/ p.cashPut:", p.cashPut, "/ this.gameStatus.cashToPut:", this.gameStatus.cashToPut);            
+            // console.log("p.playStatus:", p.playStatus, "/ p.cashPut:", p.cashPut, "/ this.gameStatus.cashToPut:", this.gameStatus.cashToPut);            
             if (!
                     (
                         (

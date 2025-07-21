@@ -36,7 +36,7 @@ const usersRoom = new Room({
     gamePreferences: new GamePreferences().getRoomPreferences(),
 });
 
-usersRoom.gamePreferences.numberOfPlayers = 0;
+usersRoom.gamePreferences.numberOfPlayers = 6;
 usersRoom.gamePreferences.numberOfVsPlayers = 0;
 
 socket.emit('test-new-room', usersRoom);
@@ -51,7 +51,7 @@ async function init() {
     console.log("namesList:", namesList);
 
     currentProfile.gamePreferences.gameMode = "multi";
-    currentProfile.gamePreferences.numberOfPlayers = 0;
+    currentProfile.gamePreferences.numberOfPlayers = 6;
     currentProfile.gamePreferences.numberOfVsPlayers = 0;
     currentProfile.userPreferences.playerName = namesList[Math.floor(Math.random() * namesList.length)].prenoms;
     currentProfile.userPreferences.avatarNumber = Math.floor(Math.random() * 80) + 1;
@@ -112,8 +112,8 @@ socket.on('test-update-users', users => {
         }
         if (typeof userAlreadyPresent === "undefined" || usersRoom.usersList.length === 0) {
             usersRoom.usersList.push(users[user]);
-            currentProfile.gamePreferences.numberOfPlayers++;
-            usersRoom.gamePreferences.numberOfPlayers++;
+            // currentProfile.gamePreferences.numberOfPlayers++;
+            // usersRoom.gamePreferences.numberOfPlayers++;
             currentProfile.gamePreferences.numberOfVsPlayers++;
             usersRoom.gamePreferences.numberOfVsPlayers++;
             socket.emit('test-update-room', usersRoom, "gamePreferences");

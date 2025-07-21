@@ -657,6 +657,10 @@ body {
     user-select: none;
 }
 
+.player_deck[data-player="vs"] .player_infos {
+    background: linear-gradient(180deg, #45e5ed, #33d7df, #24c9d1);
+}
+
 .player_deck[data-player="you"] .player_infos {
     background: linear-gradient(180deg, #a77fef, #894ef1, #6e30db);
     /* background: linear-gradient(180deg, pink, #f791a3, pink); */
@@ -664,7 +668,8 @@ body {
     background: linear-gradient(180deg, #a77fef, #894ef1, #6e30db);
 }
 
-.player_deck[data-player="you"] .player_name {
+.player_deck[data-player="you"] .player_name,
+.player_deck[data-player="vs"] .player_name {
     color: #ffff;
 }
 
@@ -738,8 +743,8 @@ body {
     display: flex;
 }
 
+.player_deck[data-player="vs"] .player_avatar-container::before,
 .player_deck[data-player="you"] .player_avatar-container::before {
-    content: "YOU";
     padding-bottom: 8%;
     position: absolute;
     top: 0;
@@ -748,8 +753,17 @@ body {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 1.75rem;
     font-size: 3vh;
-    color: gold;
     /* visibility: hidden; */
+}
+
+.player_deck[data-player="vs"] .player_avatar-container::before {
+    content: "VS";
+    color: #adedfd;
+}
+
+.player_deck[data-player="you"] .player_avatar-container::before {
+    content: "YOU";
+    color: gold;
 }
 
 .player_deck[data-player="you"][data-playstatus="turn"] .player_avatar-container::before {

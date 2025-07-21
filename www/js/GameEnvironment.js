@@ -23,6 +23,7 @@ class GameEnvironment {
     betAmountPreselections = document.querySelectorAll(".bet_amount_preselection");
     bgLastNb = 86;
     players = {};
+    AIPlayersList = [];
     
     constructor(initData, userPreferences, gamePreferences, gameStatus, sounds) {
         this.initData = initData;
@@ -297,6 +298,172 @@ class GameEnvironment {
             this.players[`player${playerNumber}`]["playStatus"] = "wait";
 
             this.gameStatus.orderedPlayersTurns.push(playerNumber);
+        });
+
+        this.playersDecks = document.querySelectorAll(".player_deck");
+
+        this.gameStatus.playerTurnNumber = 1;
+        this.gameStatus.lastPlayerTurnNumber = this.gameStatus.playerTurnNumber;
+
+        this.betAmountRange.max = this.players[`player${this.gameStatus.yourTurnNumber}`]["cash"] - this.gameStatus.bigBlind;
+        this.betAmountRange.min = this.gameStatus.bigBlind;
+        this.betAmountRange.value = this.betAmountRange.min;
+        this.betAmountRange.dataset.amount = this.betAmountRange.value;
+        this.potAmount.textContent = this.gameStatus.potAmount;
+        this.gameStatus.previousBetAmount = 0;
+        
+    }
+
+    async generateAIPlayers(numberOfAIPlayers) {
+            const avatars = this.initData.avatarsList;
+            const playerNames = this.initData.playerNamesList;
+            for (let i = 1; i <= numberOfAIPlayers; i++) {
+                let playerName;
+                let avatarNumber;
+                let gender;
+                let playerNamesIndex = Math.floor(Math.random() * playerNames.length);
+                playerName = playerNames[playerNamesIndex].prenoms;
+                // console.log("playerName:", playerName);
+                gender = playerNames[playerNamesIndex].sexe === "M" ? "male" : "female";
+                // console.log("avatars[gender]:", avatars[gender]);
+                avatarNumber = avatars[gender][Math.floor(Math.random() * avatars[gender].length)];
+                this.AIPlayersList.push({
+                    ref: "0",
+                    userPreferences: {
+                        playerName: playerName,
+                        avatarNumber: avatarNumber,
+                        gender: gender
+                    }
+                });
+            }
+            console.log("generateAIPlayers this.AIPlayersList:", this.AIPlayersList);
+            await socket.emit('send-AI-players-list', this.AIPlayersList, roomId);
+    }
+
+    generatePlayers() {
+        console.log("generatePlayers");
+        const NB_VS_PLAYERS = room.gamePreferences.numberOfVsPlayers;
+        const NB_PLAYERS = room.gamePreferences.numberOfPlayers;
+        console.log("generatePlayers NB_VS_PLAYERS:", NB_VS_PLAYERS);
+        console.log("generatePlayers NB_PLAYERS:", NB_PLAYERS);
+        document.querySelector(".game_table-container").dataset.nbplayers = NB_PLAYERS;
+        const totalPlayersList = room.usersList.concat(this.AIPlayersList);
+        // const NB_AI_PLAYERS = NB_PLAYERS - NB_VS_PLAYERS;
+        // console.log("NB_AI_PLAYERS:", NB_AI_PLAYERS);
+        // if (NB_AI_PLAYERS > 0) {
+        //     if () this.AIPlayersList = this.generateAIPlayers(NB_AI_PLAYERS);
+        //     console.log("generatePlayers this.AIPlayersList:", this.AIPlayersList);
+        //     this.AIPlayersList.forEach(AIPlayer => totalPlayersList.push(AIPlayer));
+        // }
+        console.log("totalPlayersList:", totalPlayersList);
+        totalPlayersList.forEach((user, index) => {
+            console.log("totalPlayersList user:", user);
+            
+            const playerData = {
+                playerNumber: index + 1,
+                playerName: user.userPreferences.playerName,
+                avatarNumber: user.userPreferences.avatarNumber,
+                gender: user.userPreferences.gender,
+                playerCash: this.gameStatus.startingCash
+            }
+
+            if (user.ref === currentProfile.ref) this.gameStatus.yourTurnNumber = playerData.playerNumber;
+
+            if (user.ref === currentProfile.ref) {
+                this.players[`player${playerData.playerNumber}`] = new UserPlayers(playerData);
+            } else if (user.ref === "0") {
+                this.players[`player${playerData.playerNumber}`] = new AIPlayers(playerData);
+            } else {
+                this.players[`player${playerData.playerNumber}`] = new VsPlayers(playerData);
+            }
+            console.log("this.players[`player${playerData.playerNumber}`]:", this.players[`player${playerData.playerNumber}`]);
+            
+            // Player deck
+            const playerDeck = document.createElement("div");
+            playerDeck.classList.add("player_deck");
+            playerDeck.setAttribute("data-player", this.players[`player${playerData.playerNumber}`]["type"]);
+            playerDeck.setAttribute("data-playstatus", "wait");
+            playerDeck.setAttribute("data-playernumber", this.players[`player${playerData.playerNumber}`]["number"]);
+            playerDeck.setAttribute("data-bet", "");
+            if (this.players[`player${playerData.playerNumber}`]["type"] === "you") this.yourDeck = playerDeck;
+            console.log("this.yourDeck:", this.yourDeck);            
+            // Player avatar
+            const playerAvatarContainer = document.createElement("div");
+            playerAvatarContainer.classList.add("player_avatar-container");
+            const playerAvatar = document.createElement("img");
+            playerAvatar.classList.add("player_avatar");
+            playerAvatar.src = `./assets/img/avatars/avatar${playerData.avatarNumber}.png`;
+            playerAvatarContainer.appendChild(playerAvatar);
+            // Player word suggested
+            const playerWordSuggestedContainer = document.createElement("div");
+            playerWordSuggestedContainer.classList.add("player_word_suggested-container");
+            // Player cards
+            const playerCardsContainer = document.createElement("div");
+            playerCardsContainer.classList.add("player_cards-container");
+            for (let j = 1; j <= 2; j++) {
+                const playerCard = document.createElement("div");
+                playerCard.classList.add("player_card", "card");
+                playerCard.setAttribute("data-status", user.ref === currentProfile.ref ? "revealed" : "concealed");
+                playerCard.setAttribute("data-number", j);
+                const cardDetails = document.createElement("div");
+                cardDetails.classList.add("card_details");
+                cardDetails.setAttribute("data-letter", "");
+                cardDetails.setAttribute("data-value", "");
+                cardDetails.setAttribute("data-color", "");
+                const cardLetter = document.createElement("span");
+                cardLetter.classList.add("card_letter");
+                cardDetails.appendChild(cardLetter);
+                playerCard.appendChild(cardDetails);
+                playerCardsContainer.appendChild(playerCard);
+            }
+
+            if (user.ref === currentProfile.ref) this.yourCards = playerCardsContainer.querySelectorAll(".player_card");
+            // Player infos
+            const playerInfos = document.createElement("div");
+            playerInfos.classList.add("player_infos");
+            const playerNameDisplay = document.createElement("div");
+            playerNameDisplay.classList.add("player_name");
+            playerNameDisplay.textContent = playerData.playerName;
+            const playerCashDisplay = document.createElement("div");
+            playerCashDisplay.classList.add("player_cash");
+            const cashAmount = document.createElement("span");
+            cashAmount.classList.add("cash_amount");
+            if (playerData.playerNumber === NB_PLAYERS - 1) {
+                this.players[`player${playerData.playerNumber}`]["cashPut"] = this.gameStatus.smallBlind;
+                this.players[`player${playerData.playerNumber}`]["cash"] -= this.gameStatus.smallBlind;
+                playerDeck.setAttribute("data-bet", this.gameStatus.smallBlind);
+            }
+            if (playerData.playerNumber === NB_PLAYERS) {
+                this.players[`player${playerData.playerNumber}`]["cashPut"] = this.gameStatus.bigBlind;
+                this.players[`player${playerData.playerNumber}`]["cash"] -= this.gameStatus.bigBlind;
+                playerDeck.setAttribute("data-bet", this.gameStatus.bigBlind);
+                this.gameStatus.bigBlindPlayerNumber = this.players[`player${playerData.playerNumber}`]["number"];
+            }
+            cashAmount.textContent = this.players[`player${playerData.playerNumber}`]["cash"];
+            const actionSign = document.createElement("span");
+            actionSign.classList.add("action_sign");
+            actionSign.textContent = "";
+            const betAmount = document.createElement("span");
+            betAmount.classList.add("bet_amount");
+            betAmount.textContent = "";
+            playerCashDisplay.append(cashAmount, actionSign, betAmount);
+            const playerWordSuggestedValueContainer = document.createElement("div");
+            playerWordSuggestedValueContainer.classList.add("player_word_suggested_value-container");
+            const playerWordSuggestedValue = document.createElement("span");
+            playerWordSuggestedValue.classList.add("player_word_suggested_value");
+            playerWordSuggestedValue.textContent = 0;
+            const playerWordSuggestedValuePtsText = document.createElement("span");
+            playerWordSuggestedValuePtsText.classList.add("player_word_suggested_value_pts_text");
+            playerWordSuggestedValuePtsText.textContent = "pts";
+            playerWordSuggestedValueContainer.append(playerWordSuggestedValue, playerWordSuggestedValuePtsText);
+            playerInfos.append(playerNameDisplay, playerCashDisplay, playerWordSuggestedValueContainer);
+            playerDeck.append(playerAvatarContainer, playerCardsContainer, playerWordSuggestedContainer, playerInfos);
+            document.querySelector(".players_decks").appendChild(playerDeck);
+
+            this.players[`player${playerData.playerNumber}`]["deck"] = playerDeck;
+            this.players[`player${playerData.playerNumber}`]["playStatus"] = "wait";
+
+            this.gameStatus.orderedPlayersTurns.push(playerData.playerNumber);
         });
 
         this.playersDecks = document.querySelectorAll(".player_deck");
