@@ -45,14 +45,14 @@ class GameMechanics {
             }
         });
 
+        let type = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"];
         this.stopCoundown = false;
-        this.overtime = false;
         this.countdownPercent = 0;
         // let timeLimitMax = this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber ? 12000 : 3000;
         // let timeLimitMin = 2000;
         // let timeLimitMax = 200;
         let timeLimitMin = 1000;
-        let timeLimitMax = 15000;
+        let timeLimitMax = type === "you" || type === "vs" ? 30000 : 15000;
         playerDeck.setAttribute("data-playstatus", "turn");
         playerDeck.style.setProperty("--time", this.countdownPercent);
         playerDeck.style.setProperty("--countdown_color", "#f0f003");
@@ -79,8 +79,8 @@ class GameMechanics {
                 console.log("this.countdownPercent >= 100 || this.stopCoundown");
                 this.countdownPercent = 100;
                 cancelAnimationFrame(this.thinkingCountdown);
-                if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"] === "you" ||
-                    this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"] === "vs") {                    this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
+                if (type === "you" || type === "vs") {
+                    this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
                     const player = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
                     if (player.cashPut < this.gameStatus.cashToPut) {
                         player.playStatus = "fold";
@@ -110,7 +110,7 @@ class GameMechanics {
         
         if (this.countdownPercent <= 100) this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
 
-        if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"] === "cpu") {
+        if (type === "cpu") {
             this.AITurn(timeLimitMin, timeLimitMax);
         }
 
