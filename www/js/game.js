@@ -307,6 +307,26 @@ socket.on('update-game-status', data => {
     gameMechanics.endingTurn();
 });
 
+socket.on('overtime-play', player => {
+    console.log("overtime-play player:", player);
+    gameEnvironment.playerActions.forEach((action) => action.disabled = true);
+    const deck = gameEnvironment.players[`player${gameStatus.playerTurnNumber}`]["deck"];
+    if (player.cashPut < gameStatus.cashToPut) {
+        player.playStatus = "fold";
+        deck.querySelector(".action_sign").textContent = "";
+        deck.querySelector(".bet_amount").textContent = "";
+        gameStatus.orderedPlayersTurns.splice(gameStatus.orderedPlayersTurnsIndex, 1);
+        gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? gameStatus.orderedPlayersTurnsIndex-- : gameStatus.orderedPlayersTurnsIndex = -1;
+    }
+    if (player.cashPut === gameStatus.cashToPut) {
+        player.playStatus = "call";
+        deck.querySelector(".action_sign").textContent = "►";
+    }
+    console.log("overtime-play player.playStatus:", player.playStatus);
+    deck.setAttribute("data-playstatus", player.playStatus);
+    // gameMechanics.endingTurn();
+});
+
 socket.on('player-word-to-play', data => {
     console.log("player-word-to-play data:", data);
     let wordToPlay = data.wordToPlay;

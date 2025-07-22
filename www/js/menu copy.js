@@ -156,8 +156,7 @@ async function menuSelection(event) {
         case "gamemultiroom":
             console.log("gamemultiroom");
             if (menuSelect.type === "create") {
-                console.log("create");
-                console.log("create currentProfile.gamePreferences.roomVisibility:", currentProfile.gamePreferences.roomVisibility);
+                console.log("create");                
                 currentProfile.gamePreferences.roomRef = currentProfile.ref;
                 console.log("create currentProfile.gamePreferences:", currentProfile.gamePreferences);
                 // const gamePreferences = currentProfile.gamePreferences.getRoomPreferences();
@@ -175,7 +174,7 @@ async function menuSelection(event) {
                     visibility: currentProfile.gamePreferences.roomVisibility,
                     gamePreferences: gamePreferences,
                 });
-                console.log("create room room:", room);                
+                console.log("create room: room");                
                 currentProfile.gamePreferences.roomRef = room.ref;
                 socket.emit('update-user', currentProfile);
                 updatePreferences();
@@ -193,11 +192,9 @@ async function menuSelection(event) {
                 console.log("start multi roomsList:", roomsList);
                 let room;
                 for (const r in roomsList) {
-                    if (roomsList[r].ref === roomRef.toString()) room = roomsList[r];
+                    if (roomsList[r].ref === roomRef) room = roomsList[r];
                 }
-                console.log("room:", room);                
                 if (!room) return;
-                // return;
                 socket.emit('prepare-game-multi-start', room);
                 break;
             };
@@ -489,8 +486,7 @@ function profileAction() {
         selectionItemDisplayInputName.classList.add("selection_item_display_input_name");
         selectionItemDisplayInputName.id = "room_id";
         selectionItemDisplayInputName.type = "text";
-        console.log("selectionItemDisplay.innerText:", selectionItemDisplay.innerText);
-        
+        console.log("selectionItemDisplay.innerText:", selectionItemDisplay.innerText); 
         console.log("privateRoomId:", privateRoomId);
         selectionItemDisplayInputName.value = privateRoomId;
         selectionItemDisplay.innerText = "";
@@ -502,7 +498,6 @@ function profileAction() {
             currentProfile.gamePreferences.roomRef = event.currentTarget.value;
             currentProfile.gamePreferences.roomVisibility = "private";
             selectionItemDisplay.innerText = event.currentTarget.value;
-            console.log("event.currentTarget.value:", event.currentTarget.value);            
             // updatePreferences();
             selectionItemDisplayInputName.removeEventListener("blur", setNameValue);
             selectionItemDisplayInputName.remove();
@@ -511,7 +506,6 @@ function profileAction() {
 
         function findPrivateRoom(roomId) {
             console.log("findPrivateRoom roomId:", roomId);
-            privateRoomId = roomId;
             if (!roomId || roomId === "") return;          
             socket.emit('find-private-room', roomId);
         }
@@ -696,7 +690,6 @@ function appendUsers(room) {
 }
 
 async function joinRoom() {
-    console.log("joinRoom");    
     if (document.querySelector(".room-container.selected")) {
         if (!document.querySelector(".room-container.selected").dataset.ref ||
             document.querySelector(".room-container.selected").dataset.ref === "")
@@ -704,7 +697,6 @@ async function joinRoom() {
         let roomRef = document.querySelector(".room-container.selected").dataset.ref;
         console.log("joinRoom roomRef:", roomRef);
         console.log("joinRoom roomsList:", roomsList);
-        // socket.emit('join-private-room', roomRef);
         let room;
         for (const r in roomsList) {
             if (roomsList[r].ref === roomRef) room = roomsList[r];
@@ -717,14 +709,14 @@ async function joinRoom() {
             // updatePreferences();
             room.usersList.push(currentProfile);
             console.log("isJoined room:", room);
-            await socket.emit('join-room', room, room.visibility);
+            await socket.emit('join-room', room);
             socket.emit('enter-room-lobby', room);
             document.querySelector(".menu-container").setAttribute("data-display", "gamemultiroom");
             document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "");
         }
     }
-    if (document.querySelector(".selection_item_display_join_button"))
-        document.querySelector(".selection_item_display_join_button").remove();
+    // if (document.querySelector(".selection_item_display_join_button"))
+    //     document.querySelector(".selection_item_display_join_button").remove();
 }
 
 function loadProfile(profileNumber) {
@@ -768,66 +760,42 @@ socket.on('room-creation', room => {
     socket.emit('enter-room-lobby', room);
 });
 
-socket.on('room-to-update', (room, visibility) => {
-    console.log("room-to-update room:", room);
-    console.log("room-to-update visibility:", visibility);
-    socket.emit('update-room', room, visibility);
+socket.on('room-to-update', room => {
+    console.log("room-to-update:", room);
+    socket.emit('update-room', room);
 });
 
 socket.on('show-private-room', room => {
     console.log("show-private-room:", room);
-    socket.emit('update-room', room, "private");
+    let rooms = [room];
+    appendRooms(rooms);
 });
 
-socket.on('update-rooms', (rooms, visibility) => {
-    console.log("update-rooms rooms:", rooms);
-    console.log("update-rooms visibility:", visibility);
+socket.on('update-rooms-list', rooms => {
+    console.log("update-rooms-list:", rooms);
     roomsList = rooms;
-    if (visibility === "public") {
-        const publicRooms = [];
-        for (const room in rooms) {
-            console.log("rooms[room]:", rooms[room]);
-            if (rooms[room].visibility === "public") publicRooms.push(rooms[room]);
-        }
-        console.log("update-rooms publicRooms:", publicRooms);
-        appendRooms(publicRooms);
+    const publicRooms = [];
+    for (const room in rooms) {
+        console.log("rooms[room]:", rooms[room]);
+        if (rooms[room].visibility === "public") publicRooms.push(rooms[room]);
     }
-    if (visibility === "private") {
-        const privateRoom = [];
-        for (const room in rooms) {
-            console.log("rooms[room]:", rooms[room]);
-            if (rooms[room].visibility === "private" && rooms[room].roomId === privateRoomId) privateRoom.push(rooms[room]);
-        }
-        console.log("update-rooms privateRoom:", privateRoom);
-        appendRooms(privateRoom);
-    }
-});
-
-socket.on('update-private-room-in-rooms-list', room => {
-    console.log("update-private-room-in-rooms-list:", room);
-    roomsList[room.ref] = room;
+    console.log("update-rooms-list publicRooms:", publicRooms);
+    appendRooms(publicRooms);
 });
 
 socket.on('display-room-users', room => {
     console.log("display-room-users room:", room);
-    console.log("display-room-users roomsList:", roomsList);
+    let roomToFind;
+    for (const r in roomsList) {
+        if (roomsList[r].ref === room.ref) roomToFind = roomsList[r];
+    }
+    console.log("display-room-users roomToFind:", roomToFind);
+    // if (!roomToFind) return;
     appendUsers(room);
 });
 
 socket.on('display-public-rooms', rooms => {
     console.log("display-public-rooms:", rooms);
-});
-
-socket.on('private-room-joining', room => {
-    console.log("private-room-joining:", room);
-    console.log("room.gamePreferences.numberOfVsPlayers:", room.gamePreferences.numberOfVsPlayers);
-    room.gamePreferences.numberOfVsPlayers++;
-    room.usersList.push(currentProfile);
-    socket.emit('enter-room-lobby', room);
-    document.querySelector(".menu-container").setAttribute("data-display", "gamemultiroom");
-    // document.querySelector(".menu_selection_game_multi_room-container").setAttribute("data-type", "");
-    if (document.querySelector(".selection_item_display_join_button"))
-        document.querySelector(".selection_item_display_join_button").remove();
 });
 
 socket.on('room-joining', room => {

@@ -224,13 +224,22 @@ io.on('connection', socket => {
     io.emit('update-rooms-list', rooms);
   });
 
-  socket.on('join-room', (room) => {
+  socket.on('join-room', (room, visibility) => {
     console.log("join-room");
     if (!rooms[room.ref]) return;
-    socket.emit('room-to-update', room);
+    socket.emit('room-to-update', room, visibility);
     socket.join(room.roomId);
     io.to(room.roomId).emit('show-notification', { object: users[socket.id], type: "join" });
     io.to(room.roomId).emit('room-joining', room);
+  });
+
+  socket.on('join-private-room', (roomRef) => {
+    console.log("join-private-room");
+    if (!rooms[roomRef]) return;
+    // socket.emit('room-to-update', room);
+    socket.join(rooms[roomRef].roomId);
+    io.to(rooms[roomRef].roomId).emit('show-notification', { object: users[socket.id], type: "join" });
+    io.to(rooms[roomRef].roomId).emit('private-room-joining', rooms[roomRef]);
   });
 
   socket.on('leave-room', (room) => {
@@ -277,7 +286,7 @@ io.on('connection', socket => {
     io.in(room.roomId).socketsLeave();
   });
 
-  socket.on('update-room', (room) => {
+  socket.on('update-room', (room, visibility) => {
     console.log("update-room");
     console.log("update-room room:", room);
     if (!rooms[room.ref]) return;
@@ -285,12 +294,20 @@ io.on('connection', socket => {
       rooms[room.ref][prop] = room[prop];
     }
     console.log("update-room rooms:", rooms);
-    io.emit('update-rooms-list', rooms);
+    io.emit('update-rooms', rooms, visibility);
+  });
+
+  socket.on('update-private-room', (room) => {
+    console.log("update-private-room");
+    console.log("update-private-room roomRef:", roomRef);
+    if (!rooms[roomRef]) return;
+    console.log("update-private-room rooms[roomRef]:", rooms[roomRef]);
+    io.to(rooms[roomRef].roomId).emit('update-private-room-in-rooms-list', rooms[roomRef]);
   });
 
   socket.on('enter-public-rooms', () => {
     console.log("enter-public-rooms");
-    socket.emit('update-rooms-list', rooms);
+    socket.emit('update-rooms', rooms, "public");
   });
 
   socket.on('find-private-room', roomId => {
@@ -323,7 +340,7 @@ io.on('connection', socket => {
     io.to(room.roomId).emit('start-game-multi', room.ref);
   });
 
-  socket.on('get-room', (roomRef, username) => {
+  socket.on('get-room', (roomRef) => {
     console.log("get-room");
     console.log("get-room roomRef:", roomRef);
     // console.log("get-room username:", username);
@@ -394,6 +411,10 @@ io.on('connection', socket => {
     console.log("player-action");
     console.log("player-action data:", data);
     io.to(roomId).emit('update-game-status', data);
+  });
+
+  socket.on('overtime-skip-turn', (player, roomId) => {
+    io.to(roomId).emit('overtime-play', player);
   });
 
   socket.on('get-ai-thinking-time', (data, roomId) => {

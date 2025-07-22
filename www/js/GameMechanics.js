@@ -5,6 +5,7 @@ class GameMechanics {
     countdownPercent;
     thinkingCountdown;
     stopCoundown = false;
+    overtime = false;
     constructor(initData, gameEnvironment, gameStatus) {
         this.initData = initData;
         this.gameEnvironment = gameEnvironment;
@@ -45,6 +46,7 @@ class GameMechanics {
         });
 
         this.stopCoundown = false;
+        this.overtime = false;
         this.countdownPercent = 0;
         // let timeLimitMax = this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber ? 12000 : 3000;
         // let timeLimitMin = 2000;
@@ -58,7 +60,7 @@ class GameMechanics {
         let thinkingCountdownStart = performance.now();
         let thinkingCountdownEnd = thinkingCountdownStart + timeLimitMax;
         
-        const thinkingCountdownAnimation = () => {
+        const thinkingCountdownAnimation = async () => {
             let currentThinkingCountdown = performance.now();
             // console.log("thinkingCountdownAnimation this.countdownPercent:", this.countdownPercent);
             // console.log("currentThinkingCountdown:", currentThinkingCountdown);        
@@ -74,8 +76,12 @@ class GameMechanics {
                 playerDeck.style.setProperty("--countdown_color", "red");
             }
             if (this.countdownPercent >= 100 || this.stopCoundown) {
+                console.log("this.countdownPercent >= 100 || this.stopCoundown");                
+                this.overtime = true;
                 this.countdownPercent = 100;
                 cancelAnimationFrame(this.thinkingCountdown);
+                // this.overtimeSkipTurn();
+                // socket.emit('overtime-skip-turn', { playerNumber: this.gameStatus.playerTurnNumber, deck: this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["deck"] }, room.roomId);
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);
             
@@ -88,10 +94,40 @@ class GameMechanics {
         
         this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
 
+        console.log("this.overtime:", this.overtime);
+
+        // if (this.overtime) {
+        //     console.log('yes!');            
+        //     await socket.emit('overtime-skip-turn', this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`], room.roomId);
+        //     this.overtime = false;
+        //     this.endingTurn();
+        //     return;
+        // }
+
         if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"] === "cpu") {
             this.AITurn(timeLimitMin, timeLimitMax);
         }
 
+    }
+
+    overtimeSkipTurn() {
+        console.log("overtimeSkipTurn");        
+        this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
+        const player = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
+        if (player.cashPut < this.gameStatus.cashToPut) {
+            player.playStatus = "fold";
+            player.deck.querySelector(".action_sign").textContent = "";
+            player.deck.querySelector(".bet_amount").textContent = "";
+            this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
+            this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
+        }
+        if (player.cashPut === this.gameStatus.cashToPut) {
+            player.playStatus = "call";
+            player.deck.querySelector(".action_sign").textContent = "►";
+        }
+        console.log("overtimeSkipTurn player.playStatus:", player.playStatus);  
+        player.deck.setAttribute("data-playstatus", player.playStatus);
+        this.endingTurn();
     }
     
     AITurn(timeLimitMin, timeLimitMax) {
