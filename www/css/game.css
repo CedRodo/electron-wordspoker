@@ -702,7 +702,12 @@ body {
     background: linear-gradient(180deg, #f7516d, #f52648, #c40d2b);
 }
 
-.player_deck[data-player="cpu"][data-playstatus="turn"] .player_infos {
+/* .player_deck[data-player="cpu"][data-playstatus="turn"] .player_infos {
+    background: linear-gradient(180deg, pink, #f791a3, pink);
+    background: linear-gradient(180deg, #f7f251, #edd237, #c1a715);
+} */
+
+.player_deck[data-playstatus="turn"] .player_infos {
     background: linear-gradient(180deg, pink, #f791a3, pink);
     background: linear-gradient(180deg, #f7f251, #edd237, #c1a715);
 }

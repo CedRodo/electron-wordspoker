@@ -1,5 +1,6 @@
 // if (!localStorage.getItem("profiles")) window.location.assign("menu.html");
 if (!localStorage.getItem("profiles")) window.location.assign("/menu");
+// if (!localStorage.getItem("profiles")) window.location.assign("/test");
 const profiles = JSON.parse(localStorage.getItem("profiles"));
 const currentProfile = structuredClone(profiles[`profile${profiles.current}`]);
 // if (!currentProfile) window.location.assign("menu.html");
@@ -139,7 +140,6 @@ socket.on('game-create-ai-players', async (AIPlayersList) => {
     console.log("game-create-ai-players AIPlayersList:", AIPlayersList);
     gameEnvironment.AIPlayersList = AIPlayersList;
     console.log("gameEnvironment.AIPlayersList:", gameEnvironment.AIPlayersList);
-    gameEnvironment.generatePlayers();
     socket.emit('player-set-ready', { roomId: room.roomId, type: "init" });
 });
 
@@ -166,13 +166,30 @@ socket.on('init-players-status', async (players) => {
         console.log("everyPlayersAreReady");
         isAlreadyInitialized = true;
         if (currentProfile.username === room.hostName) {
-            gameEnvironment.generateDistribution();
+            let playersTurnOrder = [];
+            const NB_PLAYERS = room.gamePreferences.numberOfPlayers;
+            let playerNumber = Math.floor(Math.random() * NB_PLAYERS) + 1;
+            console.log("1) playerNumber:", playerNumber);
+            while (playersTurnOrder.length < NB_PLAYERS) {
+                if (playerNumber > NB_PLAYERS) playerNumber = 1;
+                playersTurnOrder.push(playerNumber);
+                playerNumber++;
+            }
+            console.log("playersTurnOrder:", playersTurnOrder);
+            socket.emit('send-players-turn-order', playersTurnOrder, room.roomId);
         }
-        gameEnvironment.gameMenuEvents();
-        eventsListeners.create();
-        sounds.generateSounds();
-        setTimeout(() => { gameMechanics.runningTurn(); }, 7500);
-        return;
+        socket.on('receive-players-turn-order', playersTurnOrder => {
+            console.log("receive-players-turn-order playersTurnOrder:", playersTurnOrder);
+            gameEnvironment.generatePlayers(playersTurnOrder);
+            if (currentProfile.username === room.hostName) {
+                gameEnvironment.generateDistribution();
+            }
+            gameEnvironment.gameMenuEvents();
+            eventsListeners.create();
+            sounds.generateSounds();
+            setTimeout(() => { gameMechanics.runningTurn(); }, 7500);
+            return;
+        });
     }
 });
 
@@ -224,6 +241,7 @@ socket.on('game-distribution', data => {
             holderLetter.setAttribute("data-value", letterDetails[1]);
             holderLetter.setAttribute("data-color", color);
             holderLetter.textContent = letterDetails[0];
+            holderLetter.title = `${letterDetails[0].toUpperCase()} : ${letterDetails[1]}`;
             gameEnvironment.holderBottomRack.appendChild(holderLetter);
         }
     });

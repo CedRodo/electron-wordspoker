@@ -467,6 +467,7 @@ io.on('connection', socket => {
 
   socket.on('player-set-ready', data => {
     console.log("player-set-ready data:", data);
+    console.log("player-set-ready socket.id:", socket.id);
     console.log("player-set-ready socket.data:", socket.data);
     socket.data.ready = true;
     console.log("player-set-ready socket.data.ready:", socket.data.ready);
@@ -488,6 +489,11 @@ io.on('connection', socket => {
     console.log("player-check-status players:", players);
     let event = data.type + "-players-status";
     io.to(data.roomId).emit(event, players);
+  });
+
+  socket.on('send-players-turn-order', (playersTurnOrder, roomId) => {
+    console.log("send-players-turn-order playersTurnOrder:", playersTurnOrder);
+    io.to(roomId).emit('receive-players-turn-order', playersTurnOrder);
   });
 
 });

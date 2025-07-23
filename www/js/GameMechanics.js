@@ -12,19 +12,18 @@ class GameMechanics {
         this.gameStatus = gameStatus;
     }
     async runningTurn() {
-        console.log("runningTurn");
-        
+        console.log("runningTurn");        
         // console.log("this.gameEnvironment.betAmountRange.value:", this.gameEnvironment.betAmountRange.value);
         // console.log("runningTurn this.gameStatus.orderedPlayersTurnsIndex:", this.gameStatus.orderedPlayersTurnsIndex);
         console.log("runningTurn this.gameStatus.orderedPlayersTurns:", this.gameStatus.orderedPlayersTurns);
         this.gameStatus.playerTurnNumber = this.gameStatus.orderedPlayersTurns[this.gameStatus.orderedPlayersTurnsIndex];
         this.gameStatus.lastPlayerTurnNumber = this.gameStatus.orderedPlayersTurns.at(-1);
         console.log("runningTurn this.gameStatus.playerTurnNumber:", this.gameStatus.playerTurnNumber);
+        const turnPlayer = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
         // console.log("runningTurn this.gameStatus.lastPlayerTurnNumber:", this.gameStatus.lastPlayerTurnNumber);
-        // this.showWinner(this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]); return;
 
         // console.log("checkIfAllInFaceOffSituation:", this.checkIfAllInFaceOffSituation());       
-        if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["playStatus"] === "allin" || this.checkIfAllInFaceOffSituation()) {
+        if (turnPlayer["playStatus"] === "allin" || this.checkIfAllInFaceOffSituation()) {
             this.endingTurn();
             return;
         }
@@ -34,10 +33,10 @@ class GameMechanics {
         this.gameEnvironment.playerActions.forEach((action) => {
             if (this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber) {
                 action.disabled = false;
-                if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["cashPut"] === this.gameStatus.cashToPut) {
+                if (turnPlayer["cashPut"] === this.gameStatus.cashToPut) {
                     if (action.dataset.action === "fold") action.disabled = true;
                 }
-                if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["playStatus"] === "allin") {
+                if (turnPlayer["playStatus"] === "allin") {
                     action.disabled = true;
                 }
             } else {
@@ -45,7 +44,7 @@ class GameMechanics {
             }
         });
 
-        let type = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["type"];
+        let type = turnPlayer["type"];
         this.stopCoundown = false;
         this.countdownPercent = 0;
         // let timeLimitMax = this.gameStatus.playerTurnNumber === this.gameStatus.yourTurnNumber ? 12000 : 3000;
@@ -79,25 +78,26 @@ class GameMechanics {
                 console.log("this.countdownPercent >= 100 || this.stopCoundown");
                 this.countdownPercent = 100;
                 cancelAnimationFrame(this.thinkingCountdown);
-                if (type === "you" || type === "vs") {
+                if ((type === "you" || type === "vs") && !this.stopCoundown) {
+                    console.log("overtime!!!!!!");                    
                     this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
-                    const player = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
-                    if (player.cashPut < this.gameStatus.cashToPut) {
-                        player.playStatus = "fold";
+                    if (turnPlayer.cashPut < this.gameStatus.cashToPut) {
+                        turnPlayer.playStatus = "fold";
                         playerDeck.querySelector(".action_sign").textContent = "";
                         playerDeck.querySelector(".bet_amount").textContent = "";
                         this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
                         this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
                     }
-                    if (player.cashPut === this.gameStatus.cashToPut) {
-                        player.playStatus = "call";
+                    if (turnPlayer.cashPut === this.gameStatus.cashToPut) {
+                        turnPlayer.playStatus = "call";
                         playerDeck.querySelector(".action_sign").textContent = "►";
+                        playerDeck.querySelector(".bet_amount").textContent = turnPlayer.cashPut;
                     }
-                    console.log("overtime-play player.playStatus:", player.playStatus);
-                    playerDeck.setAttribute("data-playstatus", player.playStatus);
+                    console.log("overtime-play turnPlayer.playStatus:", turnPlayer.playStatus);
+                    playerDeck.setAttribute("data-playstatus", turnPlayer.playStatus);
                     this.endingTurn();
-                    return;
                 }
+                return;
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);
             
@@ -134,7 +134,6 @@ class GameMechanics {
             this.stopCoundown = true;
             this.countdownPercent = 100;
             AIPlayer.deck.style.setProperty("--time", this.countdownPercent);
-            // const aIPlayer = this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`];
             if (currentProfile.username === room.hostName) {
                 const betData = { cashToPut: this.gameStatus.cashToPut, previousBetAmount: this.gameStatus.previousBetAmount }
                 await AIPlayer.betDecision(betData);
@@ -147,9 +146,7 @@ class GameMechanics {
         console.log("endingTurn");              
         const yourPlayer = this.gameEnvironment.players[`player${this.gameStatus.yourTurnNumber}`];
         if (this.gameStatus.orderedPlayersTurns.length <= 1 || (this.gameStatus.showdownStatuses[this.gameStatus.showdownStatusesIndex] === "river" && this.roundStatusQuo())) {
-            if (this.gameStatus.orderedPlayersTurns.length > 1 &&
-                yourPlayer["playStatus"] !== "fold" &&
-                yourPlayer["playStatus"] !== "eliminated") {
+            if (this.gameStatus.orderedPlayersTurns.length > 1) {
                 document.querySelector(".form_a_word-container").classList.add("show");
                 setTimeout(async () => {
                     const formAWordCountdown = document.querySelector(".form_a_word_countdown");
@@ -193,13 +190,13 @@ class GameMechanics {
             }
         } else if (this.roundStatusQuo()) {
             console.log("this.roundStatusQuo");            
-            this.gameStatus.orderedPlayersTurnsIndex = 0           
+            this.gameStatus.orderedPlayersTurnsIndex = 0;
             this.gameStatus.showdownStatusesIndex++;
             setTimeout(() => { this.showdown(); }, 2000);
             return;
         } else {
             console.log("!this.roundStatusQuo");
-            // if (this.gameEnvironment.players[`player${this.gameStatus.playerTurnNumber}`]["number"] === 4) return;
+            // if (turnPlayer["number"] === 4) return;
             this.gameStatus.orderedPlayersTurnsIndex + 1 < this.gameStatus.orderedPlayersTurns.length ? this.gameStatus.orderedPlayersTurnsIndex++ : this.gameStatus.orderedPlayersTurnsIndex = 0;
             setTimeout(() => { this.runningTurn(); }, yourPlayer["playStatus"] !== "allin" ? 2000 : 1000);
         }
@@ -448,8 +445,7 @@ class GameMechanics {
                             ) ||
                             (
                                 p.playStatus === "allin"
-                            )    
-
+                            )
                         ) &&
                     atLeastOneAllIn)
                 ) {
