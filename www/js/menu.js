@@ -25,18 +25,9 @@ let roomInfo = {
 };
 let roomsList = {};
 
-const profiles = localStorage.getItem("profiles") ?
-    JSON.parse(localStorage.getItem("profiles")) :
-    {
-        current: 0,
-        profile0: new User({
-            ref: newUserRef,
-            email: "user" + newUserRef + "@gmail.com",
-            username: "user" + newUserRef
-        })
-    };
-
-// const profiles = {
+// const profiles = localStorage.getItem("profiles") ?
+//     JSON.parse(localStorage.getItem("profiles")) :
+//     {
 //         current: 0,
 //         profile0: new User({
 //             ref: newUserRef,
@@ -44,6 +35,15 @@ const profiles = localStorage.getItem("profiles") ?
 //             username: "user" + newUserRef
 //         })
 //     };
+
+const profiles = {
+        current: 0,
+        profile0: new User({
+            ref: newUserRef,
+            email: "user" + newUserRef + "@gmail.com",
+            username: "user" + newUserRef
+        })
+    };
 console.log("profiles:", profiles);
 console.log("profiles.current:", profiles.current);
 console.log("profiles profiles.current:", profiles[`profile${profiles.current}`]);
@@ -216,14 +216,6 @@ async function menuSelection(event) {
                     selectionItemDisplay.innerText = "ID de la salle à joindre";
                     document.querySelector(".selection_item").setAttribute("data-item", "roomid");
                 }
-
-                // if (document.querySelector(".selection_item_display_join_button")) return;
-                // const selectionItemDisplayJoinButton = document.createElement("button");
-                // selectionItemDisplayJoinButton.classList.add("selection_item_display_join_button");
-                // selectionItemDisplayJoinButton.textContent = "Joindre";
-                // selectionItemDisplay.appendChild(selectionItemDisplayJoinButton);
-
-                // selectionItemDisplayJoinButton.addEventListener("pointerup", joinRoom);
             };
             break;
         case "joinroom":
@@ -344,6 +336,9 @@ async function menuSelection(event) {
             case "fullscreen":
                 selectionItemDisplay.innerText = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
                 break;
+            case "coloron":
+                selectionItemDisplay.innerText = currentProfile.userPreferences.colorOn === "letters" ? "lettres" : "cartes";
+                break;
         }
     }
  
@@ -449,6 +444,18 @@ function changeDisplay(event) {
                 });
             }
             selectionItemDisplay.innerText = currentProfile.userPreferences.fullscreenActivation ? "activé" : "désactivé";
+            socket.emit('update-user', currentProfile);
+            updatePreferences(profiles.current);
+            break;
+        case "coloron":
+            console.log("currentProfile.userPreferences.colorOn:", currentProfile.userPreferences.colorOn);            
+            if (event.currentTarget === selectionItemPrevious) {
+                currentProfile.userPreferences.colorOn = "letters";
+            }
+            if (event.currentTarget === selectionItemNext) {
+                currentProfile.userPreferences.colorOn = "cards";
+            }
+            selectionItemDisplay.innerText = currentProfile.userPreferences.colorOn === "letters" ? "lettres" : "cartes";
             socket.emit('update-user', currentProfile);
             updatePreferences(profiles.current);
             break;

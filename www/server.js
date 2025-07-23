@@ -89,14 +89,15 @@ io.on('connection', socket => {
   console.log("socket id:", socket.id);
   socket.on('disconnecting', () => {
     if (!users[socket.id]) return;
-    console.log("disconnecting users[socket.id]:", users[socket.id]);
+    console.log("disconnecting");
     let userRef = users[socket.id].ref;
     delete users[socket.id];
+    console.log("disconnecting users[socket.id]:", users[socket.id]);
     switch (page) {
       case "test":
         socket.rooms.forEach(roomId => {
           socket.leave(roomId);
-          io.to(roomId).emit('test-update-users', users);
+          io.to(roomId).emit('test-update-users', users, "remove");
         });
         break;
       case "menu":
@@ -354,7 +355,7 @@ io.on('connection', socket => {
       if (u.ref === users[socket.id]["ref"]) socket.join(room.roomId);
     });
     console.log("socket.rooms:", socket.rooms);    
-    io.to(room.roomId).emit('game-multi-room', room);
+    socket.emit('game-multi-room', room);
   });
 
   ///////////// TEST ///////////////
@@ -377,6 +378,14 @@ io.on('connection', socket => {
     }
     rooms[room.ref] = room;
     console.log("rooms:", rooms);
+  });
+
+  socket.on('test-change-nb-players', (room, nbPlayers) => {
+    console.log("test-change-nb-players");
+    console.log("test-change-nb-players nbPlayers:", nbPlayers);
+    if (!rooms[room.ref]) return;
+    rooms[room.ref].gamePreferences.numberOfPlayers = nbPlayers;
+    console.log("test-change-nb-players rooms[room.ref]:", rooms[room.ref]);
   });
 
   socket.on('test-update-room', (room, prop) => {
@@ -491,9 +500,17 @@ io.on('connection', socket => {
     io.to(data.roomId).emit(event, players);
   });
 
-  socket.on('send-players-turn-order', (playersTurnOrder, roomId) => {
-    console.log("send-players-turn-order playersTurnOrder:", playersTurnOrder);
-    io.to(roomId).emit('receive-players-turn-order', playersTurnOrder);
+  socket.on('send-players-turn-order', (data, roomId) => {
+    console.log("send-players-turn-order data:", data);
+    io.to(roomId).emit('receive-players-turn-order', data);
+  });
+
+  socket.on('page-not-visible', () => {
+    console.log("page-not-visible");
+  });
+
+  socket.on('page-visible', () => {
+    console.log("page-visible");
   });
 
 });

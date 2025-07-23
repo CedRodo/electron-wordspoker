@@ -19,10 +19,20 @@
         .user-container { width: 100%; height: 20px; display: flex; justify-content: start; align-items: center; font-size: 16px; color: beige; }
         .user_ref, .user_username, .user_player_name { width: fit-content; height: 100%; padding: 0 10px ;display: flex; justify-content: center; align-items: center; }
         .launch_game { width: 80px; height: 40px; display: flex; justify-content: center; align-items: center; position: absolute; top: 30px; right: 30px; cursor: pointer; }
+        #nbplayers { width: 40px; height: 30px; display: flex; justify-content: center; align-items: center; position: absolute; top: 100px; right: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
     <button class="launch_game">START</button>
+    <select name="nbplayers" id="nbplayers">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8" selected>8</option>
+    </select>
     <div class="users-container"></div>
 </body>
 </html>

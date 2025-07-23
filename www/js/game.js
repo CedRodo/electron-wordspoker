@@ -54,6 +54,7 @@ async function initialization() {
     }
 
     async function setData() {
+        console.log("setData");        
         initData = new InitData(gamePreferences.numberOfPlayers);
         gameStatus = new GameStatus(gamePreferences);
         const soundsList = [
@@ -86,8 +87,8 @@ async function initialization() {
             console.log("generateAll");            
             await initData.getData();
             gameEnvironment.setBackground();
-            console.log("generateAIPlayers");
             if (currentProfile.username === room.hostName) {
+                console.log("generateAIPlayers");
                 let AIPlayersList = [];
                 const NB_VS_PLAYERS = room.gamePreferences.numberOfVsPlayers;
                 const NB_PLAYERS = room.gamePreferences.numberOfPlayers;
@@ -175,12 +176,20 @@ socket.on('init-players-status', async (players) => {
                 playersTurnOrder.push(playerNumber);
                 playerNumber++;
             }
-            console.log("playersTurnOrder:", playersTurnOrder);
-            socket.emit('send-players-turn-order', playersTurnOrder, room.roomId);
+            let playersNumbers = [];
+            while (playersNumbers.length < NB_PLAYERS) {
+                playerNumber = Math.floor(Math.random() * NB_PLAYERS) + 1;
+                while (playersNumbers.includes(playerNumber)) {
+                    playerNumber = Math.floor(Math.random() * NB_PLAYERS) + 1;
+                }
+                playersNumbers.push(playerNumber);
+            }
+            console.log("playersNumbers:", playersNumbers);
+            socket.emit('send-players-turn-order', { playersTurnOrder: playersTurnOrder, playersNumbers: playersNumbers }, room.roomId);
         }
-        socket.on('receive-players-turn-order', playersTurnOrder => {
-            console.log("receive-players-turn-order playersTurnOrder:", playersTurnOrder);
-            gameEnvironment.generatePlayers(playersTurnOrder);
+        socket.on('receive-players-turn-order', data => {
+            console.log("receive-players-turn-order data:", data);
+            gameEnvironment.generatePlayers(data);
             if (currentProfile.username === room.hostName) {
                 gameEnvironment.generateDistribution();
             }
@@ -212,6 +221,7 @@ socket.on('ai-play', async (data) => {
 socket.on('game-distribution', data => {
     console.log("game-distribution data:", data);
     let showdown = data.showdown;
+    console.log("game-distribution showdown:", [...showdown]);      
     let colorsToSet = data.colorsToSet;
     document.querySelectorAll(".holder_letter").forEach(letter => letter.remove());
     document.querySelector(".player_letters_holder").dataset.word = "";
@@ -222,6 +232,7 @@ socket.on('game-distribution', data => {
         const letterDetails = showdown.shift();
         const color = colorsToSet.shift();
         // console.log("letterDetails:", letterDetails);
+        if (card.closest(".player_deck").dataset.player === "you") card.title = `${letterDetails[0].toUpperCase()} : ${letterDetails[1]}`;
         card.querySelector(".card_details").setAttribute("data-letter", letterDetails[0]);
         card.querySelector(".card_details").setAttribute("data-value", letterDetails[1]);
         card.querySelector(".card_details").setAttribute("data-color", color);
@@ -248,9 +259,10 @@ socket.on('game-distribution', data => {
 
     gameEnvironment.showdownCards.forEach((card) => {
         card.dataset.status = "concealed";
+        console.log("showdownCards showdown:", [...showdown]);        
         const letterDetails = showdown.shift();
         const color = colorsToSet.shift();
-        // console.log("letterDetails:", letterDetails);
+        console.log("letterDetails:", letterDetails);
         card.querySelector(".card_details").setAttribute("data-letter", letterDetails[0]);
         card.querySelector(".card_details").setAttribute("data-value", letterDetails[1]);
         card.querySelector(".card_details").setAttribute("data-color", color);
@@ -313,6 +325,7 @@ socket.on('update-game-status', data => {
             break;
     }
     console.log("gameMechanics.thinkingCountdown:", gameMechanics.thinkingCountdown);
+    clearTimeout(gameMechanics.timeout);
     gameMechanics.stopCoundown = true;
     gameMechanics.countdownPercent = 100;
     gameEnvironment.getPlayerDeck(playerNumber).style.setProperty("--time", gameMechanics.countdownPercent);

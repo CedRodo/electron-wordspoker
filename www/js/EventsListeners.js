@@ -163,6 +163,16 @@ class EventsListeners {
             }            
         });
 
+        function handleVisibilityChange() {
+            console.log("handleVisibilityChange");            
+            if (document.hidden) {
+                socket.emit('page-not-visible');
+            } else {
+                socket.emit('page-visible');
+            }
+        }
+        document.addEventListener("visibilitychange", handleVisibilityChange, false);
+
         window.oncontextmenu = function () { return false; };
 
     }

@@ -252,6 +252,16 @@ body {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
+[data-coloron="letters"] .card_details {
+    color: var(--card_color);
+}
+
+[data-coloron="cards"] .card_details {
+    width: 89%;
+    background-color: var(--card_color);
+    color: #ffff;
+}
+
 /* .showdown_card .card_details {
     transition: opacity 0s 0.625s;
 } */
@@ -262,18 +272,22 @@ body {
 
 .card_details[data-color="red"] {
     --card_color: red;
+    --card_color: #eb0000;
 }
 
 .card_details[data-color="blue"] {
     --card_color: blue;
+    --card_color: #4646ff;
 }
 
 .card_details[data-color="green"] {
     --card_color: green;
+    --card_color: #00d500;
 }
 
 .card_details[data-color="yellow"] {
     --card_color: #99ff00;
+    --card_color: #efef00;
 }
 
 .player_card .card_details {
@@ -306,6 +320,10 @@ body {
     padding: 2%;
 }
 
+[data-coloron="cards"]::before, [data-coloron="cards"]::after {
+    padding: 1% 4.5%;
+}
+
 .player_card .card_details::before,
 .player_card .card_details::after {
     font-size: 1rem;
@@ -319,11 +337,19 @@ body {
     text-transform: uppercase;
 }
 
+[data-coloron="cards"] .card_letter {
+    font-size: 6.75vh;
+}
+
 .showdown_card .card_letter {
     font-size: 7rem;
     font-size: 11.9vh;
     font-weight: 600;
     text-transform: uppercase;
+}
+
+[data-coloron="cards"] .showdown_card .card_letter {
+    font-size: 10.5vh;
 }
 
 .showdown_card .card_details::before,
@@ -626,6 +652,10 @@ body {
     background-image: url('../assets/img/card_back.png');
     background-size: cover;
 }
+
+/* .card[data-status="concealed"].title {
+    visibility: hidden;
+} */
 
 .player_card[data-number="1"] {
     rotate: z -10deg;
@@ -980,18 +1010,32 @@ body {
 
 .holder_letter[data-color="red"] {
     --color: red;
+    --color: #eb0000;
 }
 
 .holder_letter[data-color="blue"] {
     --color: blue;
+    --color: #4646ff;
 }
 
 .holder_letter[data-color="green"] {
     --color: green;
+    --color: #00d500;
 }
 
 .holder_letter[data-color="yellow"] {
-    --color: #99ff00;
+    /* --color: #99ff00; */
+    --color: #dddd0c;
+}
+
+[data-coloron="cards"] .holder_letter[data-color="yellow"] {
+    --color: #efef00;
+}
+
+[data-coloron="cards"] .holder_letter {
+    background: var(--color);
+    color: #fff;
+    box-shadow: inset 0 0 0 min(0.075vw, 0.15vh) #ffff;
 }
 
 .holder_letter:hover {
@@ -1010,6 +1054,11 @@ body {
     font-size: 0.5rem;
     font-size: 0.875vh;
     color: var(--color);
+}
+
+[data-coloron="cards"] .holder_letter::before,
+[data-coloron="cards"] .holder_letter::after {
+    color: #ffff;
 }
 
 .holder_letter::before {

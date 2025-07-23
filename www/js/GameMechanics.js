@@ -6,6 +6,7 @@ class GameMechanics {
     thinkingCountdown;
     stopCoundown = false;
     overtime = false;
+    timeout;
     constructor(initData, gameEnvironment, gameStatus) {
         this.initData = initData;
         this.gameEnvironment = gameEnvironment;
@@ -58,6 +59,8 @@ class GameMechanics {
 
         let thinkingCountdownStart = performance.now();
         let thinkingCountdownEnd = thinkingCountdownStart + timeLimitMax;
+
+        console.log("thinkingCountdownStart:", thinkingCountdownStart);
         
         const thinkingCountdownAnimation = async () => {
             let currentThinkingCountdown = performance.now();
@@ -76,27 +79,28 @@ class GameMechanics {
             }
             if (this.countdownPercent >= 100 || this.stopCoundown) {
                 console.log("this.countdownPercent >= 100 || this.stopCoundown");
+                console.log("currentThinkingCountdown:", currentThinkingCountdown);
                 this.countdownPercent = 100;
                 cancelAnimationFrame(this.thinkingCountdown);
-                if ((type === "you" || type === "vs") && !this.stopCoundown) {
-                    console.log("overtime!!!!!!");                    
-                    this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
-                    if (turnPlayer.cashPut < this.gameStatus.cashToPut) {
-                        turnPlayer.playStatus = "fold";
-                        playerDeck.querySelector(".action_sign").textContent = "";
-                        playerDeck.querySelector(".bet_amount").textContent = "";
-                        this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
-                        this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
-                    }
-                    if (turnPlayer.cashPut === this.gameStatus.cashToPut) {
-                        turnPlayer.playStatus = "call";
-                        playerDeck.querySelector(".action_sign").textContent = "►";
-                        playerDeck.querySelector(".bet_amount").textContent = turnPlayer.cashPut;
-                    }
-                    console.log("overtime-play turnPlayer.playStatus:", turnPlayer.playStatus);
-                    playerDeck.setAttribute("data-playstatus", turnPlayer.playStatus);
-                    this.endingTurn();
-                }
+                // if ((type === "you" || type === "vs") && !this.stopCoundown) {
+                //     console.log("overtime!!!!!!");                    
+                //     this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
+                //     if (turnPlayer.cashPut < this.gameStatus.cashToPut) {
+                //         turnPlayer.playStatus = "fold";
+                //         playerDeck.querySelector(".action_sign").textContent = "";
+                //         playerDeck.querySelector(".bet_amount").textContent = "";
+                //         this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
+                //         this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
+                //     }
+                //     if (turnPlayer.cashPut === this.gameStatus.cashToPut) {
+                //         turnPlayer.playStatus = "call";
+                //         playerDeck.querySelector(".action_sign").textContent = "►";
+                //         playerDeck.querySelector(".bet_amount").textContent = turnPlayer.cashPut;
+                //     }
+                //     console.log("overtime-play turnPlayer.playStatus:", turnPlayer.playStatus);
+                //     playerDeck.setAttribute("data-playstatus", turnPlayer.playStatus);
+                //     this.endingTurn();
+                // }
                 return;
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);
@@ -109,6 +113,36 @@ class GameMechanics {
         }
         
         if (this.countdownPercent <= 100) this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
+
+        if ((type === "you" || type === "vs") && !this.stopCoundown) {
+            this.timeout = setTimeout(() => {
+                console.log("overtime!!!!!!");                    
+                let timeoutEndingTime = performance.now();
+                console.log("timeoutEndingTime:", timeoutEndingTime);
+                let timeoutTime = timeoutEndingTime - thinkingCountdownStart;
+                console.log("timeoutTime => thinkingCountdownEnd:", timeoutTime, "/", thinkingCountdownEnd);
+                this.countdownPercent = 100;
+                cancelAnimationFrame(this.thinkingCountdown);
+                clearTimeout(this.timeout);
+                this.stopCoundown = true;
+                this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
+                if (turnPlayer.cashPut < this.gameStatus.cashToPut) {
+                    turnPlayer.playStatus = "fold";
+                    playerDeck.querySelector(".action_sign").textContent = "";
+                    playerDeck.querySelector(".bet_amount").textContent = "";
+                    this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
+                    this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
+                }
+                if (turnPlayer.cashPut === this.gameStatus.cashToPut) {
+                    turnPlayer.playStatus = "call";
+                    playerDeck.querySelector(".action_sign").textContent = "►";
+                    playerDeck.querySelector(".bet_amount").textContent = turnPlayer.cashPut;
+                }
+                console.log("overtime-play turnPlayer.playStatus:", turnPlayer.playStatus);
+                playerDeck.setAttribute("data-playstatus", turnPlayer.playStatus);
+                this.endingTurn();
+            }, timeLimitMax);
+        }
 
         if (type === "cpu") {
             this.AITurn(timeLimitMin, timeLimitMax);
@@ -209,6 +243,8 @@ class GameMechanics {
         const list = this.gameStatus.orderedPlayersTurns;
         list.forEach((number) => {
             const player = this.gameEnvironment.players[`player${number}`];
+            this.countdownPercent = 100;
+            player.deck.style.setProperty("--time", this.countdownPercent);
             // console.log("player number:", player.number);
             // console.log("player:", player.name);
             // console.log("player playStatus:", player.playStatus);
@@ -272,6 +308,7 @@ class GameMechanics {
         // console.log("index:", index);        
         this.gameEnvironment.showdownCards[index].setAttribute("data-status", "revealed");
         const cardDetails = this.gameEnvironment.showdownCards[index].querySelector(".card_details");
+        // this.gameEnvironment.showdownCards[index].title = `${cardDetails.dataset.letter.toUpperCase()} : ${cardDetails.dataset.value}`;
         if (!this.gameStatus.isEliminated) {
             const holderLetter = document.createElement("div");
             holderLetter.classList.add("holder_letter");
@@ -279,6 +316,7 @@ class GameMechanics {
             holderLetter.setAttribute("data-value", cardDetails.dataset.value);
             holderLetter.setAttribute("data-color", cardDetails.dataset.color);
             holderLetter.textContent = cardDetails.dataset.letter;
+            holderLetter.title = `${cardDetails.dataset.letter.toUpperCase()} : ${cardDetails.dataset.value}`;
             this.gameEnvironment.holderBottomRack.appendChild(holderLetter);
         }
         this.gameStatus.bestWordValue = 0;

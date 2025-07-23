@@ -2,6 +2,8 @@ document.querySelector(".launch_game").addEventListener("click", () => {
     socket.emit('launch-multi', usersRoom.roomId);
 });
 
+document.querySelector("#nbplayers").addEventListener("change", changeNbOfPlayers);
+
 const newUserRef = generateUserRef();
 
 // const profiles = localStorage.getItem("profiles") ?
@@ -36,7 +38,7 @@ const usersRoom = new Room({
     gamePreferences: new GamePreferences().getRoomPreferences(),
 });
 
-usersRoom.gamePreferences.numberOfPlayers = 6;
+usersRoom.gamePreferences.numberOfPlayers = 8;
 usersRoom.gamePreferences.numberOfVsPlayers = 0;
 
 socket.emit('test-new-room', usersRoom);
@@ -51,7 +53,7 @@ async function init() {
     console.log("namesList:", namesList);
 
     currentProfile.gamePreferences.gameMode = "multi";
-    currentProfile.gamePreferences.numberOfPlayers = 6;
+    currentProfile.gamePreferences.numberOfPlayers = 8;
     currentProfile.gamePreferences.numberOfVsPlayers = 0;
     currentProfile.userPreferences.playerName = namesList[Math.floor(Math.random() * namesList.length)].prenoms;
     currentProfile.userPreferences.avatarNumber = Math.floor(Math.random() * 80) + 1;
@@ -94,6 +96,13 @@ function displayUsers() {
     });
 }
 
+function changeNbOfPlayers(event) {
+    console.log("changeNbOfPlayers target value:", event.target.value);
+    console.log("changeNbOfPlayers current target value:", event.currentTarget.value);
+    usersRoom.gamePreferences.numberOfPlayers;
+    socket.emit('test-change-nb-players', usersRoom, event.currentTarget.value);
+}
+
 function saveUserProfile() {
     profiles[`profile${profiles.current}`] = currentProfile;
     localStorage.setItem("profiles", JSON.stringify(profiles));
@@ -101,16 +110,23 @@ function saveUserProfile() {
 
 ////////////////
 
-socket.on('test-update-users', users => {
+socket.on('test-update-users', (users, type) => {
     console.log("test-update-users users:", users);
     let usersRefs = []; 
     for (const user in users) {
-        usersRefs.push(users[user].ref);
+        if (type !== "remove") usersRefs.push(users[user].ref);
         let userAlreadyPresent;
         if (usersRoom.usersList.length > 0) {
             userAlreadyPresent = usersRoom.usersList.find(u => u.ref === users[user].ref);
+            if (type === "remove" && typeof userAlreadyPresent !== "undefined") {
+                usersRoom.usersList = usersRoom.usersList.filter(u => u.ref === users[user].ref);
+                currentProfile.gamePreferences.numberOfVsPlayers--;
+                usersRoom.gamePreferences.numberOfVsPlayers--;
+                socket.emit('test-update-room', usersRoom, "gamePreferences");
+                return;
+            }
         }
-        if (typeof userAlreadyPresent === "undefined" || usersRoom.usersList.length === 0) {
+        if ((typeof userAlreadyPresent === "undefined" || usersRoom.usersList.length === 0) && type !== "remove") {
             usersRoom.usersList.push(users[user]);
             // currentProfile.gamePreferences.numberOfPlayers++;
             // usersRoom.gamePreferences.numberOfPlayers++;
@@ -131,11 +147,14 @@ socket.on('test-update-users', users => {
 });
 
 socket.on('start-multi', async () => {
-    console.log("start-multi");    
+    console.log("start-multi");
+    if (usersRoom.gamePreferences.numberOfPlayers < usersRoom.gamePreferences.numberOfVsPlayers)
+        usersRoom.gamePreferences.numberOfPlayers = usersRoom.gamePreferences.numberOfVsPlayers;
+    currentProfile.gamePreferences.numberOfPlayers = usersRoom.gamePreferences.numberOfPlayers;
     saveUserProfile();
     usersRoom.hostName = usersRoom.usersList[0].username;
-    socket.emit('test-update-room', usersRoom, "hostName");
+    if (usersRoom.hostName === currentProfile.username) socket.emit('test-update-room', usersRoom, "hostName");
     localStorage.setItem("room", usersRoom.ref);
     // setTimeout(() => { window.location.assign("game.html"); }, 1000);
-    setTimeout(() => { window.location.assign("/game"); }, 1000);
+    setTimeout(() => { window.location.assign("/game"); }, 2000);
 });

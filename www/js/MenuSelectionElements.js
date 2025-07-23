@@ -42,6 +42,7 @@ class MenuSelectionElements {
         this.menuSelectionGameProfileEditBack = { element: this.qS(".menu_selection_game_edit_profile_back"), display: "profile", item: "" };
         this.menuSelectionGameOptionsSound = { element: this.qS(".menu_selection_game_options_sound"), item: "sound" };
         this.menuSelectionGameOptionsFullscreen = { element: this.qS(".menu_selection_game_options_fullscreen"), item: "fullscreen" };
+        this.menuSelectionGameOptionsColorOn = { element: this.qS(".menu_selection_game_options_coloron"), item: "coloron" };
         this.menuSelectionGameOptionsBack = { element: this.qS(".menu_selection_game_options_back"), display: "", item: "" };
     }
 

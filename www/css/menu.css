@@ -664,7 +664,8 @@ main:has(.menu-container[data-display="showprofile"] ~ .selection-container .sel
 
 .selection_item[data-item="roomtype"] .selection_item_display,
 .selection_item[data-item="sound"] .selection_item_display,
-.selection_item[data-item="fullscreen"] .selection_item_display {
+.selection_item[data-item="fullscreen"] .selection_item_display,
+.selection_item[data-item="coloron"] .selection_item_display {
     font-size: 6.5vh;
 }
 

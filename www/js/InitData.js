@@ -107,16 +107,24 @@ class InitData {
 
         let showdown = [];
 
+        console.log("this.numberOfPlayers:", this.numberOfPlayers);
+        
+
         while (showdown.length < (this.numberOfPlayers * 2) + 5) {
-            const letterIndex = Math.floor(Math.random() * (showdownLetters.length - 1));
+            let letterIndex = Math.floor(Math.random() * (showdownLetters.length - 1));
             // console.log("letterIndex:", letterIndex);
-            if (showdownLetters[letterIndex][2] > 0) {
-                // console.log("showdownLetters[letterIndex]:", showdownLetters[letterIndex]);
-                showdown.push([showdownLetters[letterIndex][0], showdownLetters[letterIndex][1]]);
-                showdownLetters[letterIndex][2]--;
+            // if (showdownLetters[letterIndex][2] > 0) {
+            //     // console.log("showdownLetters[letterIndex]:", showdownLetters[letterIndex]);
+            //     showdown.push([showdownLetters[letterIndex][0], showdownLetters[letterIndex][1]]);
+            //     showdownLetters[letterIndex][2]--;
+            // }
+            while (showdownLetters[letterIndex][2] <= 0) {
+                letterIndex = Math.floor(Math.random() * (showdownLetters.length - 1));
             }
+            showdown.push([showdownLetters[letterIndex][0], showdownLetters[letterIndex][1]]);
+            showdownLetters[letterIndex][2]--;
         }
-        // console.log("showdown:", showdown);
+        console.log("cardsShowdown showdown:", showdown);
         return showdown;
     }
 

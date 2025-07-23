@@ -64,7 +64,7 @@ class GameEnvironment {
             await socket.emit('send-AI-players-list', this.AIPlayersList, roomId);
     }
 
-    generatePlayers(playersTurnOrder) {
+    generatePlayers(data) {
         console.log("generatePlayers");
         const NB_VS_PLAYERS = room.gamePreferences.numberOfVsPlayers;
         const NB_PLAYERS = room.gamePreferences.numberOfPlayers;
@@ -73,10 +73,14 @@ class GameEnvironment {
         document.querySelector(".game_table-container").dataset.nbplayers = NB_PLAYERS;
         const totalPlayersList = room.usersList.concat(this.AIPlayersList);
         console.log("totalPlayersList:", totalPlayersList);
+        let playersTurnOrder = data.playersTurnOrder;
+        let playersNumbers = data.playersNumbers;
         totalPlayersList.forEach((user, index) => {
-            console.log("totalPlayersList user:", user);            
+            console.log("totalPlayersList user:", user);          
+            console.log("totalPlayersList playersNumbers[index]:", playersNumbers[index]);          
             const playerData = {
-                playerNumber: index + 1,
+                // playerNumber: index + 1,
+                playerNumber: playersNumbers[index],
                 playerName: user.userPreferences.playerName,
                 avatarNumber: user.userPreferences.avatarNumber,
                 gender: user.userPreferences.gender,
@@ -143,17 +147,7 @@ class GameEnvironment {
             playerCashDisplay.classList.add("player_cash");
             const cashAmount = document.createElement("span");
             cashAmount.classList.add("cash_amount");
-            // if (playerData.playerNumber === NB_PLAYERS - 1) {
-            //     this.players[`player${playerData.playerNumber}`]["cashPut"] = this.gameStatus.smallBlind;
-            //     this.players[`player${playerData.playerNumber}`]["cash"] -= this.gameStatus.smallBlind;
-            //     playerDeck.setAttribute("data-bet", this.gameStatus.smallBlind);
-            // }
-            // if (playerData.playerNumber === NB_PLAYERS) {
-            //     this.players[`player${playerData.playerNumber}`]["cashPut"] = this.gameStatus.bigBlind;
-            //     this.players[`player${playerData.playerNumber}`]["cash"] -= this.gameStatus.bigBlind;
-            //     playerDeck.setAttribute("data-bet", this.gameStatus.bigBlind);
-            //     this.gameStatus.bigBlindPlayerNumber = this.players[`player${playerData.playerNumber}`]["number"];
-            // }
+            
             if (playerData.playerNumber === playersTurnOrder.at(-2)) {
                 this.players[`player${playerData.playerNumber}`]["cashPut"] = this.gameStatus.smallBlind;
                 this.players[`player${playerData.playerNumber}`]["cash"] -= this.gameStatus.smallBlind;
@@ -189,18 +183,18 @@ class GameEnvironment {
             this.players[`player${playerData.playerNumber}`]["deck"] = playerDeck;
             this.players[`player${playerData.playerNumber}`]["playStatus"] = "wait";
 
-            // this.gameStatus.orderedPlayersTurns.push(playerData.playerNumber);
-        });
+        });       
+        
+        document.querySelector(".game_table-container").dataset.coloron = this.userPreferences.colorOn;
+        document.querySelector(".game_menu_color_on").dataset.coloron = this.userPreferences.colorOn;
+        document.querySelector(".game_menu_color_on span").textContent = this.userPreferences.colorOn === "cards" ? "cartes" : "lettres";
 
         this.gameStatus.orderedPlayersTurns = playersTurnOrder;
         
         this.playersDecks = document.querySelectorAll(".player_deck");
 
-        // this.gameStatus.playerTurnNumber = 1;
         this.gameStatus.playerTurnNumber = playersTurnOrder[0];
-        // this.gameStatus.playerTurnNumber = Math.floor(Math.random() * NB_PLAYERS) + 1;
         this.gameStatus.lastPlayerTurnNumber = this.gameStatus.playerTurnNumber;
-        // this.gameStatus.orderedPlayersTurnsIndex = this.gameStatus.playerTurnNumber - 1;
 
         this.betAmountRange.max = this.players[`player${this.gameStatus.yourTurnNumber}`]["cash"] - this.gameStatus.bigBlind;
         this.betAmountRange.min = this.gameStatus.bigBlind;
@@ -244,6 +238,9 @@ class GameEnvironment {
                         break;
                     case "fullscreenactivation":
                         this.toggleFullscreenState(event.currentTarget);
+                        break;
+                    case "coloron":
+                        this.toggleColorOn(event.currentTarget);
                         break;
                     case "gotohome":
                         this.goToHome();
@@ -293,6 +290,21 @@ class GameEnvironment {
             document.documentElement.requestFullscreen().catch((err) => {
                 alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
             });
+            return;
+        }
+    }
+
+    toggleColorOn(button) {        
+        if (button.dataset.coloron === "letters") {
+            button.querySelector("span").textContent = "cartes";
+            button.dataset.coloron = "cards";
+            document.querySelector(".game_table-container").dataset.coloron = "cards";
+            return;
+        }
+        if (button.dataset.coloron === "cards") {
+            button.querySelector("span").textContent = "lettres";
+            button.dataset.coloron = "letters";
+            document.querySelector(".game_table-container").dataset.coloron = "letters";
             return;
         }
     }
