@@ -25,18 +25,9 @@ let roomInfo = {
 };
 let roomsList = {};
 
-// const profiles = localStorage.getItem("profiles") ?
-//     JSON.parse(localStorage.getItem("profiles")) :
-//     {
-//         current: 0,
-//         profile0: new User({
-//             ref: newUserRef,
-//             email: "user" + newUserRef + "@gmail.com",
-//             username: "user" + newUserRef
-//         })
-//     };
-
-const profiles = {
+const profiles = localStorage.getItem("profiles") ?
+    JSON.parse(localStorage.getItem("profiles")) :
+    {
         current: 0,
         profile0: new User({
             ref: newUserRef,
@@ -44,6 +35,15 @@ const profiles = {
             username: "user" + newUserRef
         })
     };
+
+// const profiles = {
+//         current: 0,
+//         profile0: new User({
+//             ref: newUserRef,
+//             email: "user" + newUserRef + "@gmail.com",
+//             username: "user" + newUserRef
+//         })
+//     };
 console.log("profiles:", profiles);
 console.log("profiles.current:", profiles.current);
 console.log("profiles profiles.current:", profiles[`profile${profiles.current}`]);
