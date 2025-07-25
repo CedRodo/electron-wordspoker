@@ -27,14 +27,18 @@ class Players {
         // console.log("lettersList:", lettersList);
         let possibleWordsList = [];
         let wordsList = [...initWordsList];
+        const nbOfStarLetters = this.lettersList.filter((l) => (l === "*")).length;
+        // console.log("getPossibleWords nbOfStarLetters:", nbOfStarLetters);        
         wordsList.forEach((wrd) => {
             let word = wrd.split("");
             // console.log("word:", word);
             let list = [...this.lettersList];
             let isPossible = true;
+            let nbOfStarLettersCount = nbOfStarLetters;
 
             while (word.length > 0 && isPossible) {
-                if (list.includes(word[0])) {
+                if (list.includes(word[0]) || nbOfStarLettersCount > 0) {
+                    if (!list.includes(word[0])) nbOfStarLettersCount--;
                     list.splice(list.indexOf(word[0]), 1);
                     word.shift();
                 } else {
@@ -79,8 +83,16 @@ class Players {
                     i++;
                 }
             });
+            // if (gameEnvironment.players[`player${gameStatus.playerTurnNumber}`]["type"] === "you") console.log("getWordValue word[i]:", word[i]);
+            // letters.forEach((letter) => {
+            //     if (letter["letter"] === word[i]) {
+            //         // if (gameEnvironment.players[`player${gameStatus.playerTurnNumber}`]["type"] === "you") console.log("getWordValue letter:", letter);             
+            //         wordValue += letter["value"] * lettersCount[letter["letter"]];
+            //         i++;
+            //     }
+            // });
         }
-        // console.log("word wordValue:", word, "=>", wordValue);
+        console.log("getWordValue wordValue:", wordValue);
         return wordValue;
     }
 
@@ -95,7 +107,7 @@ class Players {
                     // console.log("letter:", letter);
                     // console.log("index:", index);
                     // console.log("card.letter:", card.letter);
-                    if (letter === card.letter) {
+                    if (letter === card.letter || card.letter === "*") {
                         wordToSuggest.cards[index] = card;
                     }
                 });
@@ -198,10 +210,10 @@ class Players {
     }
 
     getWordTotalValue(word) {
-        // console.log("getWordTotalValue word:", word);
-        // console.log("getWordTotalValue this.possibleWords:", this.possibleWords);        
+        console.log("getWordTotalValue word:", word);
+        console.log("getWordTotalValue this.possibleWords:", this.possibleWords);        
         const wordLettersValue = this.possibleWords.find((wrd) => wrd.word === word);
-        // console.log("wordLettersValue value:", wordLettersValue.value);
+        // console.log("wordLettersValue:", wordLettersValue);
         const handRankValue = this.checkHandRanks();
         return (wordLettersValue.value * word.length) + (word.length * handRankValue);
     }

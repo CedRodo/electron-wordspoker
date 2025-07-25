@@ -97,10 +97,10 @@ function displayUsers() {
 }
 
 function changeNbOfPlayers(event) {
-    console.log("changeNbOfPlayers target value:", event.target.value);
-    console.log("changeNbOfPlayers current target value:", event.currentTarget.value);
-    usersRoom.gamePreferences.numberOfPlayers;
-    socket.emit('test-change-nb-players', usersRoom, event.currentTarget.value);
+    console.log("changeNbOfPlayers target value:", parseInt(event.target.value));
+    console.log("changeNbOfPlayers current target value:", parseInt(event.currentTarget.value));
+    usersRoom.gamePreferences.numberOfPlayers = parseInt(event.currentTarget.value);
+    socket.emit('test-change-nb-players', usersRoom, parseInt(event.currentTarget.value));
 }
 
 function saveUserProfile() {
@@ -151,10 +151,16 @@ socket.on('start-multi', async () => {
     if (usersRoom.gamePreferences.numberOfPlayers < usersRoom.gamePreferences.numberOfVsPlayers)
         usersRoom.gamePreferences.numberOfPlayers = usersRoom.gamePreferences.numberOfVsPlayers;
     currentProfile.gamePreferences.numberOfPlayers = usersRoom.gamePreferences.numberOfPlayers;
+    if (usersRoom.gamePreferences.numberOfVsPlayers === 1) {
+        usersRoom.gamePreferences.gameMode = "solo";
+        currentProfile.gamePreferences.gameMode = "solo";
+    }
     saveUserProfile();
     usersRoom.hostName = usersRoom.usersList[0].username;
     if (usersRoom.hostName === currentProfile.username) socket.emit('test-update-room', usersRoom, "hostName");
     localStorage.setItem("room", usersRoom.ref);
+    // console.log("start-multi room:", usersRoom);
+    // console.log("start-multi currentProfile:", currentProfile);
     // setTimeout(() => { window.location.assign("game.html"); }, 1000);
     setTimeout(() => { window.location.assign("/game"); }, 2000);
 });

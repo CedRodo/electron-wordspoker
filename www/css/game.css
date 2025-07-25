@@ -1359,6 +1359,85 @@ body {
     opacity: 1;
 }
 
+.wildcard_letters_choice-container {
+    width: 30%;
+    height: 35%;
+    display: none;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    border-radius: 1.5vh;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background: linear-gradient(180deg, #e1e1e1, #cfcfcf);
+    box-shadow: 0 0 1.1vh 0.1vh #cfcfcf;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: 5000;
+}
+
+.wildcard_letters_choice-title {
+    width: 100%;
+    height: 17%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 2.3vh;
+}
+
+.wildcard_letters_choice-description {
+    width: 100%;
+    height: 8%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 1.74vh;
+}
+
+.wildcard_letters-container {
+    width: 100%;
+    height: 75%;
+    padding: 2% 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.8%;
+    flex-shrink: 0;
+}
+
+.wildcard_letter {
+    width: 8%;
+    height: 29%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: 0.215vh solid #9f9f9f;
+    border-radius: 0.625vh;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 3.25vh;
+    color: black;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #fdfdeb, #ededce);
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.wildcard_letter:hover {
+    filter: brightness(110%);
+}
+
+.wildcard_letters_choice-container.show {
+    display: flex;
+}
+
+/* */
+
 .winner-container {
     width: 30%;
     height: 90%;

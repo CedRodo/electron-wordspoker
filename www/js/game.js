@@ -357,6 +357,7 @@ socket.on('player-reveal-word-suggested', playerNumber => {
     if (player.wordCards.length === 0) return;
     const playerWordSuggestedContainer = player.deck.querySelector(".player_word_suggested-container");
     const playerWordSuggestedValue = player.deck.querySelector(".player_word_suggested_value");
+    console.log("player-reveal-word-suggested player.wordCards:", player.wordCards);    
     player.wordCards.forEach((card) => {
         // console.log("player-reveal-word-suggested player.wordCards card:", card);
         const playerWordSuggestedCard = document.createElement("div");

@@ -50,10 +50,12 @@ class EventsListeners {
         
 
         this.gameEnvironment.playerLettersHolder.addEventListener("pointerup", (event) => {
+            event.stopPropagation();
+            event.preventDefault();
             // console.log("event.target:", event.target);
             if (this.gameStatus.disableActions) return;
 
-            if (event.target.classList.contains("holder_letter")) {
+            if (event.target.classList.contains("holder_letter") && event.target.dataset.letter !== "*") {
                 if (event.button === 0) {
                     const fragment = document.createDocumentFragment();
                     // console.log("event.target.parentNode:", event.target.parentNode);
@@ -62,12 +64,22 @@ class EventsListeners {
                         document.querySelector(".holder_top_rack").appendChild(fragment);
                     }
                     else {
+                        if (event.target.dataset.value === "?") {
+                            event.target.textContent = "*";
+                            event.target.dataset.letter = "*";
+                            event.target.title = "* : 0";
+                        }
                         fragment.appendChild(event.target);
                         document.querySelector(".holder_bottom_rack").appendChild(fragment);
                     }
                 }
                 if (event.button === 2) {
                     document.querySelectorAll(".holder_top_rack .holder_letter").forEach((letter) => {
+                        if (letter.dataset.value === "?") {
+                            letter.textContent = "*";
+                            letter.dataset.letter = "*";
+                            letter.title = "* : 0";
+                        }
                         const fragment = document.createDocumentFragment();
                         fragment.appendChild(letter);
                         document.querySelector(".holder_bottom_rack").appendChild(fragment);
@@ -92,7 +104,9 @@ class EventsListeners {
                 // console.log("word to check:", word);
                 let isValid = false;
                 isValid = this.gameMechanics.checkWord(word, this.gameMechanics.initData.wordsList);
+                console.log("isValid:", isValid);
                 this.yourPlayer.wordToPlay.word = word;
+                console.log("this.yourPlayer.wordToPlay.word:", this.yourPlayer.wordToPlay.word);
                 if (isValid) {
                     this.yourPlayer.wordToPlay.value = this.yourPlayer.getWordTotalValue(word);
                     this.gameEnvironment.playerLettersHolder.dataset.wordvalue = this.yourPlayer.wordToPlay.value;
@@ -101,8 +115,26 @@ class EventsListeners {
                 }
                 if (this.yourPlayer.wordToPlay.value > this.gameStatus.bestWordValue)
                     this.gameStatus.bestWordValue = this.yourPlayer.wordToPlay.value;
+            } else if (event.target.classList.contains("holder_letter") && event.target.dataset.letter === "*") {
+                console.log("event.target.dataset.letter === *");
+                event.target.classList.add("selected");
+                document.querySelector(".wildcard_letters_choice-container").classList.add("show");
             }
 
+        });
+
+        document.querySelectorAll(".wildcard_letter").forEach((letter) => {
+            letter.addEventListener("pointerup", (event) => {
+                const newLetter = event.currentTarget.dataset.letter;
+                console.log("newLetter:", newLetter);
+                const selectedWildcard = document.querySelector(".holder_letter.selected");
+                console.log("selectedWildcard:", selectedWildcard);
+                selectedWildcard.textContent = newLetter;
+                selectedWildcard.dataset.letter = newLetter;
+                selectedWildcard.title = `${newLetter.toUpperCase()} : ?`;
+                selectedWildcard.classList.remove("selected");
+                document.querySelector(".wildcard_letters_choice-container").classList.remove("show");
+            });
         });
 
         this.gameEnvironment.playerActions.forEach((action) => {
@@ -174,6 +206,14 @@ class EventsListeners {
         document.addEventListener("visibilitychange", handleVisibilityChange, false);
 
         window.oncontextmenu = function () { return false; };
+
+        window.addEventListener("pointerup", (event) => {
+            if (!(event.target.classList.contains("wildcard_letters_choice-container.show") || event.target.closest(".wildcard_letters_choice-container.show"))) {
+                console.log("click away!!!!");                
+                if (document.querySelector(".wildcard_letters_choice-container").classList.contains("show"))
+                    document.querySelector(".wildcard_letters_choice-container").classList.remove("show");
+            }
+        })
 
     }
 }

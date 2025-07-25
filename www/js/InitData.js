@@ -25,7 +25,8 @@ class InitData {
         { letter: "w", value: 10, quantity: 2 },
         { letter: "x", value: 10, quantity: 2 },
         { letter: "y", value: 10, quantity: 2 },
-        { letter: "z", value: 10, quantity: 2 }
+        { letter: "z", value: 10, quantity: 2 },
+        { letter: "*", value: "?", quantity: 10 }
     ];
     
     avatarsList = {

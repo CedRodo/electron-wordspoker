@@ -115,6 +115,7 @@ class GameMechanics {
         if (this.countdownPercent <= 100) this.thinkingCountdown = requestAnimationFrame(thinkingCountdownAnimation);
 
         if ((type === "you" || type === "vs") && !this.stopCoundown) {
+            // return;
             this.timeout = setTimeout(() => {
                 console.log("overtime!!!!!!");                    
                 let timeoutEndingTime = performance.now();
@@ -360,7 +361,7 @@ class GameMechanics {
                     eventName: 'player-reveal-word-suggested'
                 }, room.roomId);
                 if (p.type === "cpu") p.revealWordSuggested();
-                console.log("player:", p.name, "/ p.wordToPlay.value:", p.wordToPlay.value);
+                console.log("player:", p.name, "/ p.wordCards:", p.wordCards, "/ p.wordToPlay.value:", p.wordToPlay.value);
                 if (p.wordToPlay.value === this.gameStatus.bestWordValue || this.gameStatus.orderedPlayersTurns.length === 1) {
                     console.log("win!");                    
                     p.deck.classList.add("winner");
