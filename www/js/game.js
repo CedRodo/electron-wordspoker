@@ -358,13 +358,29 @@ socket.on('player-reveal-word-suggested', playerNumber => {
     const playerWordSuggestedContainer = player.deck.querySelector(".player_word_suggested-container");
     const playerWordSuggestedValue = player.deck.querySelector(".player_word_suggested_value");
     console.log("player-reveal-word-suggested player.wordCards:", player.wordCards);    
-    player.wordCards.forEach((card) => {
-        // console.log("player-reveal-word-suggested player.wordCards card:", card);
+    player.wordCards.forEach((card, index) => {
+        console.log("player-reveal-word-suggested player.wordCards card:", card);
+        const letterValueColor = { letter: "", value: 0, color: "" };
         const playerWordSuggestedCard = document.createElement("div");
         playerWordSuggestedCard.classList.add("player_word_suggested_card");
-        playerWordSuggestedCard.textContent = card.letter;
-        playerWordSuggestedCard.setAttribute("data-value", card.value);
-        playerWordSuggestedCard.setAttribute("data-color", card.color);
+        if (card.value === "?") {
+            console.log("player-reveal-word-suggested card.value === '?'");
+            letterValueColor.color = card.color;
+            letterValueColor.letter = player.wordToPlay.word.charAt(index);
+            initData.letters.some(el => {
+                if (el.letter === letterValueColor.letter) {
+                    console.log("player-reveal-word-suggested el:", el);
+                    letterValueColor.value = el.value;
+                    return true;
+                }
+            });
+        } else {
+            console.log("player-reveal-word-suggested card.value !== '?'");
+            for (const prop in letterValueColor) { letterValueColor[prop] = card[prop]; }
+        }
+        playerWordSuggestedCard.textContent = letterValueColor.letter;
+        playerWordSuggestedCard.setAttribute("data-value", letterValueColor.value);
+        playerWordSuggestedCard.setAttribute("data-color", letterValueColor.color);
         playerWordSuggestedContainer.appendChild(playerWordSuggestedCard);
     });
     playerWordSuggestedValue.textContent = player.wordToPlay.value;

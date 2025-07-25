@@ -52,7 +52,7 @@ class GameMechanics {
         // let timeLimitMin = 2000;
         // let timeLimitMax = 200;
         let timeLimitMin = 1000;
-        let timeLimitMax = type === "you" || type === "vs" ? 30000 : 15000;
+        let timeLimitMax = type === "you" || type === "vs" ? 30000 : 10000;
         playerDeck.setAttribute("data-playstatus", "turn");
         playerDeck.style.setProperty("--time", this.countdownPercent);
         playerDeck.style.setProperty("--countdown_color", "#f0f003");
@@ -82,25 +82,6 @@ class GameMechanics {
                 console.log("currentThinkingCountdown:", currentThinkingCountdown);
                 this.countdownPercent = 100;
                 cancelAnimationFrame(this.thinkingCountdown);
-                // if ((type === "you" || type === "vs") && !this.stopCoundown) {
-                //     console.log("overtime!!!!!!");                    
-                //     this.gameEnvironment.playerActions.forEach((action) => action.disabled = true);
-                //     if (turnPlayer.cashPut < this.gameStatus.cashToPut) {
-                //         turnPlayer.playStatus = "fold";
-                //         playerDeck.querySelector(".action_sign").textContent = "";
-                //         playerDeck.querySelector(".bet_amount").textContent = "";
-                //         this.gameStatus.orderedPlayersTurns.splice(this.gameStatus.orderedPlayersTurnsIndex, 1);
-                //         this.gameStatus.orderedPlayersTurnsIndex - 1 >= -1 ? this.gameStatus.orderedPlayersTurnsIndex-- : this.gameStatus.orderedPlayersTurnsIndex = -1;
-                //     }
-                //     if (turnPlayer.cashPut === this.gameStatus.cashToPut) {
-                //         turnPlayer.playStatus = "call";
-                //         playerDeck.querySelector(".action_sign").textContent = "►";
-                //         playerDeck.querySelector(".bet_amount").textContent = turnPlayer.cashPut;
-                //     }
-                //     console.log("overtime-play turnPlayer.playStatus:", turnPlayer.playStatus);
-                //     playerDeck.setAttribute("data-playstatus", turnPlayer.playStatus);
-                //     this.endingTurn();
-                // }
                 return;
             }
             playerDeck.style.setProperty("--time", this.countdownPercent);

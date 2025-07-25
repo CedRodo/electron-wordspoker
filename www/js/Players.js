@@ -27,7 +27,7 @@ class Players {
         // console.log("lettersList:", lettersList);
         let possibleWordsList = [];
         let wordsList = [...initWordsList];
-        const nbOfStarLetters = this.lettersList.filter((l) => (l === "*")).length;
+        const nbOfStarLetters = this.lettersList.filter((l) => (l === " ")).length;
         // console.log("getPossibleWords nbOfStarLetters:", nbOfStarLetters);        
         wordsList.forEach((wrd) => {
             let word = wrd.split("");
@@ -92,7 +92,7 @@ class Players {
             //     }
             // });
         }
-        console.log("getWordValue wordValue:", wordValue);
+        // console.log("getWordValue wordValue:", wordValue);
         return wordValue;
     }
 
@@ -107,7 +107,7 @@ class Players {
                     // console.log("letter:", letter);
                     // console.log("index:", index);
                     // console.log("card.letter:", card.letter);
-                    if (letter === card.letter || card.letter === "*") {
+                    if (letter === card.letter || card.letter === " ") {
                         wordToSuggest.cards[index] = card;
                     }
                 });
@@ -210,10 +210,12 @@ class Players {
     }
 
     getWordTotalValue(word) {
-        console.log("getWordTotalValue word:", word);
-        console.log("getWordTotalValue this.possibleWords:", this.possibleWords);        
         const wordLettersValue = this.possibleWords.find((wrd) => wrd.word === word);
-        // console.log("wordLettersValue:", wordLettersValue);
+        // if (word.length > 5) {
+        //     console.log("getWordTotalValue word:", word);
+        //     console.log("getWordTotalValue this.possibleWords:", this.possibleWords);        
+        //     console.log("wordLettersValue:", wordLettersValue);
+        // }
         const handRankValue = this.checkHandRanks();
         return (wordLettersValue.value * word.length) + (word.length * handRankValue);
     }

@@ -38,7 +38,8 @@ const usersRoom = new Room({
     gamePreferences: new GamePreferences().getRoomPreferences(),
 });
 
-usersRoom.gamePreferences.numberOfPlayers = 8;
+// usersRoom.gamePreferences.numberOfPlayers = 8;
+usersRoom.gamePreferences.numberOfPlayers = 2;
 usersRoom.gamePreferences.numberOfVsPlayers = 0;
 
 socket.emit('test-new-room', usersRoom);
@@ -53,7 +54,8 @@ async function init() {
     console.log("namesList:", namesList);
 
     currentProfile.gamePreferences.gameMode = "multi";
-    currentProfile.gamePreferences.numberOfPlayers = 8;
+    // currentProfile.gamePreferences.numberOfPlayers = 8;
+    currentProfile.gamePreferences.numberOfPlayers = 2;
     currentProfile.gamePreferences.numberOfVsPlayers = 0;
     currentProfile.userPreferences.playerName = namesList[Math.floor(Math.random() * namesList.length)].prenoms;
     currentProfile.userPreferences.avatarNumber = Math.floor(Math.random() * 80) + 1;

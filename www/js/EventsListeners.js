@@ -55,7 +55,7 @@ class EventsListeners {
             // console.log("event.target:", event.target);
             if (this.gameStatus.disableActions) return;
 
-            if (event.target.classList.contains("holder_letter") && event.target.dataset.letter !== "*") {
+            if (event.target.classList.contains("holder_letter") && event.target.dataset.letter !== " ") {
                 if (event.button === 0) {
                     const fragment = document.createDocumentFragment();
                     // console.log("event.target.parentNode:", event.target.parentNode);
@@ -65,9 +65,9 @@ class EventsListeners {
                     }
                     else {
                         if (event.target.dataset.value === "?") {
-                            event.target.textContent = "*";
-                            event.target.dataset.letter = "*";
-                            event.target.title = "* : 0";
+                            event.target.textContent = " ";
+                            event.target.dataset.letter = " ";
+                            event.target.title = "  : 0";
                         }
                         fragment.appendChild(event.target);
                         document.querySelector(".holder_bottom_rack").appendChild(fragment);
@@ -76,9 +76,9 @@ class EventsListeners {
                 if (event.button === 2) {
                     document.querySelectorAll(".holder_top_rack .holder_letter").forEach((letter) => {
                         if (letter.dataset.value === "?") {
-                            letter.textContent = "*";
-                            letter.dataset.letter = "*";
-                            letter.title = "* : 0";
+                            letter.textContent = " ";
+                            letter.dataset.letter = " ";
+                            letter.title = "  : 0";
                         }
                         const fragment = document.createDocumentFragment();
                         fragment.appendChild(letter);
@@ -115,8 +115,8 @@ class EventsListeners {
                 }
                 if (this.yourPlayer.wordToPlay.value > this.gameStatus.bestWordValue)
                     this.gameStatus.bestWordValue = this.yourPlayer.wordToPlay.value;
-            } else if (event.target.classList.contains("holder_letter") && event.target.dataset.letter === "*") {
-                console.log("event.target.dataset.letter === *");
+            } else if (event.target.classList.contains("holder_letter") && event.target.dataset.letter === " ") {
+                console.log("event.target.dataset.letter ===  ");
                 event.target.classList.add("selected");
                 document.querySelector(".wildcard_letters_choice-container").classList.add("show");
             }

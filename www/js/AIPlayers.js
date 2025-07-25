@@ -91,9 +91,18 @@ class AIPlayers extends Players {
 
     wordDecision() {
         if (this.possibleWordsToPlay.length === 0) return;
-        this.wordCards = this.possibleWordsToPlay[0].cards;
-        this.wordToPlay.word = this.possibleWordsToPlay[0].word;
-        this.wordToPlay.value = this.possibleWordsToPlay[0].value;
+        // this.wordCards = this.possibleWordsToPlay[0].cards;
+        // this.wordToPlay.word = this.possibleWordsToPlay[0].word;
+        // this.wordToPlay.value = this.possibleWordsToPlay[0].value;
+        // const lastValuedWordIndex = this.possibleWordsToPlay.length - 1;
+        // this.wordCards = this.possibleWordsToPlay[lastValuedWordIndex].cards;
+        // this.wordToPlay.word = this.possibleWordsToPlay[lastValuedWordIndex].word;
+        // this.wordToPlay.value = this.possibleWordsToPlay[lastValuedWordIndex].value;
+        const randomValuedWordIndex = Math.floor(Math.random() * this.possibleWordsToPlay.length);
+        console.log("randomValuedWordIndex:", randomValuedWordIndex);        
+        this.wordCards = this.possibleWordsToPlay[randomValuedWordIndex].cards;
+        this.wordToPlay.word = this.possibleWordsToPlay[randomValuedWordIndex].word;
+        this.wordToPlay.value = this.possibleWordsToPlay[randomValuedWordIndex].value;
     }
 
     revealWordSuggested() {
@@ -101,12 +110,28 @@ class AIPlayers extends Players {
         if (this.wordCards.length === 0) return;
         const playerWordSuggestedContainer = this.deck.querySelector(".player_word_suggested-container");
         const playerWordSuggestedValue = this.deck.querySelector(".player_word_suggested_value");
-        this.wordCards.forEach((card) => {
+        this.wordCards.forEach((card, index) => {
+            const letterValueColor = { letter: "", value: 0, color: "" };
             const playerWordSuggestedCard = document.createElement("div");
             playerWordSuggestedCard.classList.add("player_word_suggested_card");
-            playerWordSuggestedCard.textContent = card.letter;
-            playerWordSuggestedCard.setAttribute("data-value", card.value);
-            playerWordSuggestedCard.setAttribute("data-color", card.color);
+            // playerWordSuggestedCard.textContent = card.letter;
+            // playerWordSuggestedCard.setAttribute("data-value", card.value);
+            if (card.letter === " ") {
+                letterValueColor.color = card.color;
+                letterValueColor.letter = this.wordToPlay.word.charAt(index);
+                initData.letters.some(el => {
+                    if (el.letter === letterValueColor.letter){
+                        letterValueColor.value = el.value;
+                        return true;
+                    }
+                });      
+            } else {
+                for (const prop in letterValueColor) { letterValueColor[prop] = card[prop]; } 
+            }
+            console.log("letterValueColor:", letterValueColor);                
+            playerWordSuggestedCard.textContent = letterValueColor.letter;
+            playerWordSuggestedCard.setAttribute("data-value", letterValueColor.value);
+            playerWordSuggestedCard.setAttribute("data-color", letterValueColor.color);
             playerWordSuggestedContainer.appendChild(playerWordSuggestedCard);
         });
         playerWordSuggestedValue.textContent = this.wordToPlay.value;
